@@ -1,0 +1,28 @@
+version: "2.0"
+nlu:
+  - intent: getTime
+    examples: |
+      - Wie spät ist es in [Deutschland](country)
+      - Wie viel Uhr ist es in [Deutschland](country)
+      - Uhrzeit in [Deutschland](country)
+      - Wie spät ist es in [England](country)
+      - Wie viel Uhr ist es in [Frankreich](country)
+      - Wie spät ist es
+      - Wie viel Uhr ist es
+      - Uhrzeit
+
+  - lookup: country
+    examples: |
+      - Deutschland
+      - England
+      - Frankreich
+
+  - intent: stop
+    examples: |
+      - stop
+      - halt
+      - sei still
+      - sei ruhig
+      - abbrechen
+      - abbruch
+      - schweigefuchs
