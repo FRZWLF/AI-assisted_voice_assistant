@@ -1,0 +1,9 @@
+{% block %}
+    {% client %}(Wann ist der Geburtstag von Peter|geburtstag von peter){% endclient %}
+    {% response %}{% call reminder_birthday: 0 %}{% endresponse %}
+{% endblock %}
+
+{% block %}
+    {% client %}(erinnere mich an den Einkauf|einkaufen|wochen einkauf|wochen einkauf erledigen){% endclient %}
+    {% response %}{% call reminder_weekshopping: 0 %}{% endresponse %}
+{% endblock %}

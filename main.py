@@ -20,7 +20,7 @@ from notification import Notification
 
 #GUI-Anwendung mit pythonw main.py starten
 
-CONFIG_FILE = "assistant_config.yml"
+CONFIG_FILE = "config.yml"
 
 
 class TaskBarIcon(wx.adv.TaskBarIcon):
@@ -100,7 +100,7 @@ class VoiceAssistant():
         logger.debug("Initialisiere Wake Word Erkennung...")
         self.wake_words = self.cfg["assistant"]["wakewords"]
         if not self.wake_words:
-            self.wake_words = ['jarvis']
+            self.wake_words = ['americano']
         logger.debug("Wake Words sind {}" ','.join(self.wake_words))
         self.porcupine = pvporcupine.create(keywords=self.wake_words, sensitivities=[0.6, 0.6])
         logger.info("Wake Words Erkennung wurde initialisiert.")
@@ -184,13 +184,13 @@ class VoiceAssistant():
 
     def __detectSpeaker__(self, input):
         bestSpeaker = None
-        bestCosDist = 100
+        bestCosDist = -1
         for speaker in self.user_management.speaker_table.all():
             nx = np.array(speaker.get('voice'))
             ny = np.array(input)
-            cosDist = 1-np.dot(nx, ny) / np.linalg.norm(nx) / np.linalg.norm(ny)
-            if cosDist < bestCosDist:
-                if cosDist < 0.3:
+            cosDist = np.dot(nx, ny) / np.linalg.norm(nx) * np.linalg.norm(ny)
+            if cosDist > bestCosDist:
+                if cosDist > 0.5:
                     bestCosDist = cosDist
                     bestSpeaker = speaker.get('name')
         return bestSpeaker

@@ -24,7 +24,7 @@ class Voice:
     def say(self,text):
         if self.process:
             self.stop()
-        p = multiprocessing.Process(target=__speak__, args=(text,self.voiceId))
+        p = multiprocessing.Process(target=__speak__, args=(text,self.voiceId, self.volume))
         p.start()
         self.process = p
 

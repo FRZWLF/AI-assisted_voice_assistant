@@ -7,11 +7,7 @@ import sys
 from pathlib import Path
 from loguru import logger
 import pip
-from chatbot import Chat, register_call, mapper
-from snips_nlu import SnipsNLUEngine
-from snips_nlu.default_configs import CONFIG_DE
-from snips_nlu.dataset import Dataset
-import json
+from chatbot import Chat, mapper
 import global_variables
 
 class Chat(Chat):
@@ -27,7 +23,7 @@ class Chat(Chat):
 
         text_correction = self.spell_checker.correction(text)
         current_topic = session.topic
-        match = self.__intent_selection(text, previous_text,current_topic) or self.__intent_selection(text_correction,previous_text,current_topic)
+        match = self.__intend_selection(text, previous_text,current_topic) or self.__intend_selection(text_correction,previous_text,current_topic)
 
         if match:
             match,parent_match,response,learn = match
@@ -42,50 +38,6 @@ class Chat(Chat):
                     return action_name
 
         return ""
-
-def get_snips_nlu_intent(text):
-    parsing = global_variables.voice_assistant.intent_management.nlu_engine.parse(text)
-    for intent in global_variables.voice_assistant.intent_management.dynamic_intents:
-        if parsing["intent"]["intentName"]:
-            if (parsing["intent"]["intentName"].lower() == intent.lower()) and (parsing["intent"]["probability"] > 0.5):
-                return parsing["intent"]["intentName"]
-    return ""
-
-
-@register_call("default_snips_nlu_handler")
-def default_snips_nlu_handler(session="general", text=""):
-    parsing = global_variables.voice_assistant.intent_management.nlu_engine.parse(text)
-
-    output = "Ich verstehe deine Frage nicht. Kannst du sie umformulieren?"
-
-    # Schaue, ob es einen Intent gibt, der zu dem NLU intent passt
-    intent_found = False
-
-    ASSISTANT_LANGUAGE = global_variables.voice_assistant.cfg['assistant']['language']
-
-    if ASSISTANT_LANGUAGE:
-        NO_INTENT_RECOGNIZED = global_variables.voice_assistant.cfg['defaults'][ASSISTANT_LANGUAGE]['no_intent_recognized']
-    else:
-        NO_INTENT_RECOGNIZED = ["I did not understand."]
-
-    output = random.choice(NO_INTENT_RECOGNIZED)
-
-    for intent in global_variables.voice_assistant.intent_management.dynamic_intents:
-        # Wurde überhaupt ein Intent erkannt?
-        if parsing["intent"]["intentName"]:
-            if (parsing["intent"]["intentName"].lower() == intent.lower()) and (parsing["intent"]["probability"] > 0.5):
-                intent_found = True
-                arguments = dict()
-                for slot in parsing["slots"]:
-                    arguments[slot["slotName"]] = slot["value"]["value"]
-
-                arguments_string = json.dumps(arguments)
-                logger.debug("Rufee {} auf mit den Argumenten {}", intent, arguments_string)
-                output = getattr(globals()[intent], intent)(**arguments)
-
-                break
-
-    return output
 
 
 class IntentManagement:
@@ -136,38 +88,16 @@ class IntentManagement:
                 self.dynamic_intents.append(str(Path(ff).name))
                 self.intent_count += 1
 
-        logger.info("Initialisiere snips nlu...")
-        snips_files = glob.glob(os.path.join("./intents/snips-nlu", "*.yaml"))
-        self.snips_nlu_engine = SnipsNLUEngine(Config=CONFIG_DE)
-        dataset = Dataset.from_yaml_files("de", snips_files)
-        nlu_engine = SnipsNLUEngine(config=CONFIG_DE)
-        self.nlu_engine = nlu_engine.fit(dataset)
-        logger.info("{} Snips NLU files gefunden.", len(snips_files))
-
-        if not self.nlu_engine:
-            logger.error("Konnte Dialog-Engine nicht laden.")
-            sys.exit(1)
-        else:
-            logger.debug("Dialog Metadaten: {}.", self.nlu_engine.dataset_metadata)
-        logger.debug("Snips NLU Training abgeschlossen")
-
         logger.info("Initialisiere ChatbotAI...")
         chatbotai_files = glob.glob(os.path.join("./intents/chatbotai", "*.template"))
-        WILDCARD_FILE = "./intents/chatbotai/wildcard.template"
         MERGED_FILE = "./intents/chatbotai/_merger.template"
 
         with open(MERGED_FILE, 'w') as outfile:
             for caf in chatbotai_files:
-                if (not Path(caf).name == Path(WILDCARD_FILE).name) and (not Path(caf).name == Path(MERGED_FILE).name):
+                if not Path(caf).name == Path(MERGED_FILE).name:
                     logger.debug("Verarbeite chatbotai Template {}...", Path(caf).name)
                     with open(caf) as infile:
                         outfile.write(infile.read())
-
-            if os.path.exists(WILDCARD_FILE):
-                with open(WILDCARD_FILE) as infile:
-                    outfile.write(infile.read())
-            else:
-                logger.warning("Wildcard-Datei {} konnte nicht gefunden werden. Snips NLU ist damit nicht nutzbar.", WILDCARD_FILE)
 
         if os.path.isfile(MERGED_FILE):
             self.chat = Chat(MERGED_FILE)
@@ -195,9 +125,6 @@ class IntentManagement:
 
     def process(self,text,speaker):
         intent_name = self.chat.get_intent_name(text)
-
-        if intent_name == "default_snips_nlu_handler":
-            intent_name = get_snips_nlu_intent(text)
 
         if global_variables.voice_assistant.user_management.authenticate_intent(speaker, intent_name):
             old_context = global_variables.context
