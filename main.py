@@ -9,10 +9,8 @@ import pyaudio
 from vosk import Model, SpkModel, KaldiRecognizer
 import json
 import numpy as np
-import requests
 from usermgmt import UserMgmt
 from intentmgmt import IntentManagement
-import os
 from audioplayer import AudioPlayer
 import wx.adv
 import wx
