@@ -1,4 +1,8 @@
 from datetime import datetime
+
+from chatbot import register_call
+from wx.lib.masked import months
+
 import global_variables
 import os
 import random
@@ -17,16 +21,18 @@ reminder_table = reminder_db.table('reminder')
 # Lade die Config global
 CONFIG_PATH = os.path.join('intents','functions','reminder','config_reminder.yml')
 
-# Wir führen ein, dass die Callback Funktion eines Moduls immer 'callback' heißen muss.
-def callback(processed=False):
-    LANGUAGE = global_variables.voice_assistant.cfg['assistant']['language']
+def __read_config__():
     cfg = None
+    LANGUAGE = global_variables.voice_assistant.cfg['assistant']['language']
+
     with open(CONFIG_PATH, "r", encoding='utf8') as ymlfile:
         cfg = yaml.load(ymlfile, Loader=yaml.FullLoader)
+    return cfg, LANGUAGE
 
-    if not cfg:
-        logger.error("Konnte Callback nicht aufrufen, Konfiguration ist nicht lesbar.")
-        return None
+
+# Wir führen ein, dass die Callback Funktion eines Moduls immer 'callback' heißen muss.
+def callback(processed=False):
+    cfg, language = __read_config__()
 
     all_reminders = reminder_table.all()
     for r in all_reminders:
@@ -43,15 +49,15 @@ def callback(processed=False):
 
             # Wie ist der Satz formuliert worden?
             if r['kind'] == 'inf':
-                REMINDER_TEXT = random.choice(cfg['intent']['reminder'][LANGUAGE]['execute_reminder_infinitive'])
+                REMINDER_TEXT = random.choice(cfg['intent']['reminder'][language]['execute_reminder_infinitive'])
                 REMINDER_TEXT = REMINDER_TEXT.format(r['msg'])
                 res += REMINDER_TEXT
             elif r['kind'] == 'to':
-                REMINDER_TEXT = random.choice(cfg['intent']['reminder'][LANGUAGE]['execute_reminder_to'])
+                REMINDER_TEXT = random.choice(cfg['intent']['reminder'][language]['execute_reminder_to'])
                 REMINDER_TEXT = REMINDER_TEXT.format(r['msg'])
                 res += REMINDER_TEXT
             else:
-                REMINDER_TEXT = random.choice(cfg['intent']['reminder'][LANGUAGE]['execute_reminder'])
+                REMINDER_TEXT = random.choice(cfg['intent']['reminder'][language]['execute_reminder'])
                 res += REMINDER_TEXT
 
             # Lösche den Eintrag falls die Erinnerung gesprochen werden konnte
@@ -79,71 +85,77 @@ def spoken_date(datetime, lang):
 
     return hours, minutes, day, month, year
 
-def reminder(time=None, reminder_to=None, reminder_infinitive=None):
+reminder_call_counter = 0
+
+@register_call("reminder")
+def reminder(session_id="general", time=None, reminder_to=None, reminder_infinitive=None):
+    global reminder_call_counter
+    reminder_call_counter += 1
+    logger.info(f"Reminder-Funktion wurde {reminder_call_counter} mal aufgerufen.")
+
+    cfg, language = __read_config__()
 
     # Hole den aktuellen Sprecher, falls eine persönliche Erinnerung stattfinden soll
     speaker = global_variables.voice_assistant.current_speaker
+    logger.info('Sprecher: {}.', speaker)
 
-    LANGUAGE = global_variables.voice_assistant.cfg['assistant']['language']
-    cfg = None
-    with open(CONFIG_PATH, "r", encoding='utf8') as ymlfile:
-        cfg = yaml.load(ymlfile, Loader=yaml.FullLoader)
-
-
-    if not cfg:
-        logger.error("Konnte Konfigurationsdatei für reminder nicht lesen.")
-        return ""
 
     # Holen der Sprache aus der globalen Konfigurationsdatei
-    NO_TIME_GIVEN = random.choice(cfg['intent']['reminder'][LANGUAGE]['no_time_given'])
+    NO_TIME_GIVEN = random.choice(cfg['intent']['reminder'][language]['no_time_given'])
+    logger.info('NO_TIME_GIVEN: {}.', NO_TIME_GIVEN)
 
     # Bereite das Ergebnis vor
     result = ""
     if speaker:
         result = speaker + ', '
+    logger.info('Result: {}.', result)
 
     # Wurde keine Uhrzeit angegeben?
     if not time:
+        logger.info('Result ohne Zeit: {}.', result + NO_TIME_GIVEN)
         return result + NO_TIME_GIVEN
+
 
     # Wir machen uns das Parsing des Datums-/Zeitwertes leicht
     parsed_time = parse(time)
+    logger.info('Parsed Time: {}.', parsed_time)
 
     # Generiere das gesprochene Datum
-    hours, minutes, day, month, year = spoken_date(parsed_time, LANGUAGE)
+    hours, minutes, day, month, year = spoken_date(parsed_time, language)
+    logger.info('Hours: {} Minutes: {} Day: {} Month: {} Year: {}.', hours, minutes,day,month, year)
 
     # Am selben Tag wie heute?
     if datetime.now().date() == parsed_time.date():
         if reminder_to:
-            SAME_DAY_TO = random.choice(cfg['intent']['reminder'][LANGUAGE]['reminder_same_day_to'])
+            SAME_DAY_TO = random.choice(cfg['intent']['reminder'][language]['reminder_same_day_to'])
             SAME_DAY_TO = SAME_DAY_TO.format(hours, minutes, reminder_to)
             result = result + " " + SAME_DAY_TO
             reminder_table.insert({'time':time, 'kind':'to', 'msg':reminder_to, 'speaker':speaker})
         elif reminder_infinitive:
-            SAME_DAY_INFINITIVE = random.choice(cfg['intent']['reminder'][LANGUAGE]['reminder_same_day_infinitive'])
+            SAME_DAY_INFINITIVE = random.choice(cfg['intent']['reminder'][language]['reminder_same_day_infinitive'])
             SAME_DAY_INFINITIVE = SAME_DAY_INFINITIVE.format(hours, minutes, reminder_infinitive)
             result = result + " " + SAME_DAY_INFINITIVE
             reminder_table.insert({'time':time, 'kind':'inf', 'msg':reminder_infinitive, 'speaker':speaker})
         else:
             # Es wurde nicht angegeben, an was erinnert werden soll
-            SAME_DAY_NO_ACTION = random.choice(cfg['intent']['reminder'][LANGUAGE]['reminder_same_day_no_action'])
+            SAME_DAY_NO_ACTION = random.choice(cfg['intent']['reminder'][language]['reminder_same_day_no_action'])
             SAME_DAY_NO_ACTION = SAME_DAY_NO_ACTION.format(hours, minutes)
             result = result + " " + SAME_DAY_NO_ACTION
             reminder_table.insert({'time':time, 'kind':'none', 'msg':'', 'speaker':speaker})
     else:
         if reminder_to:
-            TO = random.choice(cfg['intent']['reminder'][LANGUAGE]['reminder_to'])
+            TO = random.choice(cfg['intent']['reminder'][language]['reminder_to'])
             TO = TO.format(day, month, year, hours, minutes, reminder_to)
             result = result + " " + TO
             reminder_table.insert({'time':time, 'kind':'to', 'msg':reminder_to, 'speaker':speaker})
         elif reminder_infinitive:
-            INFINITIVE = random.choice(cfg['intent']['reminder'][LANGUAGE]['reminder_infinitive'])
+            INFINITIVE = random.choice(cfg['intent']['reminder'][language]['reminder_infinitive'])
             INFINITIVE = INFINITIVE.format(day, month, year, hours, minutes, reminder_infinitive)
             result = result + " " + INFINITIVE
             reminder_table.insert({'time':time, 'kind':'inf', 'msg':reminder_infinitive, 'speaker':speaker})
         else:
             # Es wurde nicht angegeben, an was erinnert werden soll
-            NO_ACTION = random.choice(cfg['intent']['reminder'][LANGUAGE]['reminder_no_action'])
+            NO_ACTION = random.choice(cfg['intent']['reminder'][language]['reminder_no_action'])
             NO_ACTION = NO_ACTION.format(day, month, year, hours, minutes)
             result = result + " " + NO_ACTION
             reminder_table.insert({'time':time, 'kind':'none', 'msg':'', 'speaker':speaker})

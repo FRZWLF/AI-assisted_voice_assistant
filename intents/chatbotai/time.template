@@ -1,0 +1,8 @@
+{% block %}
+    {% client %}(wie spät ist es in |uhrzeit in |wie viel Uhr ist es in)(?P<place>.*){% endclient %}
+    {% response %}{% call gettimeplace: %place %}{% endresponse %}
+{% endblock %}
+{% block %}
+    {% client %}(wie spät ist es|wie viel Uhr ist es|uhrzeit){% endclient %}
+    {% response %}{% call gettime: 0 %}{% endresponse %}
+{% endblock %}

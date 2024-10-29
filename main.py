@@ -170,7 +170,6 @@ class VoiceAssistant():
         # Erzeuge eine Liste, die die Callback Funktionen vorhält
         self.callbacks = self.intent_management.register_callbacks()
         logger.info('{} callbacks gefunden', len(self.callbacks))
-        self.tts.say("Initialisierung abgeschlossen")
         if self.show_balloon:
             Notification.show('Initialisierung', 'Abgeschlossen', ttl=4000)
 

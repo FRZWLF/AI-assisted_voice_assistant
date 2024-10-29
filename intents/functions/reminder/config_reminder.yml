@@ -8,8 +8,6 @@ intent:
       reminder_same_day_no_action: ["Ich erinnere dich um {} Uhr {}."]
       reminder_no_action: ["Ich erinnere dich am {} {} {} um {} Uhr {}."]
       no_time_given: ["Ich habe leider das Erinnerungsdatum beziehungsweise die Uhrzeit nicht verstanden."]
-      reminder_birthday: ["Peter hat am 24. August Geburststag."]
-      reminder_weekshopping: ["Ich erinnere dich an den Wocheneinkauf."]
 
       execute_reminder_infinitive: ["Ich soll dich daran erinnern {}."]
       execute_reminder_to: ["Ich erinnere dich {}."]

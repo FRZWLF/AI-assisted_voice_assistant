@@ -1,9 +1,14 @@
 {% block %}
-    {% client %}(Wann ist der Geburtstag von Peter|geburtstag von peter){% endclient %}
-    {% response %}{% call reminder_birthday: 0 %}{% endresponse %}
+    {% client %}(erinnere mich (?P<time>.*) (?P<reminder_to>.*)){% endclient %}
+    {% response %}{% call reminder: %time % %reminder_to % %reminder_infinitive %}{% endresponse %}
 {% endblock %}
 
 {% block %}
-    {% client %}(erinnere mich an den Einkauf|einkaufen|wochen einkauf|wochen einkauf erledigen){% endclient %}
-    {% response %}{% call reminder_weekshopping: 0 %}{% endresponse %}
+    {% client %}(erinnere mich (?P<reminder_to>.*) (?P<time>.*) ){% endclient %}
+    {% response %}{% call reminder: %time % %reminder_to % %reminder_infinitive %}{% endresponse %}
+{% endblock %}
+
+{% block %}
+    {% client %}(erinnere mich (?P<time>.*) (?P<reminder_infinitive>.*) ){% endclient %}
+    {% response %}{% call reminder: %time % %reminder_to % %reminder_infinitive %}{% endresponse %}
 {% endblock %}

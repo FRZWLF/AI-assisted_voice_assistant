@@ -8,8 +8,9 @@ import yaml
 import text2numde
 from fuzzywuzzy import fuzz
 
-def musicstream(station=None):
-
+@register_call("musicstream")
+def musicstream(session_id="general", station=None):
+    logger.debug(f"Empfangener Sender: {station}")
     config_path = os.path.join('intents','functions','musicstream','config_musicstream.yml')
     cfg = None
 
@@ -43,11 +44,15 @@ def musicstream(station=None):
         logger.info("Übereinstimmung von {} und {} ist {}%", station, key, ratio)
         if ratio > 70:
             station_stream = value
+            logger.info("Station '{}' erkannt mit URL '{}'.".format(key, station_stream))
             break
 
     # Wurde kein Sender gefunden?
     if station_stream is None:
+        logger.debug("Kein Sender mit dem Namen '{}' gefunden.".format(station))
         return UNKNOWN_STATION
+    else:
+        logger.debug("Starte Streaming von '{}' mit URL '{}'.".format(station, station_stream))
 
     #if mixer.music.get_busy():
     #mixer.music.stop()

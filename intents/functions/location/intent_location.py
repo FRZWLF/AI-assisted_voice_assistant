@@ -22,7 +22,7 @@ def location(session_id = "general", dummy=0):
     # Holen der Sprache aus der globalen Konfigurationsdatei
     LANGUAGE = global_variables.voice_assistant.cfg['assistant']['language']
 
-    YOU_ARE_HERE = random.choice(cfg['intent']['location'][LANGUAGE]['youarehere'])
+    YOU_ARE_HERE = cfg['intent']['location'][LANGUAGE]['youarehere']
 
     # Ermittle den Standort mittels IP
     loc = geocoder.ip('me')
