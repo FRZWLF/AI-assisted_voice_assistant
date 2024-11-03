@@ -297,7 +297,7 @@ class VoiceAssistant():
                                 cb(True)
 
                                 # Zurücksetzen der Lautstärke auf Normalniveau
-                                global_variables.voice_assistant.audio_player.music.set_volume(global_variables.voice_assistant.volume)
+                                global_variables.voice_assistant.audio_player.set_volume(global_variables.voice_assistant.volume)
 
 
 if __name__ == '__main__':

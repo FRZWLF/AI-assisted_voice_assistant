@@ -1,17 +1,33 @@
-from datetime import datetime
-
+import re
+from datetime import datetime, timedelta
 from chatbot import register_call
-from wx.lib.masked import months
+from dateutil.relativedelta import relativedelta
 
 import global_variables
 import os
 import random
 import yaml
 from loguru import logger
+from transformers import MarianMTModel, MarianTokenizer
+from typing import Sequence
+from words2num import w2n
 
 from dateutil.parser import parse
 from num2words import num2words
 from tinydb import TinyDB, Query
+
+
+class Translator:
+    def __init__(self, source_lang: str, dest_lang: str) -> None:
+        self.model_name = f'Helsinki-NLP/opus-mt-{source_lang}-{dest_lang}'
+        self.model = MarianMTModel.from_pretrained(self.model_name)
+        self.tokenizer = MarianTokenizer.from_pretrained(self.model_name)
+
+    def translate(self, texts: Sequence[str]) -> Sequence[str]:
+        tokens = self.tokenizer(list(texts), return_tensors="pt", padding=True)
+        translate_tokens = self.model.generate(**tokens)
+        return [self.tokenizer.decode(t, skip_special_tokens=True) for t in translate_tokens]
+
 
 # Initialisiere Datenbankzugriff auf Modulebene
 reminder_db_path = os.path.join('intents','functions','reminder','reminder_db.json')
@@ -36,8 +52,7 @@ def callback(processed=False):
 
     all_reminders = reminder_table.all()
     for r in all_reminders:
-
-        parsed_time = parse(r['time'])
+        parsed_time = parse(r['time'], fuzzy=True)
         now = datetime.now(parsed_time.tzinfo)
         # Ist der aktuelle Datenbankeintrag vor/gleich der jetzigen Zeit?
         if parsed_time <= now:
@@ -85,40 +100,166 @@ def spoken_date(datetime, lang):
 
     return hours, minutes, day, month, year
 
-reminder_call_counter = 0
 
 @register_call("reminder")
 def reminder(session_id="general", time=None, reminder_to=None, reminder_infinitive=None):
-    global reminder_call_counter
-    reminder_call_counter += 1
-    logger.info(f"Reminder-Funktion wurde {reminder_call_counter} mal aufgerufen.")
-
     cfg, language = __read_config__()
+
+    #Wörterbuch
+    months = {
+        "januar": "01", "februar": "02", "märz": "03", "april": "04", "mai": "05", "juni": "06",
+        "juli": "07", "august": "08", "september": "09", "oktober": "10", "november": "11", "dezember": "12"
+    }
+
+    ordinal_days = {
+        "ersten": "1", "zweiten": "2", "dritten": "3", "vierten": "4", "fünften": "5", "sechsten": "6",
+        "siebten": "7", "siebenten": "7", "achten": "8", "neunten": "9", "zehnten": "10", "elften": "11", "zwölften": "12",
+        "dreizehnten": "13", "vierzehnten": "14", "fünfzehnten": "15", "sechzehnten": "16", "siebzehnten": "17",
+        "achtzehnten": "18", "neunzehnten": "19", "zwanzigsten": "20", "einundzwanzigsten": "21",
+        "zweiundzwanzigsten": "22", "dreiundzwanzigsten": "23", "vierundzwanzigsten": "24",
+        "fünfundzwanzigsten": "25", "sechsundzwanzigsten": "26", "siebenundzwanzigsten": "27",
+        "achtundzwanzigsten": "28", "neunundzwanzigsten": "29", "dreißigsten": "30", "einunddreißigsten": "31",
+    }
 
     # Hole den aktuellen Sprecher, falls eine persönliche Erinnerung stattfinden soll
     speaker = global_variables.voice_assistant.current_speaker
-    logger.info('Sprecher: {}.', speaker)
 
-
-    # Holen der Sprache aus der globalen Konfigurationsdatei
     NO_TIME_GIVEN = random.choice(cfg['intent']['reminder'][language]['no_time_given'])
-    logger.info('NO_TIME_GIVEN: {}.', NO_TIME_GIVEN)
+    INVALID_TIME_GIVEN = random.choice(cfg['intent']['reminder'][language]['invalid_time_given'])
 
     # Bereite das Ergebnis vor
     result = ""
     if speaker:
         result = speaker + ', '
-    logger.info('Result: {}.', result)
 
     # Wurde keine Uhrzeit angegeben?
     if not time:
-        logger.info('Result ohne Zeit: {}.', result + NO_TIME_GIVEN)
         return result + NO_TIME_GIVEN
 
 
+    # Konvertiere den Monat
+    for month_name, month_num in months.items():
+        time = re.sub(r"\b" + month_name + r"\b", month_num, time, flags=re.IGNORECASE)
+
+    # Konvertiere die Ordnungszahlen für Tage
+    for day_name, day_num in ordinal_days.items():
+        time = re.sub(r"\b" + day_name + r"\b", day_num, time, flags=re.IGNORECASE)
+
+
+    date_match = re.search(r"\b(\d{1,2})\s+(\d{1,2})\b", time)
+    if date_match:
+        day = date_match.group(1).zfill(2)
+        month = date_match.group(2).zfill(2)
+        current_year = str(datetime.now().year)
+        formatted_date = f"{current_year}-{month}-{day}"
+        time = re.sub(r"\b(\d{1,2})\s+(\d{1,2})\b", formatted_date, time, count=1)
+    logger.info("Time: {}", time)
+
+
+    time = re.sub(r"\bein Uhr\b", "1 Uhr", time)
+    time = re.sub(r"\bzwei Uhr\b", "2 Uhr", time)
+    #Translation to "EN" before parsing into parse() for the best result
+    marian_de_en = Translator(language, 'en')
+    time = marian_de_en.translate([time])[0].lower()
+    time = re.sub(r"\ba watch\b", "1 o'clock", time)
+    time = re.sub(r"\bone watch\b", "1 o'clock", time)
+    logger.info('Time in en said: {}.', time)
+
+    word_str = time.split(" ")
+    words2num_res = ""
+    for i in word_str:
+        try:
+            words2num_res += str(w2n(i)) + " "
+        except:
+            words2num_res += i + " "
+    time = words2num_res
+    logger.info("words2num: {}", time)
+
+    #Change german terms "übermorgen" und "morgen" to exact dates so that parse() can handle those
+    if "the day after tomorrow" in time:
+        time = re.sub("the day after tomorrow", (datetime.now() + timedelta(days=2)).strftime('%Y-%m-%d'), time)
+    if "tomorrow" in time:
+        time = re.sub("tomorrow", (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d'), time)
+    if "today" in time:
+        time = re.sub("today", datetime.now().strftime('%Y-%m-%d'), time)
+
+    #Change expression "in ... Tagen" to exact dates so that parse() can handle those
+    hastarget = False
+    match = re.search(r"(\d+)\s*(years|year|months|month|weeks|week|days|day|hours|hour|minutes|minute)", time)
+    if match:
+        amount = int(match.group(1))
+        unit = match.group(2)
+        if unit == "years" or unit == "year":
+            target_date = (datetime.now() + relativedelta(years=amount)).strftime('%Y-%m-%d')
+        elif unit == "months" or unit == "month":
+            target_date = (datetime.now() + relativedelta(months=amount)).strftime('%Y-%m-%d')
+        elif unit == "weeks" or unit == "week":
+            target_date = (datetime.now() + timedelta(weeks=amount)).strftime('%Y-%m-%d')
+        elif unit == "days" or unit == "day":
+            target_date = (datetime.now() + timedelta(days=amount)).strftime('%Y-%m-%d')
+        elif unit == "hours" or unit == "hour":
+            target_date = (datetime.now() + timedelta(hours=amount)).strftime('%Y-%m-%d %H:%M')
+            hastarget = True
+        elif unit == "minutes" or unit == "minute":
+            target_date = (datetime.now() + timedelta(minutes=amount)).strftime('%Y-%m-%d %H:%M')
+            hastarget = True
+        time = re.sub(r"(\d+)\s*(years|year|months|month|weeks|week|days|day|hours|hour|minutes|minute)", target_date, time, count=1)
+
+
+    #Extract the date and remove it temporarily to avoid confusion during time matching
+    date_match = re.search(r"\b\d{4}-\d{2}-\d{2}\b", time)
+    date_part = date_match.group(0) if date_match else ""
+    time = re.sub(r"\b\d{4}-\d{2}-\d{2}\b", "", time).strip()
+
+
+    # Standardisiere "o'clock" zu am/pm anhand der angegebenen Zeit
+    if not hastarget:
+        match = re.search(r"\b(\d{1,2})(?:\s*o'clock)?(?:\s+(\d{1,2}))?\b", time)
+        if match:
+            hour = int(match.group(1))
+            logger.info("hour: {}", hour)
+            minutes = match.group(2) if match.group(2) else "00"
+            logger.info("minutes: {}", minutes)
+            if hour >= 24:
+                return result + INVALID_TIME_GIVEN
+            else:
+                if hour < 12:
+                    formatted_time = f" {hour}:{minutes} am"
+                elif hour == 12:
+                    formatted_time =  f" {hour}:{minutes} pm"
+                else:
+                    hour -= 12
+                    formatted_time = f" {hour}:{minutes} pm"
+            time = re.sub(r"\b(\d{1,2})(?:\s*o'clock)?(?:\s+(\d{1,2}))?\b", formatted_time, time, count=1)
+        else:
+            # Wenn keine Uhrzeit gefunden wird, aktuelle Zeit nehmen
+            current_time = datetime.now().strftime('%H:%M')
+            time += f" {current_time}"
+
+
+    #Add the date and time together
+    time = f"{date_part} {time}".strip()
+
+
+    logger.info('Time said: {}.', time)
+    logger.info('Reminder to said: {}.', reminder_to)
+    logger.info('Reminder infinitive said: {}.', reminder_infinitive)
     # Wir machen uns das Parsing des Datums-/Zeitwertes leicht
-    parsed_time = parse(time)
+    parsed_time = parse(time, fuzzy=True)
     logger.info('Parsed Time: {}.', parsed_time)
+
+    # Überprüfen auf vergangene Daten und Uhrzeiten
+    now = datetime.now()
+    if parsed_time < now:
+        if parsed_time.date() < now.date():
+            # Setze auf nächstes Jahr, wenn Datum vergangen
+            parsed_time = parsed_time.replace(year=now.year + 1)
+        elif parsed_time.time() < now.time():
+            # Setze auf nächsten Tag, wenn Uhrzeit vergangen
+            parsed_time += timedelta(days=1)
+
+    final_time = parsed_time.strftime('%Y-%m-%d %H:%M:%S')
+    logger.info("Final reminder datetime: {}", parsed_time)
 
     # Generiere das gesprochene Datum
     hours, minutes, day, month, year = spoken_date(parsed_time, language)
@@ -130,35 +271,37 @@ def reminder(session_id="general", time=None, reminder_to=None, reminder_infinit
             SAME_DAY_TO = random.choice(cfg['intent']['reminder'][language]['reminder_same_day_to'])
             SAME_DAY_TO = SAME_DAY_TO.format(hours, minutes, reminder_to)
             result = result + " " + SAME_DAY_TO
-            reminder_table.insert({'time':time, 'kind':'to', 'msg':reminder_to, 'speaker':speaker})
+            reminder_table.insert({'time':final_time, 'kind':'to', 'msg':reminder_to, 'speaker':speaker})
         elif reminder_infinitive:
             SAME_DAY_INFINITIVE = random.choice(cfg['intent']['reminder'][language]['reminder_same_day_infinitive'])
             SAME_DAY_INFINITIVE = SAME_DAY_INFINITIVE.format(hours, minutes, reminder_infinitive)
             result = result + " " + SAME_DAY_INFINITIVE
-            reminder_table.insert({'time':time, 'kind':'inf', 'msg':reminder_infinitive, 'speaker':speaker})
+            reminder_table.insert({'time':final_time, 'kind':'inf', 'msg':reminder_infinitive, 'speaker':speaker})
         else:
             # Es wurde nicht angegeben, an was erinnert werden soll
+            logger.info('Time Today without action!')
             SAME_DAY_NO_ACTION = random.choice(cfg['intent']['reminder'][language]['reminder_same_day_no_action'])
             SAME_DAY_NO_ACTION = SAME_DAY_NO_ACTION.format(hours, minutes)
             result = result + " " + SAME_DAY_NO_ACTION
-            reminder_table.insert({'time':time, 'kind':'none', 'msg':'', 'speaker':speaker})
+            reminder_table.insert({'time':final_time, 'kind':'none', 'msg':'', 'speaker':speaker})
     else:
         if reminder_to:
             TO = random.choice(cfg['intent']['reminder'][language]['reminder_to'])
             TO = TO.format(day, month, year, hours, minutes, reminder_to)
             result = result + " " + TO
-            reminder_table.insert({'time':time, 'kind':'to', 'msg':reminder_to, 'speaker':speaker})
+            reminder_table.insert({'time':final_time, 'kind':'to', 'msg':reminder_to, 'speaker':speaker})
         elif reminder_infinitive:
             INFINITIVE = random.choice(cfg['intent']['reminder'][language]['reminder_infinitive'])
             INFINITIVE = INFINITIVE.format(day, month, year, hours, minutes, reminder_infinitive)
             result = result + " " + INFINITIVE
-            reminder_table.insert({'time':time, 'kind':'inf', 'msg':reminder_infinitive, 'speaker':speaker})
+            reminder_table.insert({'time':final_time, 'kind':'inf', 'msg':reminder_infinitive, 'speaker':speaker})
         else:
             # Es wurde nicht angegeben, an was erinnert werden soll
+            logger.info('Time NOT Today without action!')
             NO_ACTION = random.choice(cfg['intent']['reminder'][language]['reminder_no_action'])
             NO_ACTION = NO_ACTION.format(day, month, year, hours, minutes)
             result = result + " " + NO_ACTION
-            reminder_table.insert({'time':time, 'kind':'none', 'msg':'', 'speaker':speaker})
+            reminder_table.insert({'time':final_time, 'kind':'none', 'msg':'', 'speaker':speaker})
 
     logger.info("Reminder mit Inhalt {} erkannt.", result)
 
