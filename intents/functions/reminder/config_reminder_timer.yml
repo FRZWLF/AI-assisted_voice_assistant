@@ -25,3 +25,17 @@ intent:
       execute_reminder_infinitive: ["I want to remind you to {} ."]
       execute_reminder_to: ["I want to remind you to {} ."]
       execute_reminder: ["This is a reminder."]
+
+  timer:
+    de:
+      timer_hour: [ "Ich setze einen Timer auf {} Stunden ." ]
+      timer_minute: [ "Ich setze einen Timer auf {} Minuten ." ]
+      timer_second: [ "Ich setze einen Timer auf {} Sekunden ." ]
+      named_timer_hour: [ "Ich setze den Timer {} auf {} Stunden ." ]
+      named_timer_minute: [ "Ich setze den Timer {} auf {} Minuten ." ]
+      named_timer_second: [ "Ich setze den Timer {} auf {} Sekunden ." ]
+      no_timer_given: [ "Ich habe leider deinen Timer nicht verstanden." ]
+
+      execute_timer: [ "Dein Timer ist abgelaufen." ]
+      execute_named_timer: [ "Dein Timer {} ist abgelaufen." ]
+    en:

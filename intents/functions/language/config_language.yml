@@ -1,0 +1,11 @@
+intent:
+  language:
+    de:
+      change_success: ["Sprache erfolgreich zu {} gewechselt ."]
+      available_languages: ["Verfügbare Sprachen sind: {} "]
+      error_language: ["Die Sprache {} wird nicht unterstützt ."]
+
+    en:
+      change_success: [ "Successfully switched language to {}." ]
+      available_languages: ["Available languages are: {} "]
+      error_language: [ "The language {} is not supported." ]

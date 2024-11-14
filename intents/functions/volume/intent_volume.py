@@ -6,6 +6,7 @@ import random
 import os
 import text2numde
 
+MAIN_CONFIG_PATH = os.path.join('config.yml')
 
 def __read_config__():
     cfg = None
@@ -23,12 +24,23 @@ def getVolume(session_id = "general", dummy=0):
     logger.info("Lautstärke ist {} von zehn.", int(global_variables.voice_assistant.volume * 10))
     return cfg['intent']['volume'][language]['volume_is'].format(int(global_variables.voice_assistant.volume * 10))
 
+@register_call("maxVolume")
+def getVolume(session_id = "general", dummy=0):
+    cfg, language = __read_config__()
+    max_volume = round(10.0 / 10.0, 1)
+    global_variables.voice_assistant.tts.set_volume(max_volume)
+    global_variables.voice_assistant.audio_player.set_volume(max_volume)
+    global_variables.voice_assistant.volume = max_volume
+    logger.info("Lautstärke ist {} von zehn.", int(global_variables.voice_assistant.volume * 10))
+    return cfg['intent']['volume'][language]['set_volume'].format(int(global_variables.voice_assistant.volume * 10))
+
 @register_call("setVolume")
 def setVolume(session_id = "general", volume=None):
     cfg, language = __read_config__()
 
     if volume.strip() == "":
         return getVolume(session_id, 0)
+    volume = "neun" if volume.strip() == "neuen" else "acht" if volume.strip() == "achten" else volume
 
     # konvertiere das Zahlenwort in einen geladenanzzahligen Wert
     if isinstance(volume, str):
@@ -50,8 +62,8 @@ def setVolume(session_id = "general", volume=None):
             global_variables.voice_assistant.tts.set_volume(new_volume)
             # mixer.music.set_volume(new_volume)
             global_variables.voice_assistant.audio_player.set_volume(new_volume)
-            global_variables.voice_assistant.num_vol = new_volume
-            return ""
+            global_variables.voice_assistant.volume = new_volume
+            return cfg['intent']['volume'][language]['set_volume'].format(int(global_variables.voice_assistant.volume * 10))
     else:
         logger.error("Konnte Konfigurationsdatei für Intent 'volume' nicht laden.")
         return ""

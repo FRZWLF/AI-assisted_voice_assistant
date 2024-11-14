@@ -1,0 +1,35 @@
+{% block %}
+    {% client %}((erinnere mich|erinnerung|erinner mich) (?P<time>.*?)\s(?P<reminder_to>(an|meinen|meine|mein)\s?.*)){% endclient %}
+    {% response %}{% call reminder: %time | %reminder_to | %reminder_infinitive %}{% endresponse %}
+{% endblock %}
+
+{% block %}
+    {% client %}((erinnere mich|erinnerung|erinner mich) (?P<reminder_to>.*?)\s(?P<time>(um|in)\s?.*)){% endclient %}
+    {% response %}{% call reminder: %time | %reminder_to | %reminder_infinitive %}{% endresponse %}
+{% endblock %}
+
+{% block %}
+    {% client %}((erinnere mich|erinnerung|erinner mich) (?P<time>.*?)\s(?P<reminder_infinitive>(zu|den|die|das|der|ein|eine|einen|aus dem|vom|ins|im|an das|auf das|für das)\s?.*)){% endclient %}
+    {% response %}{% call reminder: %time | %reminder_to | %reminder_infinitive %}{% endresponse %}
+{% endblock %}
+
+{% block %}
+    {% client %}((erinnere mich|erinnerung|erinner mich) (?P<time>.*)){% endclient %}
+    {% response %}{% call reminder: %time | %reminder_to | %reminder_infinitive %}{% endresponse %}
+{% endblock %}
+
+{% block %}
+    {% client %}(timer status|timer update){% endclient %}
+    {% response %}{% call timer_list: 0 %}{% endresponse %}
+{% endblock %}
+
+{% block %}
+    {% client %}((timer|stelle den timer|stelle timer) (?P<name>.*?)\s(?P<timer>(auf)\s?.*)){% endclient %}
+    {% response %}{% call timer: %name | %timer %}{% endresponse %}
+{% endblock %}
+
+{% block %}
+    {% client %}((timer|stelle einen timer auf|stelle timer auf)(?!.*\b(update|status)\b) (?P<timer>.*)){% endclient %}
+    {% response %}{% call timer: %name | %timer %}{% endresponse %}
+{% endblock %}
+

@@ -1,3 +1,5 @@
+import os
+import random
 import sys
 import pvporcupine
 from loguru import logger
@@ -6,6 +8,7 @@ from TTS import Voice
 import yaml
 import struct
 import pyaudio
+import sounddevice as sd
 from vosk import Model, SpkModel, KaldiRecognizer
 import json
 import numpy as np
@@ -73,6 +76,7 @@ class MainApp(wx.App):
 class VoiceAssistant():
 
     def __init__(self):
+
         logger.info("Initialisiere VoiceAssistant...")
 
         self.app = MainApp(clearSigInt=False, redirect=True, filename='log.txt')
@@ -91,6 +95,7 @@ class VoiceAssistant():
 
         # Listen von Root-Objekten mit wiederum einer Liste von Objekten
         language = self.cfg['assistant']['language']
+        logger.info(f"Sprache {language}")
         if not language:
             language = "de"
         logger.info(f"Verwende Sprache {language}")
@@ -109,19 +114,23 @@ class VoiceAssistant():
         logger.info("Initialisiere Audioeingabe...")
         self.pa = pyaudio.PyAudio()
 
-        #show devices
-        for i in range(self.pa.get_device_count()):
-            logger.debug("id: {},name: {}", self.pa.get_device_info_by_index(i).get('index'), self.pa.get_device_info_by_index(i).get('name'))
+        # Verfügbare Geräte abrufen
+        devices = sd.query_devices()
+        default_device = sd.default.device['input']
 
-        #selecting mic
-        self.audio_stream = self.pa.open(
-            rate=self.porcupine.sample_rate,
-            channels=1,
-            format=pyaudio.paInt16,
-            input=True,
-            frames_per_buffer=self.porcupine.frame_length,
-            input_device_index=1
-        )
+        # Aktuelles Standardgerät finden
+        if default_device is not None:
+            logger.info(f"Standard-Mikrofon: {devices[default_device]['name']}")
+            self.audio_stream = self.pa.open(
+                rate=self.porcupine.sample_rate,
+                channels=1,
+                format=pyaudio.paInt16,
+                input=True,
+                frames_per_buffer=self.porcupine.frame_length,
+                input_device_index=default_device
+            )
+        else:
+            logger.warning("Kein Standard-Mikrofon gefunden.")
         logger.info("Audiostream geöffnet...")
 
         # Lese Lautstärke
@@ -131,14 +140,23 @@ class VoiceAssistant():
         logger.info("Voice Assistant wird initialisiert...")
         self.tts = Voice()
 
-        voices = self.tts.get_voice_keys_by_language(language)
-        if len(voices) > 0:
-            self.tts.set_voice(voices[0])
-            logger.info(f"Stimme {voices[0]}")
+
+        #####       Voices       #####
+        self.available_voices = {}
+        # Mehrstimm- und Mehrsprachunterstützung
+        self.load_available_languages()
+
+        # Sprache und Stimme setzen
+        if language in self.available_voices and self.available_voices[language]:
+            chosen_voice = random.choice(self.available_voices[language])
+            self.tts.set_voice(chosen_voice)
+            logger.info(f"Stimme {chosen_voice} für Sprache {language} gesetzt.")
         else:
-            logger.warning("Es wurde keine Stimme gefunden.")
+            logger.warning("Standardstimme wird verwendet.")
         self.tts.set_volume(self.volume)
         self.tts.say("Sprachausgabe aktiviert.")
+
+        # Benachrichtigung anzeigen
         if self.show_balloon:
             Notification.show('Initialisierung', 'Sprachausgabe aktiviert', ttl=4000)
         logger.debug("Voice Assistant initialisiert")
@@ -194,6 +212,39 @@ class VoiceAssistant():
                     bestSpeaker = speaker.get('name')
         return bestSpeaker
 
+    def load_available_languages(self):
+        """Lädt die verfügbaren Sprachen und Stimmen aus einer YAML-Datei und aktualisiert diese, falls neue Sprachen hinzugefügt werden."""
+        languages_file = 'languages.yml'
+
+        # Standardmäßig unterstützte Sprachen
+        supported_languages = ['de', 'en', 'fr', 'es', 'it', 'ja', 'ru']
+
+        # Prüfen, ob die Sprachdatei vorhanden ist, und laden
+        if os.path.exists(languages_file):
+            with open(languages_file, 'r', encoding='utf-8') as file:
+                language_data = yaml.load(file, Loader=yaml.FullLoader) or {'languages': {}}
+        else:
+            language_data = {'languages': {}}
+
+
+        # Aktualisiere für jede unterstützte Sprache die verfügbaren Stimmen
+        updated = False
+        for lang in supported_languages:
+            voices = self.tts.get_voice_keys_by_language(lang)
+            if voices:
+                self.available_voices[lang] = voices
+                language_data['languages'][lang] = voices
+                updated = True
+                logger.info(f"Verfügbare Stimmen für Sprache {lang}: {voices}")
+            else:
+                logger.warning(f"Keine Stimmen für Sprache {lang} gefunden.")
+
+        # Speichere die aktualisierte Sprachliste, falls Änderungen vorliegen
+        if updated:
+            with open(languages_file, 'w', encoding='utf-8') as file:
+                yaml.dump(language_data, file)
+
+
     def terminate(self):
         logger.debug("Beginne Aufräumarbeiten...")
 
@@ -203,6 +254,7 @@ class VoiceAssistant():
         # Speichern der Konfiguration
         global_variables.voice_assistant.cfg["assistant"]["volume"] = global_variables.voice_assistant.volume
         global_variables.voice_assistant.cfg["assistant"]["silenced_volume"] = global_variables.voice_assistant.silenced_volume
+        global_variables.voice_assistant.cfg["assistant"]["language"] = global_variables.voice_assistant.cfg["assistant"]["language"]
         with open(CONFIG_FILE, 'w') as f:
             yaml.dump(global_variables.voice_assistant.cfg, f, default_flow_style=False, sort_keys=False)
 

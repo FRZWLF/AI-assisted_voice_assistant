@@ -3,7 +3,11 @@
     {% response %}{% call getVolume: 0 %}{% endresponse %}
 {% endblock %}
 {% block %}
-    {% client %}(lautstärke|setze lautstärke|setze lautstärke auf)(\s*)(?P<volume>.*)?{% endclient %}
+    {% client %}(volle lautstärke|maximale lautstärke){% endclient %}
+    {% response %}{% call maxVolume: 0 %}{% endresponse %}
+{% endblock %}
+{% block %}
+    {% client %}(lautstärke|setze lautstärke auf|setze lautstärke)(\s*)(?P<volume>.*)?{% endclient %}
     {% response %}{% call setVolume: %volume %}{% endresponse %}
 {% endblock %}
 {% block %}
