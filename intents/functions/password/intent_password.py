@@ -50,12 +50,18 @@ def getPassword(session_id = "general", entry="none"):
         # Verifiziere Stimme
         fp_entry = kp.find_entries(title='_fingerprint', first=True)
         if fp_entry:
-            a = json.loads(fp_entry.notes)
-            b = global_variables.voice_assistant.current_speaker_fingerprint
-            nx = np.array(a)
-            ny = np.array(b)
-            cosDist = 1 - np.dot(nx, ny) / np.linalg.norm(nx) / np.linalg.norm(ny)
-            if (cosDist >= 0.3):
+            a = np.array(json.loads(fp_entry.notes))
+            b = np.array(global_variables.voice_assistant.current_speaker_fingerprint)
+
+            # Normalisierung der Vektoren
+            a /= np.linalg.norm(a)
+            b /= np.linalg.norm(b)
+
+            # Berechnung der Kosinus-Ähnlichkeit
+            cosDist = np.dot(a, b)
+
+            # Schwellenwert prüfen
+            if cosDist < 0.2:  # Schwellenwert für minimale Ähnlichkeit
                 return NO_VOICE_MATCH
 
         entries = kp.entries
@@ -115,12 +121,18 @@ def getUsername(session_id = "general", entry="none"):
         # Verifiziere Stimme
         fp_entry = kp.find_entries(title='_fingerprint', first=True)
         if fp_entry:
-            a = json.loads(fp_entry.notes)
-            b = global_variables.voice_assistant.current_speaker_fingerprint
-            nx = np.array(a)
-            ny = np.array(b)
-            cosDist = 1 - np.dot(nx, ny) / np.linalg.norm(nx) / np.linalg.norm(ny)
-            if (cosDist >= 0.3):
+            a = np.array(json.loads(fp_entry.notes))
+            b = np.array(global_variables.voice_assistant.current_speaker_fingerprint)
+
+            # Normalisierung der Vektoren
+            a /= np.linalg.norm(a)
+            b /= np.linalg.norm(b)
+
+            # Berechnung der Kosinus-Ähnlichkeit
+            cosDist = np.dot(a, b)
+
+            # Schwellenwert prüfen
+            if cosDist < 0.2:  # Schwellenwert für minimale Ähnlichkeit
                 return NO_VOICE_MATCH
 
 

@@ -1,0 +1,24 @@
+{% block %}
+    {% client %}(alle nutzer|nutzerliste|benutzer|benutzerliste){% endclient %}
+    {% response %}{% call user_list: 0 %}{% endresponse %}
+{% endblock %}
+
+{% block %}
+    {% client %}(neuer benutzer|neuer nutzer) (?P<user>.*){% endclient %}
+    {% response %}{% call new_user: %user %}{% endresponse %}
+{% endblock %}
+
+{% block %}
+    {% client %}(berechtigungen bearbeiten für|berechtigungen aktualisieren für) (?P<user>.*){% endclient %}
+    {% response %}{% call change_intent_user: %user %}{% endresponse %}
+{% endblock %}
+
+{% block %}
+    {% client %}(lösche benutzer|lösche nutzer) (?P<user>.*){% endclient %}
+    {% response %}{% call delete_user: %user %}{% endresponse %}
+{% endblock %}
+
+{% block %}
+    {% client %}(sprachprofil aktualisieren für|sprachprofil bearbeiten für) (?P<user>.*){% endclient %}
+    {% response %}{% call change_spkid_user: %user %}{% endresponse %}
+{% endblock %}

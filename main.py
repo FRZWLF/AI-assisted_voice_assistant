@@ -12,6 +12,8 @@ import sounddevice as sd
 from vosk import Model, SpkModel, KaldiRecognizer
 import json
 import numpy as np
+
+from intents.functions.usermanagement.intent_usermgmt import load_users
 from usermgmt import UserMgmt
 from intentmgmt import IntentManagement
 from audioplayer import AudioPlayer
@@ -20,6 +22,8 @@ import wx
 import constants
 import global_variables
 from notification import Notification
+from resemblyzer import VoiceEncoder
+from resemblyzer.audio import preprocess_wav
 
 #GUI-Anwendung mit pythonw main.py starten
 
@@ -107,7 +111,7 @@ class VoiceAssistant():
         if not self.wake_words:
             self.wake_words = ['americano']
         logger.debug("Wake Words sind {}" ','.join(self.wake_words))
-        self.porcupine = pvporcupine.create(keywords=self.wake_words, sensitivities=[0.6, 0.6])
+        self.porcupine = pvporcupine.create(keywords=self.wake_words)
         logger.info("Wake Words Erkennung wurde initialisiert.")
 
         #Audio-Stream needed
@@ -170,13 +174,10 @@ class VoiceAssistant():
 
 
         logger.info("Initialisiere Benutzerverwaltung...")
-        self.user_management = UserMgmt(init_dummies=True)
+        self.user_management = UserMgmt()
         self.allow_only_known_speakers = self.cfg['assistant']['allow_only_known_speakers']
         logger.info("Benutzerverwaltung initialisiert.")
 
-        # Initialisiere den Audio-Player
-        # mixer.init()
-        # mixer.music.set_volume(self.volume)
         self.audio_player = AudioPlayer()
         self.audio_player.set_volume(self.volume)
 
@@ -200,17 +201,32 @@ class VoiceAssistant():
         self.tts.say("Initialisierung abgeschlossen.")
 
     def __detectSpeaker__(self, input):
-        bestSpeaker = None
-        bestCosDist = -1
+        processed_wav = preprocess_wav(input)
+        input_embedding = self.encoder.embed_utterance(processed_wav)
+        best_speaker = "Unbekannt"
+        best_cosine_similarity = -1
+
         for speaker in self.user_management.speaker_table.all():
-            nx = np.array(speaker.get('voice'))
-            ny = np.array(input)
-            cosDist = np.dot(nx, ny) / np.linalg.norm(nx) * np.linalg.norm(ny)
-            if cosDist > bestCosDist:
-                if cosDist > 0.5:
-                    bestCosDist = cosDist
-                    bestSpeaker = speaker.get('name')
-        return bestSpeaker
+            saved_embedding = np.array(speaker.get('voice'))
+            cosine_similarity = np.dot(input_embedding, saved_embedding) / (
+                    np.linalg.norm(input_embedding) * np.linalg.norm(saved_embedding)
+            )
+
+            if cosine_similarity > best_cosine_similarity and cosine_similarity > 0.5:
+                best_cosine_similarity = cosine_similarity
+                best_speaker = speaker.get('name')
+
+        return best_speaker if best_cosine_similarity >= 0.5 else "Unbekannt"
+
+    def capture_voice_sample(self):
+        logger.info("Starte Sprachaufnahme...")
+        # Implementiere die Aufnahme (z. B. 5 Sekunden) und Verarbeitung
+        sample = self.recognize_voice_sample(duration=5)  # Placeholder für Aufnahme-Logik
+        if sample:
+            logger.info("Sprachprobe erfolgreich aufgenommen.")
+            return sample
+        logger.warning("Sprachaufnahme fehlgeschlagen.")
+        return None
 
     def load_available_languages(self):
         """Lädt die verfügbaren Sprachen und Stimmen aus einer YAML-Datei und aktualisiert diese, falls neue Sprachen hinzugefügt werden."""

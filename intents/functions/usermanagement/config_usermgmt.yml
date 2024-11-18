@@ -1,0 +1,19 @@
+intent:
+  user:
+    de:
+      add_success: ["Neuer Benutzer {} erfolgreich hinzugefügt ."]
+      add_error: ["Benutzer {} konnte nicht hinzugefügt werden ."]
+      delete_success: [ "Benutzer {} erfolgreich gelöscht ." ]
+      delete_error: [ "Benutzer {} konnte nicht gelöscht werden ." ]
+      change_intent_success: ["Berechtigungen für {} erfolgreich aktualisiert ."]
+      available_user: ["Das sind alle Benutzer: {} "]
+      change_error: ["Änderungen konnten nicht abgeschlossen werden ."]
+      change_spkid_success: [ "Sprachprofil für {} erfolgreich aktualisiert ." ]
+      no_users: ["Es sind keine Benutzer registriert."]
+      user_exist: ["Benutzer {} existiert bereits ."]
+      user_noexist: ["Benutzer {} existiert nicht ."]
+
+    en:
+      change_success: [ "Successfully switched language to {}." ]
+      available_user: ["Available languages are: {} "]
+      change_error: [ "The language {} is not supported." ]

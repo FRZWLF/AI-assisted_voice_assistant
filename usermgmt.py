@@ -3,10 +3,13 @@ from tinydb import TinyDB, Query
 # Voice-Fingerabdruck muss unbedingt gefixt werden in zukünftigen Projekten
 class UserMgmt:
 
-    def __add_dummies__(self):
+    def init_first_user(self, name, fingerprint=None):
         Speaker = Query()
-        if not self.speaker_table.contains(Speaker.name == 'rico'):
-            self.speaker_table.insert({'name': 'rico', 'gender':'male', "intents": ["*"], 'voice': [-0.858077, 0.998947, 0.271951, 0.619664, 0.354766, 0.414326, -0.966287, -0.042643, 0.942384, 0.521249, 1.377429, 0.113683, -0.705077, 1.139906, -0.765353, -0.823337, 1.35967, 2.306114, 0.477449, -1.481069, -0.215251, 1.061421, 1.98999, 0.069937, 0.196713, 0.172438, -0.067831, -1.936868, 0.650887, -0.628034, 0.929553, -0.366168, 0.492516, 0.743934, 0.122094, 1.530046, -1.561063, 0.267662, -0.702975, -1.543026, -1.663608, 0.578999, 0.920459, -1.146324, 0.037962, -1.572797, -0.918361, -0.739868, 0.204732, 0.472425, 0.500999, -1.473357, -0.084383, -0.709822, -0.824807, -0.429139, 0.519858, -0.132151, -0.117226, 2.220365, -1.700943, -0.779058, 0.850809, -0.834618, 0.677584, 1.718908, -0.103499, -0.071495, 1.340549, -0.715215, 0.601721, 1.615968, -0.484285, -0.4405, -0.043938, 0.551961, 0.501324, -2.84886, 0.025088, 0.569772, 0.516387, 0.946851, -1.76055, -0.428084, 0.43263, 2.147155, -0.933208, 2.145171, 0.25672, 0.093658, 1.276378, 0.290938, 0.023685, -0.968414, -0.43301, -0.176957, 0.728837, -0.527651, -0.363126, -0.918615, -1.777982, -0.302425, 0.629561, 0.733244, -0.133392, 0.808268, 2.479424, 0.64638, -1.007078, -0.026711, -0.389827, 1.402053, -0.733404, -0.628359, -0.64435, -1.01048, 0.737171, -0.223629, -0.131412, -1.457193, -0.455525, 0.139002, -0.560472, -1.785476, -1.713923, 1.328507, 0.640547, 0.332586]})
+        # Prüfen, ob Benutzer vorhanden sind
+        if not self.speaker_table.all():
+            self.speaker_table.insert({'name': name, 'intents': ['*'], 'voice': fingerprint or []})
+            return f"Benutzer {name} wurde als erster Nutzer hinzugefügt."
+        return "Benutzer existieren bereits."
 
     def authenticate_intent(self,speaker,intent):
         Speaker = Query()
@@ -21,9 +24,6 @@ class UserMgmt:
         return False
 
 
-    def __init__(self, init_dummies = False):
+    def __init__(self):
         self.db = TinyDB('./users.json')
         self.speaker_table = self.db.table('speakers')
-
-        if init_dummies:
-            self.__add_dummies__()
