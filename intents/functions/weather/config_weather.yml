@@ -8,4 +8,24 @@ intent:
       weatheris: ["The weather in {} is {} at a temperatur of {} degrees."]
       location_not_found: "I could not find a place called {}."
       here: "here"
+    fr:
+      weatheris: [ "Le temps à {} est {} avec une température de {} degrés Celsius." ]
+      location_not_found: "Je n'ai pas pu trouver un lieu appelé {}."
+      here: "ici"
+    es:
+      weatheris: [ "El clima en {} es {} con una temperatura de {} grados Celsius." ]
+      location_not_found: "No pude encontrar un lugar llamado {}."
+      here: "aquí"
+    it:
+      weatheris: [ "Il tempo a {} è {} con una temperatura di {} gradi Celsius." ]
+      location_not_found: "Non ho trovato un posto chiamato {}."
+      here: "qui"
+    ja:
+      weatheris: [ "{}の天気は{}で、気温は{}度です。" ]
+      location_not_found: "{}という場所が見つかりませんでした。"
+      here: "ここ"
+    ru:
+      weatheris: [ "Погода в {}: {}, температура {} градусов Цельсия." ]
+      location_not_found: "Я не смог найти место с названием {}."
+      here: "здесь"
     owm_api_key: "bc5744c123c52a756cfe5b9fa9671c31"

@@ -60,10 +60,14 @@ class IntentManagement:
     def get_count(self):
         return self.intent_count
 
-    def __init__(self):
-
+    def __init__(self, language_manager):
+        self.language_manager = language_manager
+        self.language_data = self.language_manager.translations
         self.functions_folders = [os.path.abspath(name) for name in glob.glob("./intents/functions/*/")]
         self.dynamic_intents = []
+
+        # Templates initial verarbeiten
+        self.process_templates()
 
         self.intent_count = 0
         for ff in self.functions_folders:
@@ -88,16 +92,33 @@ class IntentManagement:
                 self.dynamic_intents.append(str(Path(ff).name))
                 self.intent_count += 1
 
+
+    def process_templates(self):
+        """
+        Lädt und verarbeitet die Templates basierend auf der aktuellen Sprache.
+        """
         logger.info("Initialisiere ChatbotAI...")
         chatbotai_files = glob.glob(os.path.join("./intents/chatbotai", "*.template"))
         MERGED_FILE = "./intents/chatbotai/_merger.template"
 
-        with open(MERGED_FILE, 'w') as outfile:
+        with open(MERGED_FILE, 'w', encoding='utf-8') as outfile:
             for caf in chatbotai_files:
                 if not Path(caf).name == Path(MERGED_FILE).name:
                     logger.debug("Verarbeite chatbotai Template {}...", Path(caf).name)
-                    with open(caf) as infile:
-                        outfile.write(infile.read())
+                    try:
+                        # Lies die Datei im korrekten Encoding
+                        with open(caf, 'r', encoding='utf-8') as infile:
+                            content = infile.read()
+                    except UnicodeDecodeError:
+                        logger.warning(f"Fehler beim Lesen der Datei {caf} mit UTF-8. Versuche mit latin-1.")
+                        with open(caf, 'r', encoding='latin-1') as infile:
+                            content = infile.read()
+                    logger.debug(f"Original-Template-Inhalt:\n{content}")
+                    # Ersetze Platzhalter mit Werten aus der Sprachdatei
+                    replaced_content = self.replace_placeholders(content, self.language_manager.translations)
+                    logger.debug(f"Ersetzter Template-Inhalt:\n{replaced_content}")
+                    outfile.write(replaced_content)
+        logger.info(f"Templates verarbeitet und in {MERGED_FILE} gespeichert.")
 
         if os.path.isfile(MERGED_FILE):
             self.chat = Chat(MERGED_FILE)
@@ -105,6 +126,29 @@ class IntentManagement:
             logger.error("Chatbotai konnte nicht initialisiert werden.")
             sys.exit(1)
         logger.info('Chatbot aus {} initialisiert.', MERGED_FILE)
+
+    def replace_placeholders(self, template_content, data, parent_key=""):
+        """
+        Ersetzt Platzhalter im Template durch Werte aus der Sprachdatei.
+        Unterstützt verschachtelte Keys und bietet Debugging-Logs.
+        """
+        for key, value in data.items():
+            # Schlüssel erweitern für verschachtelte Werte
+            full_key = f"{parent_key}.{key}" if parent_key else key
+
+            if isinstance(value, dict):
+                # Rekursiver Aufruf für verschachtelte Strukturen
+                template_content = self.replace_placeholders(template_content, value, full_key)
+            else:
+                # Debugging: Überprüfen, welcher Platzhalter ersetzt wird
+                placeholder = f"{{{{{full_key}}}}}"
+                if placeholder in template_content:
+                    logger.debug(f"Ersetze Platzhalter {placeholder} mit Wert: {value}")
+                    template_content = template_content.replace(placeholder, str(value))
+                else:
+                    logger.warning(f"Platzhalter {placeholder} nicht im Template gefunden.")
+        return template_content
+
 
     def register_callbacks(self):
         # Registriere alle Callback Funktionen

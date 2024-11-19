@@ -1,4 +1,4 @@
 {% block %}
-    {% client %}(spiele den radiosender|spiele radio) (?P<station>.*){% endclient %}
+    {% client %}({{intent.music.musicstream}}) (?P<station>.*){% endclient %}
     {% response %}{% call musicstream: %station %}{% endresponse %}
 {% endblock %}

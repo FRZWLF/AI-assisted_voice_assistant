@@ -1,0 +1,47 @@
+intent:
+  start:
+    welcome: "Welcome! How can I assist you today?"
+  animal:
+    ask_animal: '(what does the) (?P<animal>.*)\s(sound like)'
+  language:
+    language_list: "which languages are available|languages|language options|language possibilities"
+    language_choose: "choose language|use language|language"
+  location:
+    location: "where am I|where am I located|where are we here|where are we located"
+  music:
+    musicstream: "play the radio station|play radio"
+  password:
+    password: "Password"
+    user: "User|Username"
+  questiongame:
+    start: "(start question game)|(question game)"
+  reminder:
+    time_reminder_to: '(remind me|reminder) (?P<time>.*?)\s(?P<reminder_to>(of|my|mine)\s?.*)'
+    reminder_to_time: '(remind me|reminder) (?P<reminder_to>.*?)\s(?P<time>(at|in)\s?.*)'
+    time_reminder_infinitive: '(remind me|reminder) (?P<time>.*?)\s(?P<reminder_infinitive>(to|the|a|an|one|from the|from|to the|in the|on the|for the)\s?.*)'
+    time: '(remind me|reminder) (?P<time>.*)'
+  timer:
+    status: "timer status|timer update"
+    named_timer: '(timer|set the timer|set timer) (?P<name>.*?)\s(?P<timer>(to)\s?.*)'
+    unnamed_timer: '(timer|set a timer to|set timer to)(?!.*\b(update|status)\b) (?P<timer>.*)'
+  stop:
+    stop: "stop|silent fox"
+  time:
+    gettime_place: "what time is it in|time in"
+    gettime: "what time is it|time"
+  user:
+    user_list: "all users|user list|users"
+    new_user: "new user"
+    change_intents: "edit permissions for|update permissions for"
+    delete_user: "delete user|remove user"
+    change_voice_sample: "update voice profile for|edit voice profile for"
+  volume:
+    volume: "what is the volume|how loud is it"
+    max_volume: "full volume|max volume"
+    set_volume: "volume|set volume to|set volume"
+    louder: "louder.*"
+    quieter: "quieter.*"
+  weather:
+    location: "how is the weather in|how is the weather|weather|weather in"
+  wiki:
+    ask: "do you know anything about|do you know something about|who is|what is|tell me something about|do you know"

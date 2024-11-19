@@ -1,9 +1,19 @@
 intent:
   musicstream:
     de:
-      unknown_station: ["Den Radiosender kenne ich nicht."]
+      unknown_station: [ "Den Radiosender kenne ich nicht." ]
     en:
-      unknown_station: ["I don't know that station."]
+      unknown_station: [ "I don't know that station." ]
+    fr:
+      unknown_station: [ "Je ne connais pas cette station de radio." ]
+    es:
+      unknown_station: [ "No conozco esa emisora de radio." ]
+    it:
+      unknown_station: [ "Non conosco quella stazione radio." ]
+    ja:
+      unknown_station: [ "そのラジオ局を知りません。" ]
+    ru:
+      unknown_station: [ "Я не знаю эту радиостанцию." ]
     stations:
       "deutschlandfunk": "https://st01.sslstream.dlf.de/dlf/01/128/mp3/stream.mp3"
       "hr 1": "https://dispatcher.rndfnk.com/hr/hr1/live/mp3/high"

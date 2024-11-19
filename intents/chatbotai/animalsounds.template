@@ -1,4 +1,4 @@
 {% block %}
-    {% client %} (wie macht (der|die|das)) (?P<animal>.*) {% endclient %}
+    {% client %} {{intent.animal.ask_animal}} {% endclient %}
     {% response %} {% call animalSound: %animal %} {% endresponse %}
 {% endblock %}

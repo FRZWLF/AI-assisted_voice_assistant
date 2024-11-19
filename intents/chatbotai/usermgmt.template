@@ -1,24 +1,24 @@
 {% block %}
-    {% client %}(alle nutzer|nutzerliste|benutzer|benutzerliste){% endclient %}
+    {% client %}({{intent.user.user_list}}){% endclient %}
     {% response %}{% call user_list: 0 %}{% endresponse %}
 {% endblock %}
 
 {% block %}
-    {% client %}(neuer benutzer|neuer nutzer){% endclient %}
+    {% client %}({{intent.user.new_user}}){% endclient %}
     {% response %}{% call new_user: 0 %}{% endresponse %}
 {% endblock %}
 
 {% block %}
-    {% client %}(berechtigungen bearbeiten für|berechtigungen aktualisieren für) (?P<user>.*){% endclient %}
+    {% client %}({{intent.user.change_intents}}) (?P<user>.*){% endclient %}
     {% response %}{% call change_intent_user: %user %}{% endresponse %}
 {% endblock %}
 
 {% block %}
-    {% client %}(lösche benutzer|lösche nutzer|entferne benutzer|entferne nutzer) (?P<user>.*){% endclient %}
+    {% client %}({{intent.user.delete_user}}) (?P<user>.*){% endclient %}
     {% response %}{% call delete_user: %user %}{% endresponse %}
 {% endblock %}
 
 {% block %}
-    {% client %}(sprachprofil aktualisieren für|sprachprofil bearbeiten für|sprach profil aktualisieren für|sprach profil bearbeiten für) (?P<user>.*){% endclient %}
+    {% client %}({{intent.user.change_voice_sample}}) (?P<user>.*){% endclient %}
     {% response %}{% call change_spkid_user: %user %}{% endresponse %}
 {% endblock %}

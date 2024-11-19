@@ -4,3 +4,13 @@ intent:
       unknown_entity: ["Ich weiß nichts über {}.", "{} sagt mir nichts."]
     en:
       unknown_entity: ["I don't know {}.", "{} rings no bell."]
+    fr:
+      unknown_entity: [ "Je ne sais rien sur {}.", "{} ne me dit rien." ]
+    es:
+      unknown_entity: [ "No sé nada sobre {}.", "{} no me suena de nada." ]
+    it:
+      unknown_entity: [ "Non so nulla su {}.", "{} non mi dice nulla." ]
+    ja:
+      unknown_entity: [ "{}については何も知りません。", "{}は聞いたことがありません。" ]
+    ru:
+      unknown_entity: [ "Я ничего не знаю о {}.", "{} мне ни о чём не говорит." ]

@@ -1,4 +1,4 @@
 {% block %}
-    {% client %}(stop|halt|stopp|schweigefuchs){% endclient %}
+    {% client %}({{intent.stop.stop}}){% endclient %}
     {% response %}{% call stop: 0 %}{% endresponse %}
 {% endblock %}

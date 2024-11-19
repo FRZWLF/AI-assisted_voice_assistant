@@ -1,9 +1,9 @@
 {% block %}
-    {% client %}(welche sprachen sind verfügbar|sprachen|sprachmöglichkeiten|sprach möglichkeiten){% endclient %}
+    {% client %}({{intent.language.language_list}}){% endclient %}
     {% response %}{% call language_list: 0 %}{% endresponse %}
 {% endblock %}
 
 {% block %}
-    {% client %}(wähle sprache|nutze sprache|sprache) (?P<language>.*){% endclient %}
+    {% client %}({{intent.language.language_choose}}) (?P<language>.*){% endclient %}
     {% response %}{% call switch_language: %language %}{% endresponse %}
 {% endblock %}

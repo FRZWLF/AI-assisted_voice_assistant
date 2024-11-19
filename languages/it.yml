@@ -1,0 +1,47 @@
+intent:
+  start:
+    welcome: "Benvenuto! Come posso aiutarti oggi?"
+  animal:
+    ask_animal: "(come fa (il|la)) (?P<animal>.*)"
+  language:
+    language_list: "quali lingue sono disponibili|lingue|opzioni linguistiche|possibilità linguistiche"
+    language_choose: "scegli lingua|usa lingua|lingua"
+  location:
+    location: "dove sono|dove mi trovo|dove siamo|dove ci troviamo"
+  music:
+    musicstream: "riproduci la stazione radio|riproduci radio"
+  password:
+    password: "Password"
+    user: "Utente|Nome utente"
+  questiongame:
+    start: "(gioco di domande)|(avvia gioco di domande)|(inizia gioco di domande)"
+  reminder:
+    time_reminder_to: '(ricordami|promemoria|ricordami di) (?P<time>.*?)\s(?P<reminder_to>(a|il mio|la mia|i miei|le mie)\s?.*)'
+    reminder_to_time: '(ricordami|promemoria|ricordami di) (?P<reminder_to>.*?)\s(?P<time>(alle|tra|fra)\s?.*)'
+    time_reminder_infinitive: '(ricordami|promemoria|ricordami di) (?P<time>.*?)\s(?P<reminder_infinitive>(di|del|della|dei|degli|un|una|nell|al|sul)\s?.*)'
+    time: '(ricordami|promemoria|ricordami di) (?P<time>.*)'
+  timer:
+    status: "stato del timer|aggiornamento del timer"
+    named_timer: '(timer|imposta il timer|imposta timer) (?P<name>.*?)\s(?P<timer>(a)\s?.*)'
+    unnamed_timer: '(timer|imposta un timer a|imposta timer a)(?!.*\b(aggiornamento|stato)\b) (?P<timer>.*)'
+  stop:
+    stop: "ferma|stop|pausa|silenzio"
+  time:
+    gettime_place: "che ore sono a|orario a|che ora è a"
+    gettime: "che ore sono|che ora è|orario"
+  user:
+    user_list: "tutti gli utenti|elenco utenti|utente|lista utenti"
+    new_user: "nuovo utente"
+    change_intents: "modifica autorizzazioni per|aggiorna autorizzazioni per"
+    delete_user: "elimina utente|rimuovi utente|cancella utente"
+    change_voice_sample: "aggiorna profilo vocale per|modifica profilo vocale per|aggiorna profilo di voce per"
+  volume:
+    volume: "qual è il volume?|quanto è alto il volume?"
+    max_volume: "volume massimo|imposta volume massimo"
+    set_volume: "volume|imposta il volume a|imposta volume"
+    louder: "più alto.*"
+    quieter: "più basso.*"
+  weather:
+    location: "com'è il tempo a|com'è il tempo|meteo|meteo a"
+  wiki:
+    ask: "sai qualcosa su|conosci qualcosa su|chi è|cos'è|raccontami qualcosa su|conosci"

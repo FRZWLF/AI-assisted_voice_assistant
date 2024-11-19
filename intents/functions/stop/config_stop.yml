@@ -6,3 +6,18 @@ intent:
     en:
       not_saying_anything: ["I am not saying anything.", "Did I say something?"]
       be_silent: ["Okay, I am silent.", "Understood, you need silence.", "okay"]
+    fr:
+      not_saying_anything: [ "Je ne dis rien.", "Ai-je dit quelque chose ?" ]
+      be_silent: [ "D'accord, je me tais.", "Compris, tu as besoin de silence.", "D'accord" ]
+    es:
+      not_saying_anything: [ "No estoy diciendo nada.", "¿He dicho algo?" ]
+      be_silent: [ "Está bien, estaré en silencio.", "Entendido, necesitas silencio.", "De acuerdo" ]
+    it:
+      not_saying_anything: [ "Non sto dicendo nulla.", "Ho detto qualcosa?" ]
+      be_silent: [ "Va bene, starò in silenzio.", "Capito, hai bisogno di silenzio.", "Ok" ]
+    ja:
+      not_saying_anything: [ "私は何も言っていません。", "何か言いましたか？" ]
+      be_silent: [ "わかりました、静かにします。", "理解しました、静かが必要ですね。", "わかりました" ]
+    ru:
+      not_saying_anything: [ "Я ничего не говорю.", "Я что-то сказал?" ]
+      be_silent: [ "Хорошо, я замолчу.", "Понял, вам нужно тишины.", "Хорошо" ]

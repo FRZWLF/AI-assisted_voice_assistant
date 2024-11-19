@@ -18,6 +18,98 @@ intent:
       no_session: "Die Sitzung existiert nicht . Bitte starten Sie den Vorgang erneut ."
 
     en:
-      change_success: [ "Successfully switched language to {}." ]
-      available_user: ["Available languages are: {} "]
-      change_error: [ "The language {} is not supported." ]
+      add_success: [ "New user {} successfully added." ]
+      add_error: [ "User {} could not be added. The voice recording was not successful. Please try again." ]
+      delete_success: [ "User {} successfully deleted." ]
+      delete_error: [ "User {} could not be deleted." ]
+      change_intent_success: [ "Permissions for {} successfully updated." ]
+      available_users: [ "These are all the users: {}" ]
+      change_error: "Changes could not be completed."
+      change_spkid_success: [ "Voice profile for {} successfully updated." ]
+      no_users: "No users are registered."
+      user_exist: [ "User {} already exists. Please choose a different name." ]
+      user_noexist: [ "User {} does not exist." ]
+      new_user_name: "What should the user's name be?"
+      new_user_intent: "What permissions should the user have? Separate them with commas or say 'all'."
+      new_user_voice: "Finally, I will record a voice fingerprint."
+      no_session: "The session does not exist. Please restart the process."
+    fr:
+      add_success: [ "Nouvel utilisateur {} ajouté avec succès." ]
+      add_error: [ "Impossible d'ajouter l'utilisateur {}. L'enregistrement vocal n'a pas été réussi. Veuillez réessayer." ]
+      delete_success: [ "Utilisateur {} supprimé avec succès." ]
+      delete_error: [ "Impossible de supprimer l'utilisateur {}." ]
+      change_intent_success: [ "Permissions pour {} mises à jour avec succès." ]
+      available_users: [ "Voici tous les utilisateurs : {}" ]
+      change_error: "Les modifications n'ont pas pu être effectuées."
+      change_spkid_success: [ "Profil vocal pour {} mis à jour avec succès." ]
+      no_users: "Aucun utilisateur enregistré."
+      user_exist: [ "L'utilisateur {} existe déjà. Veuillez choisir un autre nom." ]
+      user_noexist: [ "L'utilisateur {} n'existe pas." ]
+      new_user_name: "Comment doit s'appeler l'utilisateur ?"
+      new_user_intent: "Quels permissions devrait avoir l'utilisateur ? Séparez par des virgules ou dites 'tous'."
+      new_user_voice: "Enfin, j'enregistrerai une empreinte vocale."
+      no_session: "La session n'existe pas. Veuillez redémarrer le processus."
+    es:
+      add_success: [ "Nuevo usuario {} agregado con éxito." ]
+      add_error: [ "No se pudo agregar el usuario {}. La grabación de voz no fue exitosa. Por favor, inténtelo de nuevo." ]
+      delete_success: [ "Usuario {} eliminado con éxito." ]
+      delete_error: [ "No se pudo eliminar el usuario {}." ]
+      change_intent_success: [ "Permisos para {} actualizados con éxito." ]
+      available_users: [ "Estos son todos los usuarios: {}" ]
+      change_error: "No se pudieron completar los cambios."
+      change_spkid_success: [ "Perfil de voz para {} actualizado con éxito." ]
+      no_users: "No hay usuarios registrados."
+      user_exist: [ "El usuario {} ya existe. Por favor, elija otro nombre." ]
+      user_noexist: [ "El usuario {} no existe." ]
+      new_user_name: "¿Cómo debería llamarse el usuario?"
+      new_user_intent: "¿Qué permisos debería tener el usuario? Separe con comas o diga 'todos'."
+      new_user_voice: "Por último, grabaré una huella de voz."
+      no_session: "La sesión no existe. Por favor, reinicie el proceso."
+    it:
+      add_success: [ "Nuovo utente {} aggiunto con successo." ]
+      add_error: [ "Impossibile aggiungere l'utente {}. La registrazione vocale non è riuscita. Per favore riprova." ]
+      delete_success: [ "Utente {} eliminato con successo." ]
+      delete_error: [ "Impossibile eliminare l'utente {}." ]
+      change_intent_success: [ "Permessi per {} aggiornati con successo." ]
+      available_users: [ "Questi sono tutti gli utenti: {}" ]
+      change_error: "Le modifiche non sono state completate."
+      change_spkid_success: [ "Profilo vocale per {} aggiornato con successo." ]
+      no_users: "Non ci sono utenti registrati."
+      user_exist: [ "L'utente {} esiste già. Si prega di scegliere un altro nome." ]
+      user_noexist: [ "L'utente {} non esiste." ]
+      new_user_name: "Come dovrebbe chiamarsi l'utente?"
+      new_user_intent: "Quali permessi dovrebbe avere l'utente? Separare con virgole o dire 'tutti'."
+      new_user_voice: "Infine, registrerò un'impronta vocale."
+      no_session: "La sessione non esiste. Si prega di riavviare il processo."
+    ja:
+      add_success: [ "新しいユーザー {} が正常に追加されました。" ]
+      add_error: [ "ユーザー {} を追加できませんでした。音声録音が成功しませんでした。もう一度お試しください。" ]
+      delete_success: [ "ユーザー {} が正常に削除されました。" ]
+      delete_error: [ "ユーザー {} を削除できませんでした。" ]
+      change_intent_success: [ "{} の権限が正常に更新されました。" ]
+      available_users: [ "これがすべてのユーザーです: {}" ]
+      change_error: "変更を完了できませんでした。"
+      change_spkid_success: [ "{} の音声プロファイルが正常に更新されました。" ]
+      no_users: "登録されているユーザーはいません。"
+      user_exist: [ "ユーザー {} は既に存在します。別の名前を選んでください。" ]
+      user_noexist: [ "ユーザー {} は存在しません。" ]
+      new_user_name: "ユーザーの名前は何にしますか？"
+      new_user_intent: "ユーザーにどの権限を持たせますか？カンマで区切るか「すべて」と言ってください。"
+      new_user_voice: "最後に音声指紋を記録します。"
+      no_session: "セッションが存在しません。もう一度やり直してください。"
+    ru:
+      add_success: [ "Новый пользователь {} успешно добавлен." ]
+      add_error: [ "Не удалось добавить пользователя {}. Запись голоса не удалась. Пожалуйста, попробуйте еще раз." ]
+      delete_success: [ "Пользователь {} успешно удален." ]
+      delete_error: [ "Не удалось удалить пользователя {}." ]
+      change_intent_success: [ "Разрешения для {} успешно обновлены." ]
+      available_users: [ "Это все пользователи: {}" ]
+      change_error: "Не удалось завершить изменения."
+      change_spkid_success: [ "Голосовой профиль для {} успешно обновлен." ]
+      no_users: "Зарегистрированных пользователей нет."
+      user_exist: [ "Пользователь {} уже существует. Пожалуйста, выберите другое имя." ]
+      user_noexist: [ "Пользователь {} не существует." ]
+      new_user_name: "Как должно называться имя пользователя?"
+      new_user_intent: "Какие разрешения должен иметь пользователь? Разделите запятыми или скажите 'все'."
+      new_user_voice: "Наконец, я запишу голосовой отпечаток."
+      no_session: "Сессия не существует. Пожалуйста, начните процесс заново."

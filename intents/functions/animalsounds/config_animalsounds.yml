@@ -4,18 +4,28 @@ intent:
       animal_not_found: ["Das Tier kenne ich nicht.", "Was ist das denn bitte für ein Tier?"]
     en:
       animal_not_found: ["I don't know such an animal.", "What kind of animal should that be?"]
+    fr:
+      animal_not_found: [ "Je ne connais pas cet animal.", "Quel genre d'animal est-ce censé être ?" ]
+    es:
+      animal_not_found: [ "No conozco a ese animal.", "¿Qué tipo de animal debería ser?" ]
+    it:
+      animal_not_found: [ "Non conosco questo animale.", "Che tipo di animale dovrebbe essere?" ]
+    ja:
+      animal_not_found: [ "その動物を知りません。", "それはどんな動物ですか？" ]
+    ru:
+      animal_not_found: [ "Я не знаю такого животного.", "Что это за животное?" ]
     animals:
-      cat: ["cat", "katze"]
-      chicken: ["chicken", "huhn"]
-      cock: ["cock", "hahn"]
-      cow: ["cow", "kuh"]
-      dog: ["dog", "hund"]
-      donkey: ["donkey", "esel"]
-      duck: ["duck", "ente"]
-      goat: ["goat", "ziege"]
-      goose: ["goose", "gans"]
-      horse: ["horse", "pferd"]
-      ox: ["ox", "ochse"]
-      pig: ["pig", "schwein"]
-      sheep: ["sheep", "schaf"]
-      turkey: ["turkey", "truthahn"]
+      cat: [ "cat", "katze", "chat", "gato", "gatto", "猫", "кот" ]
+      chicken: [ "chicken", "huhn", "poulet", "pollo", "pollo", "鶏", "курица" ]
+      cock: [ "cock", "hahn", "coq", "gallo", "gallo", "雄鶏", "петух" ]
+      cow: [ "cow", "kuh", "vache", "vaca", "mucca", "牛", "корова" ]
+      dog: [ "dog", "hund", "chien", "perro", "cane", "犬", "собака" ]
+      donkey: [ "donkey", "esel", "âne", "burro", "asino", "ロバ", "осел" ]
+      duck: [ "duck", "ente", "canard", "pato", "anatra", "アヒル", "утка" ]
+      goat: [ "goat", "ziege", "chèvre", "cabra", "capra", "ヤギ", "коза" ]
+      goose: [ "goose", "gans", "oie", "ganso", "oca", "ガチョウ", "гусь" ]
+      horse: [ "horse", "pferd", "cheval", "caballo", "cavallo", "馬", "лошадь" ]
+      ox: [ "ox", "ochse", "bœuf", "buey", "bue", "雄牛", "бык" ]
+      pig: [ "pig", "schwein", "cochon", "cerdo", "maiale", "豚", "свинья" ]
+      sheep: [ "sheep", "schaf", "mouton", "oveja", "pecora", "羊", "овца" ]
+      turkey: [ "turkey", "truthahn", "dinde", "pavo", "tacchino", "七面鳥", "индюк" ]

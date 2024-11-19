@@ -1,0 +1,47 @@
+intent:
+  start:
+    welcome: "Willkommen! Wie kann ich dir heute behilflich sein?"
+  animal:
+    ask_animal: "(wie macht (der|die|das)) (?P<animal>.*)"
+  language:
+    language_list: "welche sprachen sind verfügbar|sprachen|sprachmöglichkeiten|sprach möglichkeiten"
+    language_choose: "wähle sprache|nutze sprache|sprache"
+  location:
+    location: "wo bin ich|wo befinde ich mich|wo sind wir hier|wo befinden wir uns"
+  music:
+    musicstream: "spiele den radiosender|spiele radio"
+  password:
+    password: "Passwort"
+    user: "Benutzer|Benutzername"
+  questiongame:
+    start: "(fragespiel)|(starte fragespiel)|(frage spiel)|(starte frage spiel)"
+  reminder:
+    time_reminder_to: '(erinnere mich|erinnerung|erinner mich) (?P<time>.*?)\s(?P<reminder_to>(an|meinen|meine|mein)\s?.*)'
+    reminder_to_time: '(erinnere mich|erinnerung|erinner mich) (?P<reminder_to>.*?)\s(?P<time>(um|in)\s?.*)'
+    time_reminder_infinitive: '(erinnere mich|erinnerung|erinner mich) (?P<time>.*?)\s(?P<reminder_infinitive>(zu|den|die|das|der|ein|eine|einen|aus dem|vom|ins|im|an das|auf das|für das)\s?.*)'
+    time: '(erinnere mich|erinnerung|erinner mich) (?P<time>.*)'
+  timer:
+    status: "timer status|timer update"
+    named_timer: '(timer|stelle den timer|stelle timer) (?P<name>.*?)\s(?P<timer>(auf)\s?.*)'
+    unnamed_timer: '(timer|stelle einen timer auf|stelle timer auf)(?!.*\b(update|status)\b) (?P<timer>.*)'
+  stop:
+    stop: "stop|halt|stopp|schweigefuchs"
+  time:
+    gettime_place: "wie spät ist es in|uhrzeit in|wie viel Uhr ist es in"
+    gettime: "wie spät ist es|wie viel Uhr ist es|uhrzeit"
+  user:
+    user_list: "alle nutzer|nutzerliste|benutzer|benutzerliste"
+    new_user: "neuer benutzer|neuer nutzer"
+    change_intents: "berechtigungen bearbeiten für|berechtigungen aktualisieren für"
+    delete_user: "lösche benutzer|lösche nutzer|entferne benutzer|entferne nutzer"
+    change_voice_sample: "sprachprofil aktualisieren für|sprachprofil bearbeiten für|sprach profil aktualisieren für|sprach profil bearbeiten für"
+  volume:
+    volume: "wie ist die lautstärke|wie laut ist es"
+    max_volume: "volle lautstärke|maximale lautstärke"
+    set_volume: "lautstärke|setze lautstärke auf|setze lautstärke"
+    louder: "lauter.*"
+    quieter: "leiser.*"
+  weather:
+    location: "wie ist das wetter in|wie ist das wetter|wetter|wetter in"
+  wiki:
+    ask: "weißt du was über|weißt du etwas über|wer ist|was ist|erzähle mir was über|kennst du"

@@ -4,3 +4,13 @@ intent:
       youarehere: ["Du befindest dich in {}."]
     en:
       youarehere: ["You are in {}."]
+    fr:
+      youarehere: ["Vous êtes à {}."]
+    es:
+      youarehere: ["Estás en {}."]
+    it:
+      youarehere: ["Ti trovi a {}."]
+    ja:
+      youarehere: ["あなたは{}にいます。"]
+    ru:
+      youarehere: ["Вы находитесь в {}."]

@@ -9,3 +9,28 @@ intent:
       change_success: [ "Successfully switched language to {}." ]
       available_languages: ["Available languages are: {} "]
       error_language: [ "The language {} is not supported." ]
+
+    fr:
+      change_success: [ "Langue changée avec succès en {}." ]
+      available_languages: [ "Les langues disponibles sont : {} " ]
+      error_language: [ "La langue {} n'est pas prise en charge." ]
+
+    es:
+      change_success: [ "Idioma cambiado con éxito a {}." ]
+      available_languages: [ "Los idiomas disponibles son: {} " ]
+      error_language: [ "El idioma {} no es compatible." ]
+
+    it:
+      change_success: [ "Lingua cambiata con successo a {}." ]
+      available_languages: [ "Le lingue disponibili sono: {} " ]
+      error_language: [ "La lingua {} non è supportata." ]
+
+    ja:
+      change_success: [ "言語を{}に正常に切り替えました。" ]
+      available_languages: [ "利用可能な言語は次のとおりです: {} " ]
+      error_language: [ "言語{}はサポートされていません。" ]
+
+    ru:
+      change_success: [ "Язык успешно изменён на {}." ]
+      available_languages: [ "Доступные языки: {} " ]
+      error_language: [ "Язык {} не поддерживается." ]

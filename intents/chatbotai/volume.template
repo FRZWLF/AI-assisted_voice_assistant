@@ -1,20 +1,20 @@
 {% block %}
-    {% client %}(wie ist die lautstärke|wie laut ist es){% endclient %}
+    {% client %}({{intent.volume.volume}}){% endclient %}
     {% response %}{% call getVolume: 0 %}{% endresponse %}
 {% endblock %}
 {% block %}
-    {% client %}(volle lautstärke|maximale lautstärke){% endclient %}
+    {% client %}({{intent.volume.max_volume}}){% endclient %}
     {% response %}{% call maxVolume: 0 %}{% endresponse %}
 {% endblock %}
 {% block %}
-    {% client %}(lautstärke|setze lautstärke auf|setze lautstärke)(\s*)(?P<volume>.*)?{% endclient %}
+    {% client %}({{intent.volume.set_volume}})(\s*)(?P<volume>.*)?{% endclient %}
     {% response %}{% call setVolume: %volume %}{% endresponse %}
 {% endblock %}
 {% block %}
-    {% client %}lauter.*{% endclient %}
+    {% client %}{{intent.volume.louder}}{% endclient %}
     {% response %}{% call volumeUp: %0 %}{% endresponse %}
 {% endblock %}
 {% block %}
-    {% client %}leiser.*{% endclient %}
+    {% client %}{{intent.volume.quieter}}{% endclient %}
     {% response %}{% call volumeDown: %0 %}{% endresponse %}
 {% endblock %}

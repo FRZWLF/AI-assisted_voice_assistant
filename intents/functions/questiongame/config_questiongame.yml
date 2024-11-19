@@ -6,3 +6,18 @@ intent:
     en:
       please_start_new_game: "Please start a new game first by saying 'start question game'."
       i_guess: "I'm sure to {} percent, that you think about a {}."
+    fr:
+      please_start_new_game: "Veuillez d'abord démarrer un nouveau jeu en disant 'lance le jeu de questions'."
+      i_guess: "Je suis sûr à {} pour cent que vous pensez à {}."
+    es:
+      please_start_new_game: "Por favor, comienza un nuevo juego diciendo 'iniciar juego de preguntas'."
+      i_guess: "Estoy seguro al {} por ciento de que estás pensando en {}."
+    it:
+      please_start_new_game: "Per favore, inizia un nuovo gioco dicendo 'avvia gioco di domande'."
+      i_guess: "Sono sicuro al {} percento che stai pensando a {}."
+    ja:
+      please_start_new_game: "「質問ゲームを開始」と言って、新しいゲームを始めてください。"
+      i_guess: "私は {} パーセントの確率で、あなたが {} を考えていると思います。"
+    ru:
+      please_start_new_game: "Пожалуйста, начните новую игру, сказав 'начать игру вопросов'."
+      i_guess: "Я уверен на {} процентов, что вы думаете о {}."

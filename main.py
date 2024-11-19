@@ -1,6 +1,7 @@
 import os
 import random
 import sys
+import threading
 import time
 
 import pvporcupine
@@ -19,6 +20,7 @@ import json
 import numpy as np
 
 from intents.functions.usermgmt.intent_usermgmt import new_user
+from langmgmt import LanguageManager
 from usermgmt import UserMgmt
 from intentmgmt import IntentManagement
 from audioplayer import AudioPlayer
@@ -29,6 +31,8 @@ import global_variables
 from notification import Notification
 from resemblyzer import VoiceEncoder
 from resemblyzer.audio import preprocess_wav
+
+from vosk_model_downloader import download_vosk_model, download_all_vosk_models
 
 #GUI-Anwendung mit pythonw main.py starten
 
@@ -109,6 +113,8 @@ class VoiceAssistant():
             language = "de"
         logger.info(f"Verwende Sprache {language}")
 
+        self.lang_manager = LanguageManager(language=language)
+
         self.show_balloon = self.cfg['assistant']['show_balloon']
 
         logger.debug("Initialisiere Wake Word Erkennung...")
@@ -172,11 +178,35 @@ class VoiceAssistant():
         logger.debug("Voice Assistant initialisiert")
 
         logger.info("Initialisiere Spracherkennung...")
-        s2t_model = Model('./vosk-model-de-0.21')
-        speaker_model = SpkModel('./vosk-model-spk-0.4')
+        self.tts.say("Beginne mit dem Herunterladen notwendiger Sprachmodelle.")
+        # Lade das Hauptmodell für die Sprache
+        # Lade das Speaker-Modell (benötigt für alle Sprachen)
+        try:
+            speaker_model_path = download_vosk_model("spk")
+        except ValueError as e:
+            logger.error(f"Fehler beim Laden des Speaker-Modells: {e}")
+            raise
+
+        # Lade das Modell für die aktuelle Sprache
+        try:
+            s2t_model_path = download_vosk_model(language)
+        except ValueError as e:
+            logger.error(f"Fehler beim Laden des Sprachmodells für '{language}': {e}")
+            logger.info("Fallback auf Englisch.")
+            s2t_model_path = download_vosk_model("en")
+
+        s2t_model = Model(s2t_model_path)
+        speaker_model = SpkModel(speaker_model_path)
         self.rec = KaldiRecognizer(s2t_model, 16000, speaker_model)
         self.is_listening = False
+
+        logger.info("Lade andere Modelle im Hintergrund...")
+        background_thread = threading.Thread(target=download_all_vosk_models, args=(language,))
+        background_thread.start()
+
+        self.tts.say("Notwendiger Sprachmodelle sind heruntergeladen.")
         logger.info("Spracherkennung initialisiert.")
+
 
         logger.info("Initialisiere Benutzerverwaltung...")
         # Prüfen, ob Nutzer initialisiert sind
@@ -193,7 +223,7 @@ class VoiceAssistant():
         self.audio_player.set_volume(self.volume)
 
         logger.info("Initialisiere Intent Management...")
-        self.intent_management = IntentManagement()
+        self.intent_management = IntentManagement(self.lang_manager)
         logger.info("{} Intents gefunden.", self.intent_management.get_count())
         logger.info("Intent Management wurde aus initialisiert.")
 
@@ -462,6 +492,18 @@ class VoiceAssistant():
     #             logger.info('Ich habe verstanden: "{}"', sentence)
     #             return sentence
 
+    def say_with_language(self,tts, lang_manager, key, **placeholders):
+        """
+        Dynamische TTS-Funktion, die eine übersetzte Nachricht spricht.
+
+        :param tts: Text-to-Speech-Instanz
+        :param lang_manager: LanguageManager-Instanz
+        :param key: Schlüssel für die Nachricht in der Sprachdatei
+        :param placeholders: Platzhalter, die in der Nachricht ersetzt werden
+        """
+        message = lang_manager.get(key, default="").format(**placeholders)
+        tts.say(message)
+
 if __name__ == '__main__':
     multiprocessing.set_start_method('spawn')
     global_variables.voice_assistant = VoiceAssistant()
@@ -477,7 +519,7 @@ if __name__ == '__main__':
             time.sleep(0.1)  # Vermeidet zu häufige Abfragen
         logger.info("TTS abgeschlossen. Weiter.")
     else:
-        global_variables.voice_assistant.tts.say("Willkommen! Wie kann ich dir heute behilflich sein?")
+        global_variables.voice_assistant.say_with_language(global_variables.voice_assistant.tts,global_variables.voice_assistant.lang_manager,"intent.start.welcome")
         while global_variables.voice_assistant.tts.is_busy():
             time.sleep(0.1)  # Vermeidet zu häufige Abfragen
         logger.info("TTS abgeschlossen. Weiter.")

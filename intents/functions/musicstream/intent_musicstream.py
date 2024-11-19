@@ -54,13 +54,6 @@ def musicstream(session_id="general", station=None):
     else:
         logger.debug("Starte Streaming von '{}' mit URL '{}'.".format(station, station_stream))
 
-    #if mixer.music.get_busy():
-    #mixer.music.stop()
-    #sound=mixer.Sound(station_stream)
-    #sound.play()
-    #mixer.music.load(station_stream)
-    #mixer.music.play()
-    #global_variables.voice_assistant.play_audio(station_stream)
     global_variables.voice_assistant.audio_player.play_stream(station_stream)
 
     # Der Assistent muss nicht sprechen, wenn ein Radiostream gespielt wird

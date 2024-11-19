@@ -8,9 +8,29 @@ intent:
       time_in_place: ["It is {} {} in {}."]
       time_here: ["It is {} {}.", "It is {} o'clock and {} minutes."]
       place_not_found: ["I don't know the place {}.", "I don't know a place called {}."]
+    fr:
+      time_in_place: [ "Il est {} heures {} à {}.", "L'heure est {} heures {} à {}.", "Il est {} heures et {} minutes à {}." ]
+      time_here: [ "Il est {} heures {}.", "Il est {} heures et {} minutes." ]
+      place_not_found: [ "Je ne connais pas la région {}.", "Je ne connais pas le lieu ou le pays appelé {}.", "{}, jamais entendu parler!" ]
+    es:
+      time_in_place: [ "Son las {} y {} en {}.", "La hora es {} y {} en {}.", "Es {} horas y {} minutos en {}." ]
+      time_here: [ "Son las {} y {}.", "Es {} horas y {} minutos." ]
+      place_not_found: [ "No conozco la región {}.", "No conozco un lugar llamado {}.", "{}, nunca lo he oído." ]
+    it:
+      time_in_place: [ "Sono le {} e {} a {}.", "L'orario è {} e {} a {}.", "Sono le {} ore e {} minuti a {}." ]
+      time_here: [ "Sono le {} e {}.", "Sono le {} ore e {} minuti." ]
+      place_not_found: [ "Non conosco la regione {}.", "Non conosco un luogo chiamato {}.", "{}, mai sentito parlare!" ]
+    ja:
+      time_in_place: [ "{}の{}時{}分です。", "{}では{}時{}分です。", "{}時{}分、{}にいます。" ]
+      time_here: [ "現在の時刻は{}時{}分です。", "{}時{}分です。" ]
+      place_not_found: [ "{}という地域を知りません。", "{}という国や場所を知りません。", "{}、聞いたことがありません！" ]
+    ru:
+      time_in_place: [ "Сейчас {} часов {} минут в {}.", "Время {} часов {} минут в {}.", "Это {} часов и {} минут в {}." ]
+      time_here: [ "Сейчас {} часов {} минут.", "Сейчас {} часов и {} минут." ]
+      place_not_found: [ "Я не знаю регион {}.", "Я не знаю место или страну под названием {}.", "{}, никогда не слышал!" ]
     timezones:
-      Europe/Berlin: ["deutschland", "germany"]
-      Europe/London: ["england", "großbrittanien", "great britain"]
-      Europe/Paris: ["frankreich", "france"]
-      America/New_York: ["amerika", "america"]
-      Asia/Shanghai: ["china"]
+      Europe/Berlin: [ "deutschland", "germany", "allemagne", "alemania", "germania", "ドイツ", "германия" ]
+      Europe/London: [ "england", "großbritannien", "great britain", "angleterre", "gran bretaña", "gran bretagna", "イギリス", "англия" ]
+      Europe/Paris: [ "frankreich", "france", "francia", "francia", "francia", "フランス", "франция" ]
+      America/New_York: [ "amerika", "america", "amérique", "américa", "america", "アメリカ", "америка" ]
+      Asia/Shanghai: [ "china", "chine", "china", "cina", "中国", "китай" ]
