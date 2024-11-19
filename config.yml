@@ -3,7 +3,8 @@ assistant:
   wakewords:
   - bumblebee
   - americano
-  allow_only_known_speakers: false
+  allow_only_known_speakers: true
+  user_initialized: true
   volume: 0.9
   silenced_volume: 0.1
   show_balloon: true

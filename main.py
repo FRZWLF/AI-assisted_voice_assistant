@@ -1,9 +1,14 @@
 import os
 import random
 import sys
+import time
+
 import pvporcupine
 from loguru import logger
 import multiprocessing
+
+from scipy.io.wavfile import write
+
 from TTS import Voice
 import yaml
 import struct
@@ -13,7 +18,7 @@ from vosk import Model, SpkModel, KaldiRecognizer
 import json
 import numpy as np
 
-from intents.functions.usermanagement.intent_usermgmt import load_users
+from intents.functions.usermgmt.intent_usermgmt import new_user
 from usermgmt import UserMgmt
 from intentmgmt import IntentManagement
 from audioplayer import AudioPlayer
@@ -111,7 +116,7 @@ class VoiceAssistant():
         if not self.wake_words:
             self.wake_words = ['americano']
         logger.debug("Wake Words sind {}" ','.join(self.wake_words))
-        self.porcupine = pvporcupine.create(keywords=self.wake_words)
+        self.porcupine = pvporcupine.create(keywords=self.wake_words, sensitivities=[0.6,0.6])
         logger.info("Wake Words Erkennung wurde initialisiert.")
 
         #Audio-Stream needed
@@ -144,6 +149,7 @@ class VoiceAssistant():
         logger.info("Voice Assistant wird initialisiert...")
         self.tts = Voice()
 
+        self.encoder = VoiceEncoder()
 
         #####       Voices       #####
         self.available_voices = {}
@@ -158,7 +164,7 @@ class VoiceAssistant():
         else:
             logger.warning("Standardstimme wird verwendet.")
         self.tts.set_volume(self.volume)
-        self.tts.say("Sprachausgabe aktiviert.")
+        self.tts.say("Sprachausgabe initialisiert.")
 
         # Benachrichtigung anzeigen
         if self.show_balloon:
@@ -172,9 +178,14 @@ class VoiceAssistant():
         self.is_listening = False
         logger.info("Spracherkennung initialisiert.")
 
-
         logger.info("Initialisiere Benutzerverwaltung...")
-        self.user_management = UserMgmt()
+        # Prüfen, ob Nutzer initialisiert sind
+        if not self.cfg['assistant'].get('user_initialized', False):
+            logger.info("Kein initialer Benutzer gefunden. Sample-User wird erstellt...")
+            self.user_management = UserMgmt(init_dummies=True)
+        else:
+            logger.info("Benutzer bereits initialisiert.")
+            self.user_management = UserMgmt()
         self.allow_only_known_speakers = self.cfg['assistant']['allow_only_known_speakers']
         logger.info("Benutzerverwaltung initialisiert.")
 
@@ -200,33 +211,107 @@ class VoiceAssistant():
 
         self.tts.say("Initialisierung abgeschlossen.")
 
-    def __detectSpeaker__(self, input):
-        processed_wav = preprocess_wav(input)
-        input_embedding = self.encoder.embed_utterance(processed_wav)
+    def __detectSpeaker__(self, input, short_sample_threshold=0.3, long_sample_threshold=0.5):
+        """
+        Erkennt den Sprecher basierend auf dem Eingabe-Sample.
+        Unterschiedliche Schwellenwerte für kurze und lange Samples.
+        """
+        encoder = VoiceEncoder()
+        try:
+            # Verarbeite den Input
+            if not isinstance(input, np.ndarray):
+                input = np.array(input, dtype=np.float32)
+
+            processed_wav = preprocess_wav(input)
+            input_embedding = encoder.embed_utterance(processed_wav)
+            logger.debug(f"Input-Embedding: {input_embedding[:10]}...")
+        except Exception as e:
+            logger.error(f"Fehler beim Verarbeiten der Sprachaufnahme: {e}")
+            return "Unbekannt"
+
         best_speaker = "Unbekannt"
         best_cosine_similarity = -1
 
+        # Wähle den Threshold basierend auf der Länge des Samples
+        sample_length = len(processed_wav) / 16000  # Länge in Sekunden
+        threshold = short_sample_threshold if sample_length < 2 else long_sample_threshold
+        logger.info(f"Verwendeter Ähnlichkeitsschwellenwert: {threshold}")
+
+        # Vergleiche die Embeddings mit gespeicherten Stimmen
         for speaker in self.user_management.speaker_table.all():
-            saved_embedding = np.array(speaker.get('voice'))
+            saved_embedding = np.array(speaker.get('voice'), dtype=np.float32)
             cosine_similarity = np.dot(input_embedding, saved_embedding) / (
                     np.linalg.norm(input_embedding) * np.linalg.norm(saved_embedding)
             )
-
-            if cosine_similarity > best_cosine_similarity and cosine_similarity > 0.5:
+            logger.debug(f"Vergleich mit Speaker '{speaker.get('name')}' - Ähnlichkeit: {cosine_similarity:.3f}")
+            if cosine_similarity > best_cosine_similarity and cosine_similarity > threshold:
                 best_cosine_similarity = cosine_similarity
                 best_speaker = speaker.get('name')
 
-        return best_speaker if best_cosine_similarity >= 0.5 else "Unbekannt"
+            if best_cosine_similarity >= threshold:
+                logger.info(f"Erkannter Sprecher: {best_speaker} mit Ähnlichkeit {best_cosine_similarity:.3f}")
+                return best_speaker
+            else:
+                logger.warning("Kein passender Sprecher erkannt.")
+                return "Unbekannt"
 
-    def capture_voice_sample(self):
-        logger.info("Starte Sprachaufnahme...")
-        # Implementiere die Aufnahme (z. B. 5 Sekunden) und Verarbeitung
-        sample = self.recognize_voice_sample(duration=5)  # Placeholder für Aufnahme-Logik
-        if sample:
-            logger.info("Sprachprobe erfolgreich aufgenommen.")
-            return sample
-        logger.warning("Sprachaufnahme fehlgeschlagen.")
-        return None
+
+    def capture_voice_sample(self, prompt_sentence="Bitte sagen Sie: 'Sprachassistenten sind hilfreiche Helfer'", silence_duration=2):
+        """
+        Aufnahme und Verarbeitung eines Sprachsamples, das endet, sobald der Nutzer nicht mehr spricht.
+        """
+        logger.info(f"Starte Sprachaufnahme für Fingerabdruck. Beispielsatz: {prompt_sentence}")
+
+        try:
+            # Sprachaufforderung ausgeben
+            self.tts.say(prompt_sentence)
+            # Warten, bis TTS abgeschlossen ist
+            while self.tts.is_busy():
+                time.sleep(0.2)  # Vermeidet zu häufige Abfragen
+            logger.info("TTS abgeschlossen. Starte Aufnahme.")
+
+            # Aufnahmeparameter
+            sample_rate = 16000
+            silence_threshold = 0.01  # Lautstärkegrenze für "Stille"
+            buffer = []
+            silence_counter = 0
+
+            with sd.InputStream(samplerate=sample_rate, channels=1, dtype="float32") as stream:
+                blocksize = stream.blocksize or 1024
+                while silence_counter < silence_duration * sample_rate // blocksize:
+                    audio_data, _ = stream.read(blocksize)
+
+                    # Prüfen auf leere Daten
+                    if not audio_data.size:
+                        logger.warning("Keine Daten erkannt, überspringe Block.")
+                        continue
+
+                    buffer.extend(audio_data.flatten())
+                    if max(abs(audio_data)) < silence_threshold:
+                        silence_counter += 1
+                    else:
+                        silence_counter = 0
+
+            if len(buffer) < sample_rate * 1:  # Mindestens 1 Sekunde
+                logger.error("Sprachaufnahme zu kurz. Wiederholen!")
+                return None
+
+            # Verarbeitung der Sprachaufnahme
+            encoder = VoiceEncoder()
+            wav_preprocessed = preprocess_wav(np.array(buffer), source_sr=sample_rate)
+            fingerprint = encoder.embed_utterance(wav_preprocessed)
+            logger.info(f"Fingerprint erfolgreich generiert. Länge: {len(fingerprint)}")
+
+            # Nach der Aufnahme
+            write("test_sample.wav", sample_rate, np.array(buffer))
+            logger.info("Sprachaufnahme gespeichert: test_sample.wav")
+            logger.info("Stimmfingerabdruck erfolgreich erstellt.")
+            return fingerprint
+
+        except Exception as e:
+            logger.error(f"Fehler bei der Sprachaufnahme oder Verarbeitung: {e}")
+            return None
+
 
     def load_available_languages(self):
         """Lädt die verfügbaren Sprachen und Stimmen aus einer YAML-Datei und aktualisiert diese, falls neue Sprachen hinzugefügt werden."""
@@ -367,9 +452,58 @@ class VoiceAssistant():
                                 # Zurücksetzen der Lautstärke auf Normalniveau
                                 global_variables.voice_assistant.audio_player.set_volume(global_variables.voice_assistant.volume)
 
+    # def capture_user_input(self):
+    #     while True:
+    #         pcm = self.audio_stream.read(self.porcupine.frame_length)
+    #         if self.rec.AcceptWaveform(pcm):
+    #             recResult = json.loads(global_variables.voice_assistant.rec.Result())
+    #             logger.info("recResult {}", recResult)
+    #             sentence = recResult['text']
+    #             logger.info('Ich habe verstanden: "{}"', sentence)
+    #             return sentence
 
 if __name__ == '__main__':
     multiprocessing.set_start_method('spawn')
     global_variables.voice_assistant = VoiceAssistant()
     logger.info("Anwendung wurde gestartet")
+
+    # Initialisierungsprüfung
+    if not global_variables.voice_assistant.cfg['assistant']['user_initialized']:
+        logger.info("Benutzer muss erstellt werden.")
+        # Starte Benutzererstellung via process
+        response = global_variables.voice_assistant.intent_management.process("neuer nutzer", "sample_user")
+        global_variables.voice_assistant.tts.say(response)
+        while global_variables.voice_assistant.tts.is_busy():
+            time.sleep(0.1)  # Vermeidet zu häufige Abfragen
+        logger.info("TTS abgeschlossen. Weiter.")
+    else:
+        global_variables.voice_assistant.tts.say("Willkommen! Wie kann ich dir heute behilflich sein?")
+        while global_variables.voice_assistant.tts.is_busy():
+            time.sleep(0.1)  # Vermeidet zu häufige Abfragen
+        logger.info("TTS abgeschlossen. Weiter.")
+
+    # # Benutzer erstellen, wenn notwendig
+    # if not global_variables.voice_assistant.cfg['assistant']['user_initialized']:
+    #     logger.info("Starte Benutzererstellung...")
+    #     global_variables.context = new_user  # Initialisiert die Benutzererstellung
+    #     response = global_variables.context()
+    #     global_variables.voice_assistant.tts.say(response)
+    #     while global_variables.voice_assistant.tts.is_busy():
+    #         time.sleep(0.1)  # Vermeidet zu häufige Abfragen
+    #     logger.info("TTS abgeschlossen. Weiter.")
+    #
+    # # Starte die MainLoop
+    # while True:
+    #     # Prüfe, ob ein Kontext aktiv ist
+    #     if global_variables.context:
+    #         user_input = global_variables.voice_assistant.capture_user_input()  # Ersetze dies durch echte Spracherkennung
+    #         response = global_variables.context(user_input.strip())
+    #         if response:
+    #             global_variables.voice_assistant.tts.say(response)
+    #             while global_variables.voice_assistant.tts.is_busy():
+    #                 time.sleep(0.1)  # Vermeidet zu häufige Abfragen
+    #             logger.info("TTS abgeschlossen. Weiter.")
+    #     else:
+    #         logger.info("Kontext ist abgeschlossen. Starte reguläre Verarbeitung.")
+    #         break
     global_variables.voice_assistant.app.MainLoop()

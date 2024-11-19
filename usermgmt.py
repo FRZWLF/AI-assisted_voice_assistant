@@ -1,15 +1,13 @@
+from loguru import logger
 from tinydb import TinyDB, Query
 
 # Voice-Fingerabdruck muss unbedingt gefixt werden in zukünftigen Projekten
 class UserMgmt:
 
-    def init_first_user(self, name, fingerprint=None):
-        Speaker = Query()
-        # Prüfen, ob Benutzer vorhanden sind
-        if not self.speaker_table.all():
-            self.speaker_table.insert({'name': name, 'intents': ['*'], 'voice': fingerprint or []})
-            return f"Benutzer {name} wurde als erster Nutzer hinzugefügt."
-        return "Benutzer existieren bereits."
+    def __add_sample_user__(self):
+        if len(self.speaker_table) == 0:
+            self.speaker_table.insert({'name': 'sample_user', 'intents': ['*'], 'voice': None})
+            logger.info("Sample-User erstellt.")
 
     def authenticate_intent(self,speaker,intent):
         Speaker = Query()
@@ -24,6 +22,9 @@ class UserMgmt:
         return False
 
 
-    def __init__(self):
+    def __init__(self, init_dummies=False):
         self.db = TinyDB('./users.json')
         self.speaker_table = self.db.table('speakers')
+
+        if init_dummies:
+            self.__add_sample_user__()

@@ -1,0 +1,23 @@
+intent:
+  user:
+    de:
+      add_success: ["Neuer Benutzer {} erfolgreich hinzugefügt ."]
+      add_error: ["Benutzer {} konnte nicht hinzugefügt werden . Die Sprachaufnahme war nicht erfolgreich. Bitte versuchen Sie es erneut ."]
+      delete_success: [ "Benutzer {} erfolgreich gelöscht ." ]
+      delete_error: [ "Benutzer {} konnte nicht gelöscht werden ." ]
+      change_intent_success: ["Berechtigungen für {} erfolgreich aktualisiert ."]
+      available_users: ["Das sind alle Benutzer: {} "]
+      change_error: "Änderungen konnten nicht abgeschlossen werden ."
+      change_spkid_success: [ "Sprachprofil für {} erfolgreich aktualisiert ." ]
+      no_users: "Es sind keine Benutzer registriert."
+      user_exist: ["Benutzer {} existiert bereits . Bitte wählen Sie einen anderen Namen ."]
+      user_noexist: ["Benutzer {} existiert nicht ."]
+      new_user_name: "Wie soll der Benutzer heißen ?"
+      new_user_intent: "Welche Berechtigungen soll der Benutzer haben? Bitte mit Kommas trennen oder 'alle' sagen ."
+      new_user_voice: "Zum Schluss nehme ich noch einen Sprachfingerabdruck auf ."
+      no_session: "Die Sitzung existiert nicht . Bitte starten Sie den Vorgang erneut ."
+
+    en:
+      change_success: [ "Successfully switched language to {}." ]
+      available_user: ["Available languages are: {} "]
+      change_error: [ "The language {} is not supported." ]

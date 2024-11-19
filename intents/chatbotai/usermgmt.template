@@ -4,8 +4,8 @@
 {% endblock %}
 
 {% block %}
-    {% client %}(neuer benutzer|neuer nutzer) (?P<user>.*){% endclient %}
-    {% response %}{% call new_user: %user %}{% endresponse %}
+    {% client %}(neuer benutzer|neuer nutzer){% endclient %}
+    {% response %}{% call new_user: 0 %}{% endresponse %}
 {% endblock %}
 
 {% block %}
@@ -14,11 +14,11 @@
 {% endblock %}
 
 {% block %}
-    {% client %}(lösche benutzer|lösche nutzer) (?P<user>.*){% endclient %}
+    {% client %}(lösche benutzer|lösche nutzer|entferne benutzer|entferne nutzer) (?P<user>.*){% endclient %}
     {% response %}{% call delete_user: %user %}{% endresponse %}
 {% endblock %}
 
 {% block %}
-    {% client %}(sprachprofil aktualisieren für|sprachprofil bearbeiten für) (?P<user>.*){% endclient %}
+    {% client %}(sprachprofil aktualisieren für|sprachprofil bearbeiten für|sprach profil aktualisieren für|sprach profil bearbeiten für) (?P<user>.*){% endclient %}
     {% response %}{% call change_spkid_user: %user %}{% endresponse %}
 {% endblock %}
