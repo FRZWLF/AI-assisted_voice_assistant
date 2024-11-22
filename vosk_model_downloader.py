@@ -1,10 +1,13 @@
 import os
 import threading
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 import requests
 from zipfile import ZipFile
-from clint.textui import progress
+
 from loguru import logger
+
+from download_app import DownloadApp
 
 # Verfügbare Vosk-Modelle und URLs
 VOSK_MODELS = {
@@ -19,40 +22,110 @@ VOSK_MODELS = {
 }
 
 
-def download_all_vosk_models(skip_language=None):
+def download_chunk(url, start, end, destination, index, progress_callback, cancel_flag):
+    """
+    Lädt einen bestimmten Bereich (Chunk) der Datei herunter und aktualisiert den Fortschritt.
+    """
+    headers = {"Range": f"bytes={start}-{end}"}
+    response = requests.get(url, headers=headers, stream=True)
+    if response.status_code in (200, 206):  # 206 = Partial Content
+        part_file = f"{destination}.part{index}"
+        cancel_flag["temp_files"].append(part_file)
+        with open(part_file, "wb") as f:
+            for chunk in response.iter_content(chunk_size=1024 * 1024):  # 1 MB Chunks
+                if cancel_flag["cancel"]:  # Abbruch prüfen
+                    print(f"Abbruch erkannt in Thread {threading.current_thread().name}.")
+                    return
+                f.write(chunk)
+                progress_callback(len(chunk))  # Fortschritt melden
+    else:
+        raise ValueError(f"Failed to download chunk {index}: {response.status_code}")
+
+def merge_chunks(destination, num_chunks):
+    """
+    Fügt heruntergeladene Teile zu einer Datei zusammen.
+    """
+    with open(destination, "wb") as output_file:
+        for i in range(num_chunks):
+            part_file = f"{destination}.part{i}"
+            with open(part_file, "rb") as f:
+                output_file.write(f.read())
+            os.remove(part_file)  # Lösche den Teil nach dem Zusammenführen
+
+
+def download_all_vosk_models(skip_language=None, app=None):
     """
     Downloads all Vosk models except the one specified in skip_language in parallel.
     """
+    if app is None:
+        raise ValueError("DownloadApp instance is required.")
+
     threads = []
     for lang, url in VOSK_MODELS.items():
         if lang == skip_language:
             continue
-        thread = threading.Thread(target=download_vosk_model, args=(lang,))
+        thread = threading.Thread(target=download_vosk_model, args=(lang, app), name=f"download-{lang}")
         thread.start()
         threads.append(thread)
 
     for thread in threads:
+        if app.cancel_flag["cancel"]:
+            print("Abbruchsignal empfangen. Beende Threads...")
+            break
         thread.join()
 
     print("All models downloaded.")
 
 
-def download_file_with_progress(url, destination, language):
-    response = requests.get(url, stream=True)
-    if response.status_code == 200:
-        total_length = int(response.headers.get('content-length', 0))
-        with open(destination, "wb") as f:
-            for chunk in progress.bar(
-                    response.iter_content(chunk_size=1024),
-                    expected_size=(total_length / 1024) + 1,
-                    label=f"Downloading {destination}: "
-            ):
-                if chunk:
-                    f.write(chunk)
-                    f.flush()
+def download_file_with_progress(url, destination, language, progress_callback, num_threads=4, cancel_flag=None):
+    if cancel_flag is None:
+        print("cancel_flag nicht gesetzt.")
+        cancel_flag = {"cancel": False, "temp_files": []}
+
+    response = requests.head(url)
+    if response.status_code != 200:
+        raise ValueError(f"Failed to fetch file information: {response.status_code}")
+
+    total_size = int(response.headers.get("Content-Length", 0))
+    chunk_size = total_size // num_threads
+    ranges = [(i * chunk_size, (i + 1) * chunk_size - 1) for i in range(num_threads)]
+    ranges[-1] = (ranges[-1][0], total_size - 1)  # Letzter Block bis zum Ende
+
+    print(f"Downloading {destination} with {num_threads} threads...")
+    # Fortschrittsdaten initialisieren
+    progress_data = {"total": total_size, "downloaded": 0}
+    lock = threading.Lock()
+
+    def update_progress(chunk_size):
+        with lock:
+            progress_data["downloaded"] += chunk_size
+            progress_callback(progress_data["downloaded"], progress_data["total"])
+
+    threads = []
+    with ThreadPoolExecutor(max_workers=num_threads) as executor:
+        for i, (start, end) in enumerate(ranges):
+            if cancel_flag["cancel"]:
+                logger.info("Abbruch erkannt. Keine weiteren Downloads starten.")
+                break
+            thread = executor.submit(download_chunk, url, start, end, destination, i, update_progress, cancel_flag)
+            threads.append(thread)
+
+        # Überwache laufende Threads
+        for thread in threads:
+            try:
+                thread.result(timeout=5)  # Setze Timeout, um blockierende Threads zu vermeiden
+            except TimeoutError:
+                logger.warning(f"Thread für Bereich {start}-{end} wurde nicht rechtzeitig beendet.")
+
+    if not cancel_flag["cancel"]:
+        merge_chunks(destination, num_threads)
+        print(f"Download abgeschlossen: {destination}")
+        progress_callback(total_size, total_size)
+    else:
+        logger.info("Download abgebrochen. Temporäre Dateien werden bereinigt.")
 
 
-def download_vosk_model(language: str):
+def download_vosk_model(language: str, app: DownloadApp):
     """
     Downloads and extracts the Vosk model for the given language code.
     """
@@ -60,25 +133,42 @@ def download_vosk_model(language: str):
         raise ValueError(f"No model available for language: {language}")
 
     url = VOSK_MODELS[language]
-    model_dir = Path(f"./vosk-model-{language}")
+    model_dir = f"./vosk-model-{language}*"
     zip_file = Path(f"./vosk-model-{language}.zip")
 
-    if os.path.exists(model_dir):
-        print(f"Model for {language} already exists at {model_dir}.")
-        return model_dir
+    # Verzeichnisprüfung
+    potential_dirs = list(Path("./").glob(model_dir))
+    if potential_dirs and any(potential_dirs[0].iterdir()):
+        print(f"Model for {language} already exists at {potential_dirs[0]}. Skipping download and extraction.")
+        app.update_progress(language, 100)
+        return str(potential_dirs[0])
 
-    print(f"Downloading Vosk model for {language}...")
-    download_file_with_progress(url, zip_file, language)
-    print(f"Downloaded {zip_file}. Extracting...")
-    with ZipFile(zip_file, "r") as zip_ref:
-        zip_ref.extractall("./")
-    zip_file.unlink()  # Entferne ZIP nach dem Entpacken
-    print(f"Model for {language} ready at {model_dir}.")
+    # ZIP-Prüfung
+    if zip_file.exists():
+        print(f"ZIP file for {language} already exists at {zip_file}. Extracting...")
+        with ZipFile(zip_file, "r") as zip_ref:
+            zip_ref.extractall("./")
+        zip_file.unlink()  # Entferne ZIP nach dem Entpacken
+        app.update_progress(language, 100)
+        print(f"Model for {language} ready at {model_dir}.")
 
-    if not model_dir.exists():
-        # Suche nach dem Unterordner, falls der Entpackungspfad anders war
-        potential_dirs = list(Path("./").glob(f"vosk-model-{language}*"))
-        if potential_dirs:
-            return str(potential_dirs[0])
+    # Download, wenn weder Verzeichnis noch ZIP-Datei vorhanden sind
+    if not potential_dirs and not zip_file.exists():
+        print(f"Downloading Vosk model for {language}...")
+        def progress_callback(downloaded, total):
+            percent = int((downloaded / total) * 100)
+            app.update_progress(language, percent)  # Fortschritt an die App melden
+
+        download_file_with_progress(url, zip_file, language, progress_callback)
+
+        print(f"Extracting {zip_file}...")
+        with ZipFile(zip_file, "r") as zip_ref:
+            zip_ref.extractall("./")
+        zip_file.unlink()  # Entferne ZIP nach dem Entpacken
+        print(f"Model for {language} ready at {model_dir}.")
+
+    potential_dirs = list(Path("./").glob(model_dir))
+    if potential_dirs:
+        return str(potential_dirs[0])
 
     return str(model_dir)

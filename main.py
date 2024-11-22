@@ -19,6 +19,7 @@ from vosk import Model, SpkModel, KaldiRecognizer
 import json
 import numpy as np
 
+from download_app import DownloadApp
 from intents.functions.usermgmt.intent_usermgmt import new_user
 from langmgmt import LanguageManager
 from usermgmt import UserMgmt
@@ -32,7 +33,7 @@ from notification import Notification
 from resemblyzer import VoiceEncoder
 from resemblyzer.audio import preprocess_wav
 
-from vosk_model_downloader import download_vosk_model, download_all_vosk_models
+from vosk_model_downloader import download_vosk_model, download_all_vosk_models, VOSK_MODELS
 
 #GUI-Anwendung mit pythonw main.py starten
 
@@ -67,6 +68,7 @@ class TaskBarIcon(wx.adv.TaskBarIcon):
             wx.CallAfter(self.Destroy)
             self.frame.Close()
 
+
 class MainApp(wx.App):
     def OnInit(self):
         frame = wx.Frame(None)
@@ -93,6 +95,7 @@ class VoiceAssistant():
         logger.info("Initialisiere VoiceAssistant...")
 
         self.app = MainApp(clearSigInt=False, redirect=True, filename='log.txt')
+        self.download = DownloadApp(downloads={lang: 0 for lang in VOSK_MODELS}, clearSigInt=False, redirect=True, filename='log.txt')
 
         logger.debug("Lese Konfiguration...")
 
@@ -182,18 +185,18 @@ class VoiceAssistant():
         # Lade das Hauptmodell für die Sprache
         # Lade das Speaker-Modell (benötigt für alle Sprachen)
         try:
-            speaker_model_path = download_vosk_model("spk")
+            speaker_model_path = download_vosk_model("spk", self.download)
         except ValueError as e:
             logger.error(f"Fehler beim Laden des Speaker-Modells: {e}")
             raise
 
         # Lade das Modell für die aktuelle Sprache
         try:
-            s2t_model_path = download_vosk_model(language)
+            s2t_model_path = download_vosk_model(language, self.download)
         except ValueError as e:
             logger.error(f"Fehler beim Laden des Sprachmodells für '{language}': {e}")
             logger.info("Fallback auf Englisch.")
-            s2t_model_path = download_vosk_model("en")
+            s2t_model_path = download_vosk_model("en", self.download)
 
         s2t_model = Model(s2t_model_path)
         speaker_model = SpkModel(speaker_model_path)
@@ -201,10 +204,10 @@ class VoiceAssistant():
         self.is_listening = False
 
         logger.info("Lade andere Modelle im Hintergrund...")
-        background_thread = threading.Thread(target=download_all_vosk_models, args=(language,))
+        background_thread = threading.Thread(target=download_all_vosk_models, args=(language, self.download), daemon=True)
         background_thread.start()
 
-        self.tts.say("Notwendiger Sprachmodelle sind heruntergeladen.")
+        self.tts.say("Notwendige Sprachmodelle sind heruntergeladen.")
         logger.info("Spracherkennung initialisiert.")
 
 
