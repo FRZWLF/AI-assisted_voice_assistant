@@ -20,7 +20,6 @@ import json
 import numpy as np
 
 from download_app import DownloadApp
-from intents.functions.usermgmt.intent_usermgmt import new_user
 from langmgmt import LanguageManager
 from usermgmt import UserMgmt
 from intentmgmt import IntentManagement
@@ -42,8 +41,9 @@ CONFIG_FILE = "config.yml"
 
 class TaskBarIcon(wx.adv.TaskBarIcon):
 
-    def __init__(self,frame):
+    def __init__(self,frame, download_manager=None):
         self.frame = frame
+        self.download_manager = download_manager
         super(TaskBarIcon, self).__init__()
         self.set_icon(constants.TRAY_ICON_INITIALIZING, constants.TRAY_TOOLTIP + ": Initialisiere ...")
 
@@ -63,21 +63,42 @@ class TaskBarIcon(wx.adv.TaskBarIcon):
         self.SetIcon(icon, tooltip)
 
     def on_exit(self, event):
+        logger.info("on_exit wurde aufgerufen.")
+
         if global_variables.voice_assistant:
             global_variables.voice_assistant.terminate()
-            wx.CallAfter(self.Destroy)
-            self.frame.Close()
+
+        # Debugging für Download Manager
+        if hasattr(self.frame, "download_manager"):
+            logger.info(f"Frame hat download_manager: {self.frame.download_manager}")
+        else:
+            logger.warning("Frame hat kein download_manager Attribut!")
+
+        # Beende den Download Manager
+        if hasattr(self.frame, "download_manager") and self.frame.download_manager:
+            logger.info("Schließe Download Manager...")
+            try:
+                self.frame.download_manager.on_close_window(None)
+            except Exception as e:
+                logger.error(f"Fehler beim Schließen des Download Managers: {e}")
+        else:
+            logger.info("Ich kann nicht sauber beenden!")
+
+        wx.CallAfter(self.Destroy)
+        self.frame.Close()
 
 
 class MainApp(wx.App):
     def OnInit(self):
         frame = wx.Frame(None)
         self.SetTopWindow(frame)
-        self.icon = TaskBarIcon(frame)
+        self.download_manager = DownloadApp(downloads={lang: 0 for lang in VOSK_MODELS}, clearSigInt=False, redirect=True, filename='log.txt')
+        frame.download_manager = self.download_manager
+        self.icon = TaskBarIcon(frame, frame.download_manager)
+        logger.info("DownloadManager initialisiert")
         self.Bind(wx.EVT_CLOSE, self.on_close_window)
         self.timer = wx.Timer(self)
         self.Bind(wx.EVT_TIMER, self.update, self.timer)
-
         return True
 
     def update(self, event):
@@ -85,8 +106,13 @@ class MainApp(wx.App):
             global_variables.voice_assistant.loop()
 
     def on_close_window(self, evt):
+        if self.icon:
+            logger.info("Beende TaskBarIcon...")
+            self.icon.on_exit(evt)
         self.icon.Destroy()
-        evt.Skip()
+
+        evt.skip()
+
 
 class VoiceAssistant():
 
@@ -95,7 +121,9 @@ class VoiceAssistant():
         logger.info("Initialisiere VoiceAssistant...")
 
         self.app = MainApp(clearSigInt=False, redirect=True, filename='log.txt')
-        self.download = DownloadApp(downloads={lang: 0 for lang in VOSK_MODELS}, clearSigInt=False, redirect=True, filename='log.txt')
+
+        # Referenziere den Download-Manager aus der MainApp
+        self.download = self.app.download_manager
 
         logger.debug("Lese Konfiguration...")
 
@@ -189,7 +217,6 @@ class VoiceAssistant():
         except ValueError as e:
             logger.error(f"Fehler beim Laden des Speaker-Modells: {e}")
             raise
-
         # Lade das Modell für die aktuelle Sprache
         try:
             s2t_model_path = download_vosk_model(language, self.download)
@@ -197,7 +224,6 @@ class VoiceAssistant():
             logger.error(f"Fehler beim Laden des Sprachmodells für '{language}': {e}")
             logger.info("Fallback auf Englisch.")
             s2t_model_path = download_vosk_model("en", self.download)
-
         s2t_model = Model(s2t_model_path)
         speaker_model = SpkModel(speaker_model_path)
         self.rec = KaldiRecognizer(s2t_model, 16000, speaker_model)
@@ -403,6 +429,8 @@ class VoiceAssistant():
 
         if global_variables.voice_assistant.pa is not None:
             global_variables.voice_assistant.pa.terminate()
+
+        logger.debug("Ende Aufräumarbeiten...")
 
     def loop(self):
             pcm = global_variables.voice_assistant.audio_stream.read(global_variables.voice_assistant.porcupine.frame_length)

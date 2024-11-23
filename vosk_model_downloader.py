@@ -1,5 +1,6 @@
 import os
 import threading
+import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 import requests
@@ -65,6 +66,7 @@ def download_all_vosk_models(skip_language=None, app=None):
         if lang == skip_language:
             continue
         thread = threading.Thread(target=download_vosk_model, args=(lang, app), name=f"download-{lang}")
+        thread.daemon = True
         thread.start()
         threads.append(thread)
 
@@ -79,8 +81,7 @@ def download_all_vosk_models(skip_language=None, app=None):
 
 def download_file_with_progress(url, destination, language, progress_callback, num_threads=4, cancel_flag=None):
     if cancel_flag is None:
-        print("cancel_flag nicht gesetzt.")
-        cancel_flag = {"cancel": False, "temp_files": []}
+        raise ValueError("cancel_flag muss übergeben werden!")
 
     response = requests.head(url)
     if response.status_code != 200:
@@ -93,7 +94,7 @@ def download_file_with_progress(url, destination, language, progress_callback, n
 
     print(f"Downloading {destination} with {num_threads} threads...")
     # Fortschrittsdaten initialisieren
-    progress_data = {"total": total_size, "downloaded": 0}
+    progress_data = {"total": total_size, "downloaded": 0, "threads_cancelled": 0}
     lock = threading.Lock()
 
     def update_progress(chunk_size):
@@ -106,16 +107,21 @@ def download_file_with_progress(url, destination, language, progress_callback, n
         for i, (start, end) in enumerate(ranges):
             if cancel_flag["cancel"]:
                 logger.info("Abbruch erkannt. Keine weiteren Downloads starten.")
+                progress_data["threads_cancelled"] += 1
                 break
             thread = executor.submit(download_chunk, url, start, end, destination, i, update_progress, cancel_flag)
             threads.append(thread)
 
         # Überwache laufende Threads
         for thread in threads:
-            try:
-                thread.result(timeout=5)  # Setze Timeout, um blockierende Threads zu vermeiden
-            except TimeoutError:
-                logger.warning(f"Thread für Bereich {start}-{end} wurde nicht rechtzeitig beendet.")
+            while not thread.done():
+                logger.info(f"Warte auf Thread {thread}...")
+                time.sleep(1)  # Verhindert Busy-Waiting
+                if cancel_flag["cancel"]:
+                    logger.warning(f"Thread {thread} wurde abgebrochen.")
+                    break  # Beende die Warteschleife, falls abgebrochen
+
+        executor.shutdown(wait=True)
 
     if not cancel_flag["cancel"]:
         merge_chunks(destination, num_threads)
@@ -146,11 +152,15 @@ def download_vosk_model(language: str, app: DownloadApp):
     # ZIP-Prüfung
     if zip_file.exists():
         print(f"ZIP file for {language} already exists at {zip_file}. Extracting...")
-        with ZipFile(zip_file, "r") as zip_ref:
-            zip_ref.extractall("./")
-        zip_file.unlink()  # Entferne ZIP nach dem Entpacken
+        try:
+            with ZipFile(zip_file, "r") as zip_ref:
+                zip_ref.extractall("./")
+            zip_file.unlink()  # Entferne ZIP nach dem Entpacken
+        except FileNotFoundError as e:
+            logger.error(f"Fehler beim Zugriff auf {zip_file}: {e}")
         app.update_progress(language, 100)
         print(f"Model for {language} ready at {model_dir}.")
+        return
 
     # Download, wenn weder Verzeichnis noch ZIP-Datei vorhanden sind
     if not potential_dirs and not zip_file.exists():
@@ -159,12 +169,24 @@ def download_vosk_model(language: str, app: DownloadApp):
             percent = int((downloaded / total) * 100)
             app.update_progress(language, percent)  # Fortschritt an die App melden
 
-        download_file_with_progress(url, zip_file, language, progress_callback)
+        download_file_with_progress(url, zip_file, language, progress_callback, cancel_flag=app.cancel_flag)
+
+        if app.cancel_flag["cancel"]:
+            logger.info(f"Download für {language} abgebrochen. Temporäre Dateien werden bereinigt.")
+            return
+
+        # Extrahieren
+        if not zip_file.exists():
+            logger.error(f"Die Datei {zip_file} wurde nicht heruntergeladen. Überspringe das Extrahieren.")
+            return
 
         print(f"Extracting {zip_file}...")
-        with ZipFile(zip_file, "r") as zip_ref:
-            zip_ref.extractall("./")
-        zip_file.unlink()  # Entferne ZIP nach dem Entpacken
+        try:
+            with ZipFile(zip_file, "r") as zip_ref:
+                zip_ref.extractall("./")
+            zip_file.unlink()  # Entferne ZIP nach dem Entpacken
+        except FileNotFoundError as e:
+            logger.error(f"Fehler beim Zugriff auf {zip_file}: {e}")
         print(f"Model for {language} ready at {model_dir}.")
 
     potential_dirs = list(Path("./").glob(model_dir))

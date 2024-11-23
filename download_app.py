@@ -28,7 +28,6 @@ class DownloadTaskBarIcon(TaskBarIcon):
 
     def CreatePopupMenu(self):
         menu = wx.Menu()
-        self.create_menu_item(menu, 'Beenden', self.on_exit)
         return menu
 
     def set_icon(self, path, tooltip=constants.TRAY_TOOLTIP):
@@ -48,10 +47,19 @@ class DownloadTaskBarIcon(TaskBarIcon):
         logger.info("Beenden wird ausgelöst...")
         self.cancel_flag["cancel"] = True
         # Schließe alle Hintergrund-Threads
-        for thread in threading.enumerate():
-            if thread.name.startswith("download"):
-                print(f"Warte auf Thread {thread.name}...")
-                thread.join(timeout=5)
+        active_threads = [t for t in threading.enumerate() if t.name.startswith("download")]
+        for thread in active_threads:
+            if thread.is_alive():
+                logger.warning(f"Thread {thread.name} läuft noch. Warte auf Beendigung...")
+                thread.join(timeout=10)
+            if thread.is_alive():
+                logger.error(f"Thread {thread.name} konnte nicht sauber beendet werden!")
+            else:
+                logger.info(f"Thread {thread.name} wurde erfolgreich beendet.")
+
+        # Überprüfe verbleibende Threads
+        remaining_threads = threading.enumerate()
+        logger.debug(f"Verbleibende Threads nach on_exit: {[t.name for t in remaining_threads]}")
 
         self.cleanup_temp_files()
         logger.info("Downloads beendet. Entferne Icon und beende Anwendung.")
@@ -91,3 +99,4 @@ class DownloadApp(wx.App):
 
     def on_close_window(self, evt):
         self.icon.on_exit(None)
+        self.icon.Destroy()
