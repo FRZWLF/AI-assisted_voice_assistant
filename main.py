@@ -63,16 +63,16 @@ class TaskBarIcon(wx.adv.TaskBarIcon):
         self.SetIcon(icon, tooltip)
 
     def on_exit(self, event):
-        logger.info("on_exit wurde aufgerufen.")
+        #logger.info("on_exit wurde aufgerufen.")
 
         if global_variables.voice_assistant:
             global_variables.voice_assistant.terminate()
 
         # Debugging für Download Manager
-        if hasattr(self.frame, "download_manager"):
-            logger.info(f"Frame hat download_manager: {self.frame.download_manager}")
-        else:
-            logger.warning("Frame hat kein download_manager Attribut!")
+        #if hasattr(self.frame, "download_manager"):
+            #logger.info(f"Frame hat download_manager: {self.frame.download_manager}")
+        #else:
+            #logger.warning("Frame hat kein download_manager Attribut!")
 
         # Beende den Download Manager
         if hasattr(self.frame, "download_manager") and self.frame.download_manager:
@@ -102,6 +102,10 @@ class MainApp(wx.App):
         return True
 
     def update(self, event):
+        if self.download_manager and self.download_manager.all_downloads_done:
+            logger.info("DownloadManager abgeschlossen. Entferne Instanz.")
+            self.download_manager = None
+
         if global_variables.voice_assistant:
             global_variables.voice_assistant.loop()
 
@@ -201,7 +205,7 @@ class VoiceAssistant():
         else:
             logger.warning("Standardstimme wird verwendet.")
         self.tts.set_volume(self.volume)
-        self.tts.say("Sprachausgabe initialisiert.")
+        self.say_with_language(self.tts,self.lang_manager,"intent.tts.initial")
 
         # Benachrichtigung anzeigen
         if self.show_balloon:
@@ -209,21 +213,11 @@ class VoiceAssistant():
         logger.debug("Voice Assistant initialisiert")
 
         logger.info("Initialisiere Spracherkennung...")
-        self.tts.say("Beginne mit dem Herunterladen notwendiger Sprachmodelle.")
-        # Lade das Hauptmodell für die Sprache
+        self.say_with_language(self.tts,self.lang_manager,"intent.tts.initial_voice_recognition_start")
         # Lade das Speaker-Modell (benötigt für alle Sprachen)
-        try:
-            speaker_model_path = download_vosk_model("spk", self.download)
-        except ValueError as e:
-            logger.error(f"Fehler beim Laden des Speaker-Modells: {e}")
-            raise
-        # Lade das Modell für die aktuelle Sprache
-        try:
-            s2t_model_path = download_vosk_model(language, self.download)
-        except ValueError as e:
-            logger.error(f"Fehler beim Laden des Sprachmodells für '{language}': {e}")
-            logger.info("Fallback auf Englisch.")
-            s2t_model_path = download_vosk_model("en", self.download)
+        speaker_model_path = download_vosk_model("spk", self.download)
+        s2t_model_path = download_vosk_model(language, self.download)
+
         s2t_model = Model(s2t_model_path)
         speaker_model = SpkModel(speaker_model_path)
         self.rec = KaldiRecognizer(s2t_model, 16000, speaker_model)
@@ -233,7 +227,7 @@ class VoiceAssistant():
         background_thread = threading.Thread(target=download_all_vosk_models, args=(language, self.download), daemon=True)
         background_thread.start()
 
-        self.tts.say("Notwendige Sprachmodelle sind heruntergeladen.")
+        self.say_with_language(self.tts,self.lang_manager,"intent.tts.initial_voice_recognition_end")
         logger.info("Spracherkennung initialisiert.")
 
 
@@ -267,8 +261,8 @@ class VoiceAssistant():
         timer_start_res = self.app.timer.Start(milliseconds=1, oneShot=wx.TIMER_CONTINUOUS)
         logger.debug("Timer gestartet? {}", timer_start_res)
 
+        self.say_with_language(self.tts,self.lang_manager,"intent.tts.initial_setup_end")
 
-        self.tts.say("Initialisierung abgeschlossen.")
 
     def __detectSpeaker__(self, input, short_sample_threshold=0.3, long_sample_threshold=0.5):
         """
@@ -315,15 +309,15 @@ class VoiceAssistant():
                 return "Unbekannt"
 
 
-    def capture_voice_sample(self, prompt_sentence="Bitte sagen Sie: 'Sprachassistenten sind hilfreiche Helfer'", silence_duration=2):
+    def capture_voice_sample(self, silence_duration=2):
         """
         Aufnahme und Verarbeitung eines Sprachsamples, das endet, sobald der Nutzer nicht mehr spricht.
         """
-        logger.info(f"Starte Sprachaufnahme für Fingerabdruck. Beispielsatz: {prompt_sentence}")
+        logger.info(f"Starte Sprachaufnahme für Fingerabdruck.")
 
         try:
             # Sprachaufforderung ausgeben
-            self.tts.say(prompt_sentence)
+            self.say_with_language(self.tts,self.lang_manager,"intent.tts.prompt_sentence")
             # Warten, bis TTS abgeschlossen ist
             while self.tts.is_busy():
                 time.sleep(0.2)  # Vermeidet zu häufige Abfragen
@@ -430,7 +424,6 @@ class VoiceAssistant():
         if global_variables.voice_assistant.pa is not None:
             global_variables.voice_assistant.pa.terminate()
 
-        logger.debug("Ende Aufräumarbeiten...")
 
     def loop(self):
             pcm = global_variables.voice_assistant.audio_stream.read(global_variables.voice_assistant.porcupine.frame_length)

@@ -3,8 +3,12 @@ import random
 import yaml
 from chatbot import register_call
 from loguru import logger
+from vosk import Model, SpkModel, KaldiRecognizer
+
 import global_variables
 from global_variables import voice_assistant
+from vosk_model_downloader import download_vosk_model
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # Lade die Config global
@@ -91,19 +95,41 @@ def switch_language(session_id="general", language=None):
         return ERROR_LANGUAGE
 
     logger.info(f"Switch language: {global_variables.voice_assistant.available_voices}")
-    # Wechsel zur neuen Sprache im Sprachassistenten
+    global_variables.voice_assistant.say_with_language(global_variables.voice_assistant.tts,global_variables.voice_assistant.lang_manager,"intent.tts.lang_switch_start")
     if language_code in global_variables.voice_assistant.available_voices:
-        chosen_voice = random.choice(global_variables.voice_assistant.available_voices[language_code])
-        global_variables.voice_assistant.tts.set_voice(chosen_voice)
 
-        global_variables.voice_assistant.cfg['assistant']['language'] = language_code
+        # Sprachmodell neu laden
+        try:
+            speaker_model_path = download_vosk_model("spk", global_variables.voice_assistant.download)
+            s2t_model_path = download_vosk_model(language_code, global_variables.voice_assistant.download)
 
-        global_variables.voice_assistant.intent_management.language_manager.set_language(language_code)
+            s2t_model = Model(s2t_model_path)
+            speaker_model = SpkModel(speaker_model_path)
 
-        logger.info(f"Sprache gewechselt zu {language_code} mit Stimme {chosen_voice}")
-        CHANGE_SUCCESS = random.choice(cfg['intent']['language'][language_code]['change_success'])
-        CHANGE_SUCCESS = CHANGE_SUCCESS.format(language)
-        response = CHANGE_SUCCESS
+            # Aktualisiere Kaldi-Erkenner
+            global_variables.voice_assistant.rec = KaldiRecognizer(s2t_model, 16000, speaker_model)
+            chosen_voice = random.choice(global_variables.voice_assistant.available_voices[language_code])
+            global_variables.voice_assistant.tts.set_voice(chosen_voice)
+
+            global_variables.voice_assistant.cfg['assistant']['language'] = language_code
+
+            global_variables.voice_assistant.intent_management.language_manager.set_language(language_code)
+
+            # TTS: Neue Sprache initialisiert
+            logger.info(f"Sprache gewechselt zu {language_code} mit Stimme {chosen_voice}")
+            global_variables.voice_assistant.say_with_language(global_variables.voice_assistant.tts,global_variables.voice_assistant.lang_manager,"intent.tts.lang_switch_end")
+
+            # Antwort an den Benutzer
+            CHANGE_SUCCESS = random.choice(cfg['intent']['language'][language_code]['change_success'])
+            CHANGE_SUCCESS = CHANGE_SUCCESS.format(language)
+            response = CHANGE_SUCCESS
+
+        except Exception as e:
+            logger.error(f"Fehler beim Wechsel des Sprachmodells: {e}")
+            ERROR_MODEL = random.choice(cfg['intent']['language'][current_language]['error_model'])
+            ERROR_MODEL = ERROR_MODEL.format(language)
+            return ERROR_MODEL
+
     else:
         ERROR_LANGUAGE = random.choice(cfg['intent']['language'][language_code]['error_language'])
         ERROR_LANGUAGE = ERROR_LANGUAGE.format(language)

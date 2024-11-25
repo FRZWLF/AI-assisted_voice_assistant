@@ -45,3 +45,11 @@ intent:
     location: "com'è il tempo a|com'è il tempo|meteo|meteo a"
   wiki:
     ask: "sai qualcosa su|conosci qualcosa su|chi è|cos'è|raccontami qualcosa su|conosci"
+  tts:
+    lang_switch_start: "Inizializzazione del nuovo modello linguistico..."
+    lang_switch_end: "La nuova lingua è stata inizializzata con successo. Come posso aiutarti?"
+    initial: "Output vocale inizializzato."
+    initial_voice_recognition_start: "Inizializzazione del riconoscimento vocale..."
+    initial_voice_recognition_end: "Riconoscimento vocale inizializzato."
+    initial_setup_end: "Inizializzazione completata."
+    prompt_sentence: "Per favore, dica la seguente frase: Il mattino ha l'oro in bocca, ma la prudenza porta sicurezza."

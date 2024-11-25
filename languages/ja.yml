@@ -45,3 +45,11 @@ intent:
     location: "どこどこの天気は？|今の天気は？|天気|どこどこの天気"
   wiki:
     ask: "何を知っているか|何か知っていますか|誰ですか|何ですか|これについて教えてください|知ってる？"
+  tts:
+    lang_switch_start: "新しい言語モデルを初期化しています..."
+    lang_switch_end: "新しい言語が正常に初期化されました。どのようにお手伝いできますか？"
+    initial: "音声出力が初期化されました。"
+    initial_voice_recognition_start: "音声認識を初期化しています..."
+    initial_voice_recognition_end: "音声認識が初期化されました。"
+    initial_setup_end: "初期化が完了しました。"
+    prompt_sentence: "次の文を言ってください: 早起きは三文の徳ですが、慎重さも重要です"

@@ -30,7 +30,7 @@ intent:
     gettime_place: "what time is it in|time in"
     gettime: "what time is it|time"
   user:
-    user_list: "all users|user list|users"
+    user_list: "user list|all users|users"
     new_user: "new user"
     change_intents: "edit permissions for|update permissions for"
     delete_user: "delete user|remove user"
@@ -45,3 +45,11 @@ intent:
     location: "how is the weather in|how is the weather|weather|weather in"
   wiki:
     ask: "do you know anything about|do you know something about|who is|what is|tell me something about|do you know"
+  tts:
+    lang_switch_start: "Initializing new language model..."
+    lang_switch_end: "The new language has been successfully initialized. How can I assist you?"
+    initial: "Speech output initialized."
+    initial_voice_recognition_start: "Initializing voice recognition..."
+    initial_voice_recognition_end: "Voice recognition initialized."
+    initial_setup_end: "Initialization completed."
+    prompt_sentence: "Please say the following sentence: The early bird catches the worm, but the second mouse gets the cheese."

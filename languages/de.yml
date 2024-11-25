@@ -45,3 +45,11 @@ intent:
     location: "wie ist das wetter in|wie ist das wetter|wetter|wetter in"
   wiki:
     ask: "weißt du was über|weißt du etwas über|wer ist|was ist|erzähle mir was über|kennst du"
+  tts:
+    lang_switch_start: "Initialisiere neues Sprachmodell..."
+    lang_switch_end: "Neue Sprache erfolgreich initialisiert. Wir kann ich dir behilflich sein?"
+    initial: "Sprachausgabe initialisiert."
+    initial_voice_recognition_start: "Initialisiere Spracherkennung..."
+    initial_voice_recognition_end: "Spracherkennung initialisiert."
+    initial_setup_end: "Initialisierung abgeschlossen."
+    prompt_sentence: "Bitte sagen Sie folgenden Satz: Der frühe Vogel fängt den Wurm, aber die zweite Maus bekommt den Käse."

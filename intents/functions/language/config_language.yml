@@ -1,36 +1,43 @@
 intent:
   language:
     de:
-      change_success: ["Sprache erfolgreich zu {} gewechselt ."]
+      change_success: ["Sprache erfolgreich zu deutsch gewechselt ."]
       available_languages: ["Verfügbare Sprachen sind: {} "]
       error_language: ["Die Sprache {} wird nicht unterstützt ."]
+      error_model: ["Das Sprachmodell für {} konnte nicht initialisiert werden."]
 
     en:
-      change_success: [ "Successfully switched language to {}." ]
+      change_success: [ "Successfully switched language to english." ]
       available_languages: ["Available languages are: {} "]
       error_language: [ "The language {} is not supported." ]
+      error_model: ["The language model for {} could not be initialized."]
 
     fr:
-      change_success: [ "Langue changée avec succès en {}." ]
+      change_success: [ "Langue changée avec succès en français." ]
       available_languages: [ "Les langues disponibles sont : {} " ]
       error_language: [ "La langue {} n'est pas prise en charge." ]
+      error_model: ["Le modèle linguistique pour {} n'a pas pu être initialisé."]
 
     es:
-      change_success: [ "Idioma cambiado con éxito a {}." ]
+      change_success: [ "Idioma cambiado con éxito a español." ]
       available_languages: [ "Los idiomas disponibles son: {} " ]
       error_language: [ "El idioma {} no es compatible." ]
+      error_model: ["El modelo de idioma para {} no pudo ser inicializado."]
 
     it:
-      change_success: [ "Lingua cambiata con successo a {}." ]
+      change_success: [ "Lingua cambiata con successo a italiano." ]
       available_languages: [ "Le lingue disponibili sono: {} " ]
       error_language: [ "La lingua {} non è supportata." ]
+      error_model: ["Il modello linguistico per {} non è stato possibile inizializzare."]
 
     ja:
-      change_success: [ "言語を{}に正常に切り替えました。" ]
+      change_success: [ "言語を日本語に正常に切り替えました。" ]
       available_languages: [ "利用可能な言語は次のとおりです: {} " ]
       error_language: [ "言語{}はサポートされていません。" ]
+      error_model: ["言語モデル{}を初期化できませんでした。"]
 
     ru:
-      change_success: [ "Язык успешно изменён на {}." ]
+      change_success: [ "Язык успешно изменён на русский." ]
       available_languages: [ "Доступные языки: {} " ]
       error_language: [ "Язык {} не поддерживается." ]
+      error_model: ["Языковая модель для {} не смогла быть инициализирована."]

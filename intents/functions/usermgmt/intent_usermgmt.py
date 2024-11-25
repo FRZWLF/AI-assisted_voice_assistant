@@ -35,8 +35,8 @@ def user_list(session_id="general", dummy=0):
     speakers = speaker_table.all()
     if speakers:  # Prüfen, ob die Tabelle Einträge enthält
         user_list = ", ".join([speaker['name'] for speaker in speakers if 'name' in speaker])
-        AVAILABLE_USERS = random.choice(cfg['intent']['user'][language]['available_users'])
-        return AVAILABLE_USERS.format(user_list)
+        logger.info("user liste: {}", user_list)
+        return random.choice(cfg['intent']['user'][language]['available_users']).format(user_list)
     return cfg['intent']['user'][language]['no_users']
 
 

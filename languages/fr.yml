@@ -45,3 +45,11 @@ intent:
     location: "quel temps fait-il à|quel temps fait-il|météo|météo à"
   wiki:
     ask: "sais-tu quelque chose sur|connais-tu quelque chose sur|qui est|qu'est-ce que|raconte-moi quelque chose sur|connais-tu"
+  tts:
+    lang_switch_start: "Initialisation du nouveau modèle linguistique..."
+    lang_switch_end: "La nouvelle langue a été initialisée avec succès. Comment puis-je vous aider ?"
+    initial: "Sortie vocale initialisée."
+    initial_voice_recognition_start: "Initialisation de la reconnaissance vocale..."
+    initial_voice_recognition_end: "Reconnaissance vocale initialisée."
+    initial_setup_end: "Initialisation terminée."
+    prompt_sentence: "Veuillez dire la phrase suivante : L'avenir appartient à ceux qui se lèvent tôt, mais la patience est parfois récompensée."
