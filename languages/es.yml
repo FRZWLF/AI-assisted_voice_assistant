@@ -24,6 +24,9 @@ intent:
     status: "estado del temporizador|actualización del temporizador"
     named_timer: '(temporizador|establece el temporizador|establece temporizador) (?P<name>.*?)\s(?P<timer>(en)\s?.*)'
     unnamed_timer: '(temporizador|establece un temporizador en|establece temporizador en)(?!.*\b(actualización|estado)\b) (?P<timer>.*)'
+  smarthome:
+    add_device: "nuevo dispositivo|añadir nuevo dispositivo"
+    control_device: '(Encender|Hacer)(\s*)(?P<switch>.*?)(\s*)(?P<state>(encendido|apagado))'
   stop:
     stop: "detén|alto|parar|silencio"
   time:

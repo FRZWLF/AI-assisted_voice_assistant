@@ -24,6 +24,9 @@ intent:
     status: "タイマーの状態|タイマーの更新"
     named_timer: '(タイマー|タイマーを設定|タイマーを置く) (?P<name>.*?)\s(?P<timer>(に)\s?.*)'
     unnamed_timer: '(タイマー|タイマーを設定|タイマーを置く)(?!.*\b(更新|状態)\b) (?P<timer>.*)'
+  smarthome:
+    add_device: "新しいデバイス|新しいデバイスを追加"
+    control_device: '(スイッチ|する)(\s*)(?P<switch>.*?)(\s*)(?P<state>(オン|オフ))'
   stop:
     stop: "止まる|停止|ストップ|静かに"
   time:

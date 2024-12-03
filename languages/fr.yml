@@ -24,6 +24,9 @@ intent:
     status: "état du minuteur|mise à jour du minuteur"
     named_timer: '(minuteur|régle le minuteur|régle minuteur) (?P<name>.*?)\s(?P<timer>(à)\s?.*)'
     unnamed_timer: '(minuteur|régle un minuteur à|régle minuteur à)(?!.*\b(mise à jour|état)\b) (?P<timer>.*)'
+  smarthome:
+    add_device: "nouvel appareil|ajouter un nouvel appareil"
+    control_device: '(Allumer|Faire)(\s*)(?P<switch>.*?)(\s*)(?P<state>(activé|désactivé))'
   stop:
     stop: "arrête|stop|pause|silence"
   time:

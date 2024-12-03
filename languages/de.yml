@@ -24,6 +24,9 @@ intent:
     status: "timer status|timer update"
     named_timer: '(timer|stelle den timer|stelle timer) (?P<name>.*?)\s(?P<timer>(auf)\s?.*)'
     unnamed_timer: '(timer|stelle einen timer auf|stelle timer auf)(?!.*\b(update|status)\b) (?P<timer>.*)'
+  smarthome:
+    add_device: "neues gerät|neues gerät hinzufügen"
+    control_device: '(Schalte|Mache)(\s*)(?P<switch>.*?)(\s*)(?P<state>(an|ein|aus))'
   stop:
     stop: "stop|halt|stopp|schweigefuchs"
   time:

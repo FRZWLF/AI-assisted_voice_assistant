@@ -1,4 +1,8 @@
 {% block %}
-    {% client %}(Schalte|Mache)(\s*)(?P<switch>.*)(?P<state>.*){% endclient %}
-    {% response %}{% call smarthome: %switch %state %}{% endresponse %}
+    {% client %}({{intent.smarthome.add_device}}){% endclient %}
+    {% response %}{% call add_smart_device: 0 %}{% endresponse %}
+{% endblock %}
+{% block %}
+    {% client %}({{intent.smarthome.control_device}}){% endclient %}
+    {% response %}{% call smarthome: %switch | %state %}{% endresponse %}
 {% endblock %}

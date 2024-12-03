@@ -6,12 +6,178 @@ intent:
       request_failed: "Anfrage an {} fehlgeschlagen."
       state_on: ["ein", "an"]
       state_off: ["aus"]
+      no_session: "Die Sitzung existiert nicht . Bitte starten Sie den Vorgang erneut ."
+      no_devices: "Keine Geräte gefunden. Bitte stellen Sie sicher, dass die Geräte eingeschaltet und im Netzwerk verfügbar sind."
+      found_devices: ["Ich habe folgende Geräte gefunden: {}. Bitte wähle eines, indem du die Nummer angibst."]
+      selection_error: "Ungültige Auswahl. Bitte geben Sie eine Zahl an."
+      no_selection: "Bitte nennen Sie die Nummer des Geräts, das Sie hinzufügen möchten."
+      out_of_len: ["Ungültige Auswahl. Bitte wählen Sie eine Nummer zwischen 1 und {}."]
+      value_error: "Ungültige Eingabe. Bitte nennen Sie die Nummer des Geräts."
+      device_exist: ["Das Gerät '{}' (IP: {}) ist bereits hinzugefügt."]
+      no_home_wifi_data: "Konnte Heim-WLAN-Daten nicht abrufen."
+      shelly_connection_failed: "Konnte nicht mit dem Shelly-Access-Point verbinden."
+      home_wifi_connection_failed: "Das Gerät konnte nicht mit dem Heim-WLAN verbunden werden."
+      home_wifi_reconnection_failed: "Konnte nicht zurück mit dem Heim-WLAN verbinden."
+      no_shelly_info: "Das Gerät wurde verbunden, aber die neue IP-Adresse konnte nicht gefunden werden."
+      ask_device_name: "Wie soll das Gerät heißen?"
+      no_device_name: "Bitte geben Sie eine Bezeichnung an."
+      ask_save_new_device: "Möchten Sie das Gerät hinzufügen? Bitte antworten Sie mit 'Ja' oder 'Nein'."
+      no_user_input: "Ich habe Ihre Antwort nicht verstanden. Bitte antworten Sie mit 'Ja' oder 'Nein'."
+      success_add_device: ["Das Gerät '{}' wurde erfolgreich hinzugefügt und verbunden."]
+      end_configuration: "Die Gerätekonfiguration wurde abgebrochen."
+
     en:
-      state_unknown: "The state {} is invalid."
-      device_unknown: "The device {} is unknown."
+      state_unknown: "The state {} is invalid for the switch."
+      device_unknown: "I don't recognize the device {}."
       request_failed: "Request to {} failed."
-      state_on: ["on"]
-      state_off: ["off"]
-    devices:
-      Büro: "192.168.2.160"
-      office: "192.168.2.160"
+      state_on: [ "on" ]
+      state_off: [ "off" ]
+      no_session: "The session does not exist. Please restart the process."
+      no_devices: "No devices found. Please ensure the devices are powered on and connected to the network."
+      found_devices: [ "I found the following devices: {}. Please select one by specifying the number." ]
+      selection_error: "Invalid selection. Please provide a number."
+      no_selection: "Please specify the number of the device you want to add."
+      out_of_len: [ "Invalid selection. Please choose a number between 1 and {}." ]
+      value_error: "Invalid input. Please specify the device number."
+      device_exist: [ "The device '{}' (IP: {}) has already been added." ]
+      no_home_wifi_data: "Could not retrieve home Wi-Fi data."
+      shelly_connection_failed: "Could not connect to the Shelly access point."
+      home_wifi_connection_failed: "The device could not connect to the home Wi-Fi."
+      home_wifi_reconnection_failed: "Could not reconnect to the home Wi-Fi."
+      no_shelly_info: "The device was connected, but the new IP address could not be found."
+      ask_device_name: "What should the device be named?"
+      no_device_name: "Please provide a name."
+      ask_save_new_device: "Do you want to save the device? Please answer 'Yes' or 'No'."
+      no_user_input: "I didn't understand your response. Please answer with 'Yes' or 'No'."
+      success_add_device: [ "The device '{}' was successfully added and connected." ]
+      end_configuration: "Device configuration has been canceled."
+
+    fr:
+      state_unknown: "L'état {} est invalide pour l'interrupteur."
+      device_unknown: "Je ne reconnais pas l'appareil {}."
+      request_failed: "La requête vers {} a échoué."
+      state_on: [ "activé" ]
+      state_off: [ "désactivé" ]
+      no_session: "La session n'existe pas. Veuillez redémarrer le processus."
+      no_devices: "Aucun appareil trouvé. Veuillez vous assurer que les appareils sont allumés et connectés au réseau."
+      found_devices: [ "J'ai trouvé les appareils suivants : {}. Veuillez en sélectionner un en indiquant le numéro." ]
+      selection_error: "Sélection invalide. Veuillez fournir un numéro."
+      no_selection: "Veuillez indiquer le numéro de l'appareil que vous souhaitez ajouter."
+      out_of_len: [ "Sélection invalide. Veuillez choisir un numéro entre 1 et {}." ]
+      value_error: "Entrée invalide. Veuillez indiquer le numéro de l'appareil."
+      device_exist: [ "L'appareil '{}' (IP : {}) a déjà été ajouté." ]
+      no_home_wifi_data: "Impossible de récupérer les données Wi-Fi domestiques."
+      shelly_connection_failed: "Impossible de se connecter au point d'accès Shelly."
+      home_wifi_connection_failed: "L'appareil n'a pas pu se connecter au Wi-Fi domestique."
+      home_wifi_reconnection_failed: "Impossible de se reconnecter au Wi-Fi domestique."
+      no_shelly_info: "L'appareil a été connecté, mais la nouvelle adresse IP n'a pas été trouvée."
+      ask_device_name: "Comment souhaitez-vous nommer l'appareil ?"
+      no_device_name: "Veuillez fournir un nom."
+      ask_save_new_device: "Voulez-vous enregistrer cet appareil ? Répondez par 'Oui' ou 'Non'."
+      no_user_input: "Je n'ai pas compris votre réponse. Veuillez répondre par 'Oui' ou 'Non'."
+      success_add_device: [ "L'appareil '{}' a été ajouté et connecté avec succès." ]
+      end_configuration: "La configuration de l'appareil a été annulée."
+
+    es:
+      state_unknown: "El estado {} no es válido para el interruptor."
+      device_unknown: "No reconozco el dispositivo {}."
+      request_failed: "La solicitud a {} falló."
+      state_on: [ "encendido" ]
+      state_off: [ "apagado" ]
+      no_session: "La sesión no existe. Por favor, reinicie el proceso."
+      no_devices: "No se encontraron dispositivos. Asegúrese de que los dispositivos estén encendidos y conectados a la red."
+      found_devices: [ "He encontrado los siguientes dispositivos: {}. Por favor, selecciona uno indicando el número." ]
+      selection_error: "Selección inválida. Por favor, proporcione un número."
+      no_selection: "Por favor, indique el número del dispositivo que desea agregar."
+      out_of_len: [ "Selección inválida. Por favor, elija un número entre 1 y {}." ]
+      value_error: "Entrada inválida. Por favor, indique el número del dispositivo."
+      device_exist: [ "El dispositivo '{}' (IP: {}) ya ha sido agregado." ]
+      no_home_wifi_data: "No se pudieron obtener los datos de Wi-Fi del hogar."
+      shelly_connection_failed: "No se pudo conectar al punto de acceso Shelly."
+      home_wifi_connection_failed: "El dispositivo no se pudo conectar al Wi-Fi del hogar."
+      home_wifi_reconnection_failed: "No se pudo reconectar al Wi-Fi del hogar."
+      no_shelly_info: "El dispositivo se conectó, pero no se encontró la nueva dirección IP."
+      ask_device_name: "¿Cómo debería llamarse el dispositivo?"
+      no_device_name: "Por favor, proporcione un nombre."
+      ask_save_new_device: "¿Quieres guardar el dispositivo? Responde 'Sí' o 'No'."
+      no_user_input: "No entendí tu respuesta. Responde con 'Sí' o 'No'."
+      success_add_device: [ "El dispositivo '{}' se agregó y conectó con éxito." ]
+      end_configuration: "La configuración del dispositivo ha sido cancelada."
+
+    it:
+      state_unknown: "Lo stato {} non è valido per l'interruttore."
+      device_unknown: "Non riconosco il dispositivo {}."
+      request_failed: "La richiesta a {} è fallita."
+      state_on: [ "acceso" ]
+      state_off: [ "spento" ]
+      no_session: "La sessione non esiste. Per favore, riavvia il processo."
+      no_devices: "Nessun dispositivo trovato. Assicurati che i dispositivi siano accesi e connessi alla rete."
+      found_devices: [ "Ho trovato i seguenti dispositivi: {}. Selezionane uno indicando il numero." ]
+      selection_error: "Selezione non valida. Fornisci un numero, per favore."
+      no_selection: "Per favore, specifica il numero del dispositivo che vuoi aggiungere."
+      out_of_len: [ "Selezione non valida. Scegli un numero tra 1 e {}." ]
+      value_error: "Input non valido. Fornisci il numero del dispositivo, per favore."
+      device_exist: [ "Il dispositivo '{}' (IP: {}) è già stato aggiunto." ]
+      no_home_wifi_data: "Impossibile recuperare i dati del Wi-Fi domestico."
+      shelly_connection_failed: "Impossibile connettersi al punto di accesso Shelly."
+      home_wifi_connection_failed: "Il dispositivo non è riuscito a connettersi al Wi-Fi domestico."
+      home_wifi_reconnection_failed: "Impossibile riconnettersi al Wi-Fi domestico."
+      no_shelly_info: "Il dispositivo è stato connesso, ma il nuovo indirizzo IP non è stato trovato."
+      ask_device_name: "Come vuoi chiamare il dispositivo?"
+      no_device_name: "Per favore, fornisci un nome."
+      ask_save_new_device: "Vuoi salvare il dispositivo? Rispondi 'Sì' o 'No'."
+      no_user_input: "Non ho capito la tua risposta. Rispondi con 'Sì' o 'No'."
+      success_add_device: [ "Il dispositivo '{}' è stato aggiunto e connesso con successo." ]
+      end_configuration: "La configurazione del dispositivo è stata annullata."
+
+    ja:
+      state_unknown: "スイッチにとって {} は無効な状態です。"
+      device_unknown: "デバイス {} を認識できません。"
+      request_failed: "{} へのリクエストに失敗しました。"
+      state_on: [ "オン" ]
+      state_off: [ "オフ" ]
+      no_session: "セッションが存在しません。もう一度プロセスを開始してください。"
+      no_devices: "デバイスが見つかりません。デバイスの電源が入っていてネットワークに接続されていることを確認してください。"
+      found_devices: [ "次のデバイスが見つかりました: {}。番号を指定して選択してください。" ]
+      selection_error: "無効な選択です。番号を指定してください。"
+      no_selection: "追加したいデバイスの番号を指定してください。"
+      out_of_len: [ "無効な選択です。1から {} の間で番号を選んでください。" ]
+      value_error: "無効な入力です。デバイス番号を指定してください。"
+      device_exist: [ "デバイス '{}' (IP: {}) はすでに追加されています。" ]
+      no_home_wifi_data: "ホームWi-Fiデータを取得できませんでした。"
+      shelly_connection_failed: "Shellyアクセスポイントに接続できませんでした。"
+      home_wifi_connection_failed: "デバイスがホームWi-Fiに接続できませんでした。"
+      home_wifi_reconnection_failed: "ホームWi-Fiに再接続できませんでした。"
+      no_shelly_info: "デバイスは接続されましたが、新しいIPアドレスが見つかりませんでした。"
+      ask_device_name: "デバイスの名前を何にしますか？"
+      no_device_name: "名前を指定してください。"
+      ask_save_new_device: "デバイスを保存しますか？'はい' または 'いいえ' と答えてください。"
+      no_user_input: "回答が理解できませんでした。'はい' または 'いいえ' と答えてください。"
+      success_add_device: [ "デバイス '{}' が正常に追加され、接続されました。" ]
+      end_configuration: "デバイス設定がキャンセルされました。"
+
+    ru:
+      state_unknown: "Состояние {} недопустимо для переключателя."
+      device_unknown: "Я не узнаю устройство {}."
+      request_failed: "Запрос к {} не удался."
+      state_on: [ "включено" ]
+      state_off: [ "выключено" ]
+      no_session: "Сессия не существует. Пожалуйста, начните процесс заново."
+      no_devices: "Устройства не найдены. Убедитесь, что устройства включены и подключены к сети."
+      found_devices: [ "Я нашел следующие устройства: {}. Пожалуйста, выберите одно, указав номер." ]
+      selection_error: "Недопустимый выбор. Пожалуйста, укажите номер."
+      no_selection: "Пожалуйста, укажите номер устройства, которое вы хотите добавить."
+      out_of_len: [ "Недопустимый выбор. Пожалуйста, выберите номер между 1 и {}." ]
+      value_error: "Недопустимый ввод. Пожалуйста, укажите номер устройства."
+      device_exist: [ "Устройство '{}' (IP: {}) уже добавлено." ]
+      no_home_wifi_data: "Не удалось получить данные домашнего Wi-Fi."
+      shelly_connection_failed: "Не удалось подключиться к точке доступа Shelly."
+      home_wifi_connection_failed: "Устройство не удалось подключить к домашнему Wi-Fi."
+      home_wifi_reconnection_failed: "Не удалось переподключиться к домашнему Wi-Fi."
+      no_shelly_info: "Устройство было подключено, но новый IP-адрес не найден."
+      ask_device_name: "Как вы хотите назвать устройство?"
+      no_device_name: "Пожалуйста, укажите имя."
+      ask_save_new_device: "Вы хотите сохранить устройство? Ответьте 'Да' или 'Нет'."
+      no_user_input: "Я не понял ваш ответ. Пожалуйста, ответьте 'Да' или 'Нет'."
+      success_add_device: [ "Устройство '{}' было успешно добавлено и подключено." ]
+      end_configuration: "Настройка устройства была отменена."
