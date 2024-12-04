@@ -20,6 +20,7 @@ import json
 import numpy as np
 
 from download_app import DownloadApp
+from download_marianMTModels import download_translation_models
 from langmgmt import LanguageManager
 from usermgmt import UserMgmt
 from intentmgmt import IntentManagement
@@ -149,6 +150,9 @@ class VoiceAssistant():
         logger.info(f"Verwende Sprache {language}")
 
         self.lang_manager = LanguageManager(language=language)
+
+        # Starte den Modell-Download
+        download_translation_models()
 
         self.show_balloon = self.cfg['assistant']['show_balloon']
 
@@ -491,7 +495,7 @@ class VoiceAssistant():
                             if not global_variables.voice_assistant.tts.is_busy():
                                 # Wird etwas abgespielt? Dann schalte die Lautstärke runter
                                 if global_variables.voice_assistant.audio_player.is_playing():
-                                    global_variables.voice_assistant.audio_player.set_volume(global_variables.voice_assistant.audio_player.set_volume(global_variables.voice_assistant.silenced_volume))
+                                    global_variables.voice_assistant.audio_player.set_volume(global_variables.voice_assistant.silenced_volume)
                                 # Spreche das Ergebnis des Callbacks
                                 global_variables.voice_assistant.tts.say(output)
                                 if self.show_balloon:

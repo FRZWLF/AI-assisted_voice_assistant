@@ -19,12 +19,24 @@ from tinydb import TinyDB, Query
 
 
 class Translator:
-    def __init__(self, source_lang: str, dest_lang: str) -> None:
-        self.model_name = f'Helsinki-NLP/opus-mt-{source_lang}-{dest_lang}'
-        self.model = MarianMTModel.from_pretrained(self.model_name)
-        self.tokenizer = MarianTokenizer.from_pretrained(self.model_name)
+    def __init__(self, source_lang: str, dest_lang: str, model_dir="./MarianMTModel") -> None:
+        if source_lang == dest_lang:
+            self.is_identity_translation = True
+            return
+
+        self.is_identity_translation = False
+
+        self.model_name = f"opus-mt-{source_lang}-{dest_lang}"
+        self.model_path = os.path.join(model_dir, self.model_name)
+
+        # Lade das Modell und den Tokenizer aus dem lokalen Verzeichnis
+        self.model = MarianMTModel.from_pretrained(self.model_path, local_files_only=True)
+        self.tokenizer = MarianTokenizer.from_pretrained(self.model_path, local_files_only=True)
 
     def translate(self, texts: Sequence[str]) -> Sequence[str]:
+        if self.is_identity_translation:
+            return texts
+
         tokens = self.tokenizer(list(texts), return_tensors="pt", padding=True)
         translate_tokens = self.model.generate(**tokens)
         return [self.tokenizer.decode(t, skip_special_tokens=True) for t in translate_tokens]
@@ -209,8 +221,8 @@ def timer(session_id:"general", timer_data=None):
     if not timer:
         return result + NO_TIMER_GIVEN
 
-    marian_de_en = Translator(language, 'en')
-    timer = marian_de_en.translate([timer])[0].lower()
+    marian = Translator(language, 'en')
+    timer = marian.translate([timer])[0].lower()
     logger.info('Timer in en said: {}.', timer)
 
 
@@ -366,8 +378,8 @@ def reminder(session_id="general", reminder_data=None):
     time = re.sub(r"\bein Uhr\b", "1 Uhr", time)
     time = re.sub(r"\bzwei Uhr\b", "2 Uhr", time)
     #Translation to "EN" before parsing into parse() for the best result
-    marian_de_en = Translator(language, 'en')
-    time = marian_de_en.translate([time])[0].lower()
+    marian = Translator(language, 'en')
+    time = marian.translate([time])[0].lower()
     time = re.sub(r"\ba watch\b", "1 o'clock", time)
     time = re.sub(r"\bone watch\b", "1 o'clock", time)
     logger.info('Time in en said: {}.', time)

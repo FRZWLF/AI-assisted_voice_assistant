@@ -23,7 +23,7 @@ intent:
       donkey: [ "donkey", "esel", "âne", "burro", "asino", "ロバ", "осел" ]
       duck: [ "duck", "ente", "canard", "pato", "anatra", "アヒル", "утка" ]
       goat: [ "goat", "ziege", "chèvre", "cabra", "capra", "ヤギ", "коза" ]
-      goose: [ "goose", "gans", "oie", "ganso", "oca", "ガチョウ", "гусь" ]
+      goose: [ "goose", "gans", "ganz", "oie", "ganso", "oca", "ガチョウ", "гусь" ]
       horse: [ "horse", "pferd", "cheval", "caballo", "cavallo", "馬", "лошадь" ]
       ox: [ "ox", "ochse", "bœuf", "buey", "bue", "雄牛", "бык" ]
       pig: [ "pig", "schwein", "cochon", "cerdo", "maiale", "豚", "свинья" ]

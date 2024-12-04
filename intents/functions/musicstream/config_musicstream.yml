@@ -15,9 +15,9 @@ intent:
     ru:
       unknown_station: [ "Я не знаю эту радиостанцию." ]
     stations:
-      "deutschlandfunk": "https://st01.sslstream.dlf.de/dlf/01/128/mp3/stream.mp3"
-      "hr 1": "https://dispatcher.rndfnk.com/hr/hr1/live/mp3/high"
-      "mdr aktuell": "https://avw.mdr.de/streams/284340-0_mp3_high.m3u"
-      "ndr 2": "https://www.ndr.de/resources/metadaten/audio/m3u/ndr2.m3u"
-      "mdr jump": "https://avw.mdr.de/streams/284320-0_mp3_high.m3u"
-      "sonnenschein live": "https://sunsl.streamabc.net/sunsl-sunslhardstyle-mp3-192-5865645"
+      "german radio": "https://st01.sslstream.dlf.de/dlf/01/128/mp3/stream.mp3"
+      "top 40": "https://frontend.streamonkey.net/antthue-radiotop40/stream/mp3"
+      "energy": "https://frontend.streamonkey.net/energy-berlin/stream/mp3"
+      "absolut relax": "https://absolut-relax.live-sm.absolutradio.de/absolut-relax/stream/mp3"
+      "mdr jump": "https://mdr-284320-0.sslcast.mdr.de/mdr/284320/0/mp3/high/stream.mp3"
+      "sunshine live": "https://sunsl.streamabc.net/sunsl-sunslhardstyle-mp3-192-5865645"

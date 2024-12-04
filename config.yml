@@ -5,7 +5,7 @@ assistant:
   - americano
   allow_only_known_speakers: true
   user_initialized: true
-  volume: 1.0
+  volume: 0.8
   silenced_volume: 0.1
   show_balloon: true
 defaults:

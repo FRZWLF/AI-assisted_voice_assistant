@@ -23,12 +23,24 @@ devices_table = db.table('devices')
 
 
 class Translator:
-    def __init__(self, source_lang: str, dest_lang: str) -> None:
-        self.model_name = f'Helsinki-NLP/opus-mt-{source_lang}-{dest_lang}'
-        self.model = MarianMTModel.from_pretrained(self.model_name)
-        self.tokenizer = MarianTokenizer.from_pretrained(self.model_name)
+    def __init__(self, source_lang: str, dest_lang: str, model_dir="./MarianMTModel") -> None:
+        if source_lang == dest_lang:
+            self.is_identity_translation = True
+            return
+
+        self.is_identity_translation = False
+
+        self.model_name = f"opus-mt-{source_lang}-{dest_lang}"
+        self.model_path = os.path.join(model_dir, self.model_name)
+
+        # Lade das Modell und den Tokenizer aus dem lokalen Verzeichnis
+        self.model = MarianMTModel.from_pretrained(self.model_path, local_files_only=True)
+        self.tokenizer = MarianTokenizer.from_pretrained(self.model_path, local_files_only=True)
 
     def translate(self, texts: Sequence[str]) -> Sequence[str]:
+        if self.is_identity_translation:
+            return texts
+
         tokens = self.tokenizer(list(texts), return_tensors="pt", padding=True)
         translate_tokens = self.model.generate(**tokens)
         return [self.tokenizer.decode(t, skip_special_tokens=True) for t in translate_tokens]
@@ -410,8 +422,8 @@ def select_smart_device(selection=None):
     cfg, language = __read_config__()
     session_state = getattr(global_variables, "new_smartdevice_state", None)
 
-    marian_de_en = Translator(language, 'en')
-    selection = marian_de_en.translate([selection.strip()])[0].lower()
+    marian = Translator(language, 'en')
+    selection = marian.translate([selection.strip()])[0].lower()
     try:
         selection = w2n(selection)
     except Exception as e:
@@ -624,8 +636,8 @@ def smarthome(session_id = "general", data=None):
             return ""
         except Exception as e:
             logger.error("Fehler beim Senden der Anfrage: {}", e)
-            return cfg['intent']['smarthome'][language]['request_failed'].format(device)
+            return cfg['intent']['smarthome'][language]['request_failed'].format(device_name)
 
     else:
         logger.info("Device nicht gefunden.")
-        return cfg['intent']['smarthome'][language]['device_unknown'].format(device)
+        return cfg['intent']['smarthome'][language]['device_unknown'].format(device_name)
