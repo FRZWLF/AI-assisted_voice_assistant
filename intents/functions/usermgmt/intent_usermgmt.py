@@ -78,6 +78,8 @@ def handle_new_user_name(user_input=""):
         return cfg['intent']['user'][language]['new_user_intent']
 
 def handle_new_user_intents(user_input=""):
+    if not global_variables.voice_assistant.is_listening:
+        global_variables.voice_assistant.is_listening = True
     cfg, language = __read_config__()
     session_state = getattr(global_variables, "new_user_state", None)
 
@@ -85,6 +87,7 @@ def handle_new_user_intents(user_input=""):
         return cfg['intent']['user'][language]['no_session']
 
     elif session_state["step"] == 2:
+        global_variables.voice_assistant.is_listening = False
         if len(user_input.split()) == 1 and user_input.strip().lower() in ["alle", "all"]:
             session_state["intents"] = ["*"]
         else:
@@ -95,6 +98,8 @@ def handle_new_user_intents(user_input=""):
         return cfg['intent']['user'][language]['new_user_voice']
 
 def handle_new_user_voice(user_input=""):
+    if not global_variables.voice_assistant.is_listening:
+        global_variables.voice_assistant.is_listening = True
     cfg, language = __read_config__()
     session_state = getattr(global_variables, "new_user_state", None)
 
@@ -102,6 +107,7 @@ def handle_new_user_voice(user_input=""):
         return cfg['intent']['user'][language]['no_session']
 
     elif session_state["step"] == 3:
+        global_variables.voice_assistant.is_listening = False
         logger.info("Starte Sprachaufnahme...")
         fingerprint = global_variables.voice_assistant.capture_voice_sample()
         if fingerprint is not None and len(fingerprint) > 0:

@@ -236,6 +236,7 @@ class VoiceAssistant():
 
 
         logger.info("Initialisiere Benutzerverwaltung...")
+        self.cfg['assistant']['user_initialized'] = check_user_initialization()
         # Prüfen, ob Nutzer initialisiert sind
         if not self.cfg['assistant'].get('user_initialized', False):
             logger.info("Kein initialer Benutzer gefunden. Sample-User wird erstellt...")
@@ -296,7 +297,11 @@ class VoiceAssistant():
 
         # Vergleiche die Embeddings mit gespeicherten Stimmen
         for speaker in self.user_management.speaker_table.all():
-            saved_embedding = np.array(speaker.get('voice'), dtype=np.float32)
+            saved_embedding = speaker.get('voice')
+            if saved_embedding is None:
+                logger.debug(f"Überspringe '{speaker.get('name')}'.")
+                return speaker.get('name')
+            saved_embedding = np.array(saved_embedding, dtype=np.float32)
             cosine_similarity = np.dot(input_embedding, saved_embedding) / (
                     np.linalg.norm(input_embedding) * np.linalg.norm(saved_embedding)
             )
@@ -450,6 +455,7 @@ class VoiceAssistant():
                     recResult = json.loads(global_variables.voice_assistant.rec.Result())
                     logger.info("recResult {}", recResult)
                     speaker = global_variables.voice_assistant.__detectSpeaker__(recResult['spk'])
+                    logger.info("Speaker: {}", speaker)
 
                     if (speaker is None) and (global_variables.voice_assistant.allow_only_known_speakers == True):
                         logger.info("Ich kenne deine Stimme nicht und darf damit keine Befehle von dir entgegen nehmen.")
@@ -531,6 +537,23 @@ class VoiceAssistant():
         """
         message = lang_manager.get(key, default="").format(**placeholders)
         tts.say(message)
+
+
+def check_user_initialization():
+    users_file_path = os.path.join('users.json')
+    user_initialized = False
+
+    if os.path.exists(users_file_path):
+        try:
+            with open(users_file_path, "r", encoding="utf-8") as f:
+                users_data = json.load(f)
+                if isinstance(users_data, dict) and "speakers" in users_data and len(users_data["speakers"]) > 0:
+                    user_initialized = True
+        except json.JSONDecodeError:
+            user_initialized = False
+
+    return user_initialized
+
 
 if __name__ == '__main__':
     multiprocessing.set_start_method('spawn')

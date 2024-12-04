@@ -554,29 +554,29 @@ def save_new_device(user_input=''):
         if not user_input:
             return cfg['intent']['smarthome'][language]['no_user_input']
 
-    if user_input.strip().lower() in ["ja", "yes", "oui", "sí", "sì", "はい", "да"]:
-        selected_device = session_state["selected_device"]
-        marian = Translator(language, 'en')
-        translated_name = marian.translate([selected_device["name"]])[0].lower()
-        # Gerät speichern
-        devices_table.insert({
-            "id": selected_device["id"],
-            "device": selected_device["device"],
-            "name": translated_name,
-            "type": selected_device["type"],
-            "ip": selected_device["ip"]
-        })
-        global_variables.new_smartdevice_state = None
-        global_variables.context = None  # Beende Kontext
-        return random.choice(cfg['intent']['smarthome'][language]['success_add_device']).format(selected_device['name'])
+        if user_input.strip().lower() in ["ja", "yes", "oui", "sí", "sì", "はい", "да"]:
+            selected_device = session_state["selected_device"]
+            marian = Translator(language, 'en')
+            translated_name = marian.translate([selected_device["name"]])[0].lower()
+            # Gerät speichern
+            devices_table.insert({
+                "id": selected_device["id"],
+                "device": selected_device["device"],
+                "name": translated_name,
+                "type": selected_device["type"],
+                "ip": selected_device["ip"]
+            })
+            global_variables.new_smartdevice_state = None
+            global_variables.context = None  # Beende Kontext
+            return random.choice(cfg['intent']['smarthome'][language]['success_add_device']).format(selected_device['name'])
 
-    elif user_input.strip().lower() in ["nein", "no", "non", "no", "no", "いいえ", "нет"]:
-        global_variables.new_smartdevice_state = None
-        global_variables.context = None  # Beende Kontext
-        return cfg['intent']['smarthome'][language]['end_configuration']
+        elif user_input.strip().lower() in ["nein", "no", "non", "no", "no", "いいえ", "нет"]:
+            global_variables.new_smartdevice_state = None
+            global_variables.context = None  # Beende Kontext
+            return cfg['intent']['smarthome'][language]['end_configuration']
 
-    else:
-        return cfg['intent']['smarthome'][language]['no_user_input']
+        else:
+            return cfg['intent']['smarthome'][language]['no_user_input']
 
 
 @register_call("smarthome")
