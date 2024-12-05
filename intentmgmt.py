@@ -168,6 +168,7 @@ class IntentManagement:
 
 
     def process(self,text,speaker):
+        text = correct_recognition(text)
         intent_name = self.chat.get_intent_name(text)
 
         if global_variables.voice_assistant.user_management.authenticate_intent(speaker, intent_name):
@@ -183,3 +184,19 @@ class IntentManagement:
             response = speaker + " darf den Befehl " + intent_name + " nicht ausführen."
 
         return response
+
+def correct_recognition(text):
+    """
+    Korrigiert häufige Fehler bei der Spracherkennung. (needed for the weather intent in lang "en")
+    """
+    corrections = {
+        "vedder": "weather",
+        "vet er": "weather",
+        "vet her": "weather",
+        "whether": "weather",
+        "veta": "weather",
+    }
+    for wrong, correct in corrections.items():
+        if wrong in text.lower():
+            text = text.lower().replace(wrong, correct)
+    return text

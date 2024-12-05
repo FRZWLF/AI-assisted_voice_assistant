@@ -1,6 +1,7 @@
 intent:
   start:
     welcome: "Willkommen! Wie kann ich dir heute behilflich sein?"
+    initial_user: "neuer nutzer"
   animal:
     ask_animal: "(wie macht (der|die|das)) (?P<animal>.*)"
   language:

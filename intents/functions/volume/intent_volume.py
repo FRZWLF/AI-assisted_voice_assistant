@@ -1,10 +1,12 @@
 from loguru import logger
 from chatbot import register_call
+from words2num import w2n
 import global_variables
 import yaml
 import random
 import os
 import text2numde
+from marianMTModels import Translator
 
 MAIN_CONFIG_PATH = os.path.join('config.yml')
 
@@ -37,15 +39,16 @@ def getVolume(session_id = "general", dummy=0):
 @register_call("setVolume")
 def setVolume(session_id = "general", volume=None):
     cfg, language = __read_config__()
-
-    if volume.strip() == "":
+    volume = volume.strip()
+    if volume == "":
         return getVolume(session_id, 0)
-    volume = "neun" if volume.strip() == "neuen" else "acht" if volume.strip() == "achten" else volume
-
+    volume = "neun" if volume == "neuen" else "acht" if volume == "achten" else volume
+    translator = Translator(language, "en")
+    volume = translator.translate(volume)
     # konvertiere das Zahlenwort in einen geladenanzzahligen Wert
     if isinstance(volume, str):
         try:
-            volume = text2numde.text2num(volume.strip())
+            volume = w2n(volume)
         except:
             return random.choice(cfg['intent']['volume'][language]['invalid_volume'])
     num_vol = volume
@@ -85,7 +88,6 @@ def volumeUp(session_id = "general", volume=None):
         logger.info("Setze Lautstärke von {} auf {}.", global_variables.voice_assistant.volume, new_volume)
         logger.debug("Setze Lautstärke auf {}.", new_volume)
         global_variables.voice_assistant.tts.set_volume(new_volume)
-        # mixer.music.set_volume(new_volume)
         global_variables.voice_assistant.audio_player.set_volume(new_volume)
         global_variables.voice_assistant.volume = new_volume
         return ""
@@ -101,10 +103,7 @@ def volumeDown(session_id = "general", volume=None):
     if cfg:
 
         if isinstance(volume, str):
-            if text2numde.is_number(volume):
-                vol_down = text2numde.text2num(volume.strip())
-            else:
-                vol_down = volume.split().count(cfg['intent']['volume'][language]['volume_down']) # Erlaube etwas wie "lauter, lauter, lauter"
+            vol_down = volume.split().count(cfg['intent']['volume'][language]['volume_down']) # Erlaube etwas wie "lauter, lauter, lauter"
 
         vol = global_variables.voice_assistant.volume
 
@@ -112,7 +111,6 @@ def volumeDown(session_id = "general", volume=None):
         logger.info("Setze Lautstärke von {} auf {}.", global_variables.voice_assistant.volume, new_volume)
         logger.debug("Setze Lautstärke auf {}.", new_volume)
         global_variables.voice_assistant.tts.set_volume(new_volume)
-        # mixer.music.set_volume(new_volume)
         global_variables.voice_assistant.audio_player.set_volume(new_volume)
         global_variables.voice_assistant.volume = new_volume
         return ""

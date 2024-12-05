@@ -14,83 +14,84 @@ intent:
       execute_reminder_to: ["Ich erinnere dich {} ."]
       execute_reminder: ["Ich soll dich jetzt erinnern.", "Das ist die gewünschte Erinnerung."]
     en:
-      reminder_same_day_infinitive: [ "I'll remind you at {} {} to {} ." ]
-      reminder_infinitive: [ "I'll remind you on the {} at {} {} to {} ." ]
-      reminder_same_day_to: [ "I'll remind you at {} {} to {} ." ]
-      reminder_to: [ "I'll remind you on the {} at {} {} to {} ." ]
-      reminder_same_day_no_action: [ "I'll remind you at {} {} ." ]
-      reminder_no_action: [ "I'll remind you on the {} at {} {} ." ]
-      no_time_given: [ "I could not understand the time to remind you." ]
+      reminder_same_day_infinitive: [ "I will remind you at {} o'clock {} about {}." ]
+      reminder_infinitive: [ "I will remind you on {} {} {} at {} o'clock {} about {}." ]
+      reminder_same_day_to: [ "I will remind you at {} o'clock {} {}." ]
+      reminder_to: [ "I will remind you on {} {} {} at {} o'clock {} {}." ]
+      reminder_same_day_no_action: [ "I will remind you at {} o'clock {}." ]
+      reminder_no_action: [ "I will remind you on {} {} {} at {} o'clock {}." ]
+      no_time_given: [ "I couldn't understand the date or time of the reminder." ]
       invalid_time_given: [ "Please provide a valid time." ]
 
-      execute_reminder_infinitive: [ "I want to remind you to {} ." ]
-      execute_reminder_to: [ "I want to remind you to {} ." ]
-      execute_reminder: [ "This is a reminder.", "Here is your requested reminder." ]
+      execute_reminder_infinitive: [ "I should remind you about {}." ]
+      execute_reminder_to: [ "I am reminding you about {}." ]
+      execute_reminder: [ "This is your requested reminder.", "Here is the reminder you asked for." ]
+
     es:
-      reminder_same_day_infinitive: [ "Te recordaré a las {} {} que {} ." ]
-      reminder_infinitive: [ "Te recordaré el {} a las {} {} que {} ." ]
-      reminder_same_day_to: [ "Te recordaré a las {} {} de {} ." ]
-      reminder_to: [ "Te recordaré el {} a las {} {} de {} ." ]
-      reminder_same_day_no_action: [ "Te recordaré a las {} {} ." ]
-      reminder_no_action: [ "Te recordaré el {} a las {} {} ." ]
-      no_time_given: [ "No pude entender la hora para recordarte." ]
+      reminder_same_day_infinitive: [ "Te recordaré a las {} horas {} sobre {}." ]
+      reminder_infinitive: [ "Te recordaré el {} {} {} a las {} horas {} sobre {}." ]
+      reminder_same_day_to: [ "Te recordaré a las {} horas {} {}." ]
+      reminder_to: [ "Te recordaré el {} {} {} a las {} horas {} {}." ]
+      reminder_same_day_no_action: [ "Te recordaré a las {} horas {}." ]
+      reminder_no_action: [ "Te recordaré el {} {} {} a las {} horas {}." ]
+      no_time_given: [ "No pude entender la fecha o la hora del recordatorio." ]
       invalid_time_given: [ "Por favor, proporciona una hora válida." ]
 
-      execute_reminder_infinitive: [ "Quiero recordarte que {} ." ]
-      execute_reminder_to: [ "Quiero recordarte de {} ." ]
-      execute_reminder: [ "Este es un recordatorio.", "Aquí tienes tu recordatorio solicitado." ]
+      execute_reminder_infinitive: [ "Debo recordarte sobre {}." ]
+      execute_reminder_to: [ "Te estoy recordando sobre {}." ]
+      execute_reminder: [ "Este es el recordatorio que pediste.", "Aquí está tu recordatorio." ]
     fr:
-      reminder_same_day_infinitive: [ "Je te rappellerai à {} {} de {} ." ]
-      reminder_infinitive: [ "Je te rappellerai le {} à {} {} de {} ." ]
-      reminder_same_day_to: [ "Je te rappellerai à {} {} de {} ." ]
-      reminder_to: [ "Je te rappellerai le {} à {} {} de {} ." ]
-      reminder_same_day_no_action: [ "Je te rappellerai à {} {} ." ]
-      reminder_no_action: [ "Je te rappellerai le {} à {} {} ." ]
-      no_time_given: [ "Je n'ai pas compris l'heure pour te rappeler." ]
-      invalid_time_given: [ "Veuillez fournir une heure valide." ]
+      reminder_same_day_infinitive: [ "Je te rappellerai à {} heures {} à propos de {}." ]
+      reminder_infinitive: [ "Je te rappellerai le {} {} {} à {} heures {} à propos de {}." ]
+      reminder_same_day_to: [ "Je te rappellerai à {} heures {} {}." ]
+      reminder_to: [ "Je te rappellerai le {} {} {} à {} heures {} {}." ]
+      reminder_same_day_no_action: [ "Je te rappellerai à {} heures {}." ]
+      reminder_no_action: [ "Je te rappellerai le {} {} {} à {} heures {}." ]
+      no_time_given: [ "Je n'ai pas compris la date ou l'heure du rappel." ]
+      invalid_time_given: [ "Merci de fournir une heure valide." ]
 
-      execute_reminder_infinitive: [ "Je veux te rappeler de {} ." ]
-      execute_reminder_to: [ "Je veux te rappeler de {} ." ]
-      execute_reminder: [ "Voici un rappel.", "Voici le rappel demandé." ]
+      execute_reminder_infinitive: [ "Je dois te rappeler {}." ]
+      execute_reminder_to: [ "Je te rappelle {}." ]
+      execute_reminder: [ "Voici le rappel que tu as demandé.", "Ceci est ton rappel." ]
     it:
-      reminder_same_day_infinitive: [ "Ti ricorderò alle {} {} di {} ." ]
-      reminder_infinitive: [ "Ti ricorderò il {} alle {} {} di {} ." ]
-      reminder_same_day_to: [ "Ti ricorderò alle {} {} di {} ." ]
-      reminder_to: [ "Ti ricorderò il {} alle {} {} di {} ." ]
-      reminder_same_day_no_action: [ "Ti ricorderò alle {} {} ." ]
-      reminder_no_action: [ "Ti ricorderò il {} alle {} {} ." ]
-      no_time_given: [ "Non ho capito l'ora per ricordarti." ]
+      reminder_same_day_infinitive: [ "Ti ricorderò alle {} {} di {}." ]
+      reminder_infinitive: [ "Ti ricorderò il {} {} {} alle {} {} di {}." ]
+      reminder_same_day_to: [ "Ti ricorderò alle {} {} {}." ]
+      reminder_to: [ "Ti ricorderò il {} {} {} alle {} {} {}." ]
+      reminder_same_day_no_action: [ "Ti ricorderò alle {} {}." ]
+      reminder_no_action: [ "Ti ricorderò il {} {} {} alle {} {}." ]
+      no_time_given: [ "Non ho capito la data o l'orario del promemoria." ]
       invalid_time_given: [ "Per favore, fornisci un orario valido." ]
 
-      execute_reminder_infinitive: [ "Voglio ricordarti di {} ." ]
-      execute_reminder_to: [ "Voglio ricordarti di {} ." ]
-      execute_reminder: [ "Questo è un promemoria.", "Ecco il tuo promemoria richiesto." ]
+      execute_reminder_infinitive: [ "Devo ricordarti di {}." ]
+      execute_reminder_to: [ "Ti sto ricordando di {}." ]
+      execute_reminder: [ "Ecco il promemoria che hai richiesto.", "Questo è il tuo promemoria." ]
     ja:
-      reminder_same_day_infinitive: [ "{}時{}分に{}を思い出させます。" ]
-      reminder_infinitive: [ "{}年{}月{}日、{}時{}分に{}を思い出させます。" ]
-      reminder_same_day_to: [ "{}時{}分に{}を思い出させます。" ]
-      reminder_to: [ "{}年{}月{}日、{}時{}分に{}を思い出させます。" ]
-      reminder_same_day_no_action: [ "{}時{}分に思い出させます。" ]
-      reminder_no_action: [ "{}年{}月{}日、{}時{}分に思い出させます。" ]
-      no_time_given: [ "リマインドする時間が理解できませんでした。" ]
+      reminder_same_day_infinitive: [ "{}時に{}についてお知らせします。" ]
+      reminder_infinitive: [ "{} {} {}の{}時に{}についてお知らせします。" ]
+      reminder_same_day_to: [ "{}時に{} {}をお知らせします。" ]
+      reminder_to: [ "{} {} {}の{}時に{} {}をお知らせします。" ]
+      reminder_same_day_no_action: [ "{}時にお知らせします。" ]
+      reminder_no_action: [ "{} {} {}の{}時にお知らせします。" ]
+      no_time_given: [ "リマインダーの日付または時間が理解できませんでした。" ]
       invalid_time_given: [ "有効な時間を指定してください。" ]
 
-      execute_reminder_infinitive: [ "{}を思い出させます。" ]
-      execute_reminder_to: [ "{}を思い出させます。" ]
-      execute_reminder: [ "これがリマインダーです。", "リクエストされたリマインダーです。" ]
+      execute_reminder_infinitive: [ "{}を思い出させる必要があります。" ]
+      execute_reminder_to: [ "{}をお知らせしています。" ]
+      execute_reminder: [ "これはあなたが求めたリマインダーです。", "こちらがリマインダーです。" ]
     ru:
-      reminder_same_day_infinitive: [ "Я напомню вам в {} {} о {} ." ]
-      reminder_infinitive: [ "Я напомню вам {} в {} {} о {} ." ]
-      reminder_same_day_to: [ "Я напомню вам в {} {} о {} ." ]
-      reminder_to: [ "Я напомню вам {} в {} {} о {} ." ]
-      reminder_same_day_no_action: [ "Я напомню вам в {} {} ." ]
-      reminder_no_action: [ "Я напомню вам {} в {} {} ." ]
-      no_time_given: [ "Я не смог понять время, чтобы напомнить вам." ]
-      invalid_time_given: [ "Пожалуйста, укажите корректное время." ]
+      reminder_same_day_infinitive: [ "Я напомню вам в {} часов {} о {}." ]
+      reminder_infinitive: [ "Я напомню вам {} {} {} в {} часов {} о {}." ]
+      reminder_same_day_to: [ "Я напомню вам в {} часов {} {}." ]
+      reminder_to: [ "Я напомню вам {} {} {} в {} часов {} {}." ]
+      reminder_same_day_no_action: [ "Я напомню вам в {} часов {}." ]
+      reminder_no_action: [ "Я напомню вам {} {} {} в {} часов {}." ]
+      no_time_given: [ "Я не понял дату или время напоминания." ]
+      invalid_time_given: [ "Пожалуйста, укажите правильное время." ]
 
-      execute_reminder_infinitive: [ "Я хочу напомнить вам о {} ." ]
-      execute_reminder_to: [ "Я хочу напомнить вам о {} ." ]
-      execute_reminder: [ "Это ваше напоминание.", "Вот ваше запрошенное напоминание." ]
+      execute_reminder_infinitive: [ "Мне нужно напомнить вам о {}." ]
+      execute_reminder_to: [ "Я напоминаю вам о {}." ]
+      execute_reminder: [ "Вот ваше напоминание.", "Это то, что вы просили напомнить." ]
 
   timer:
     de:
@@ -101,6 +102,9 @@ intent:
       named_timer_minute: [ "Ich setze den Timer {} auf {} Minuten ." ]
       named_timer_second: [ "Ich setze den Timer {} auf {} Sekunden ." ]
       no_timer_given: [ "Ich habe leider deinen Timer nicht verstanden." ]
+      timer_status: ["Timer für {}: Verbleibende Zeit: {} "]
+      named_timer_status: ["Timer {} für {}: Verbleibende Zeit: {} "]
+      no_timer: ["Keine aktiven Timer gefunden."]
 
       execute_timer: [ "Dein Timer ist abgelaufen." ]
       execute_named_timer: [ "Dein Timer {} ist abgelaufen." ]
@@ -112,6 +116,9 @@ intent:
       named_timer_minute: [ "I'm setting the timer {} for {} minutes." ]
       named_timer_second: [ "I'm setting the timer {} for {} seconds." ]
       no_timer_given: [ "I couldn't understand your timer request." ]
+      timer_status: [ "Timer for {}: Remaining time: {} " ]
+      named_timer_status: [ "Timer {} for {}: Remaining time: {} " ]
+      no_timer: [ "No active timers found." ]
 
       execute_timer: [ "Your timer has finished." ]
       execute_named_timer: [ "Your timer {} has finished." ]
@@ -123,6 +130,9 @@ intent:
       named_timer_minute: [ "Voy a configurar el temporizador {} para {} minutos." ]
       named_timer_second: [ "Voy a configurar el temporizador {} para {} segundos." ]
       no_timer_given: [ "No entendí tu solicitud de temporizador." ]
+      timer_status: [ "Temporizador para {}: Tiempo restante: {} " ]
+      named_timer_status: [ "Temporizador {} para {}: Tiempo restante: {} " ]
+      no_timer: [ "No se encontraron temporizadores activos." ]
 
       execute_timer: [ "Tu temporizador ha finalizado." ]
       execute_named_timer: [ "Tu temporizador {} ha finalizado." ]
@@ -134,6 +144,9 @@ intent:
       named_timer_minute: [ "Je règle le minuteur {} pour {} minutes." ]
       named_timer_second: [ "Je règle le minuteur {} pour {} secondes." ]
       no_timer_given: [ "Je n'ai pas compris ta demande de minuteur." ]
+      timer_status: [ "Minuteur pour {}: Temps restant: {} " ]
+      named_timer_status: [ "Minuteur {} pour {}: Temps restant: {} " ]
+      no_timer: [ "Aucun minuteur actif trouvé." ]
 
       execute_timer: [ "Ton minuteur est terminé." ]
       execute_named_timer: [ "Ton minuteur {} est terminé." ]
@@ -145,6 +158,9 @@ intent:
       named_timer_minute: [ "Imposto il timer {} per {} minuti." ]
       named_timer_second: [ "Imposto il timer {} per {} secondi." ]
       no_timer_given: [ "Non ho capito la tua richiesta di timer." ]
+      timer_status: [ "Timer per {}: Tempo rimanente: {} " ]
+      named_timer_status: [ "Timer {} per {}: Tempo rimanente: {} " ]
+      no_timer: [ "Nessun timer attivo trovato." ]
 
       execute_timer: [ "Il tuo timer è scaduto." ]
       execute_named_timer: [ "Il tuo timer {} è scaduto." ]
@@ -156,6 +172,9 @@ intent:
       named_timer_minute: [ "{}のタイマーを{}分に設定します。" ]
       named_timer_second: [ "{}のタイマーを{}秒に設定します。" ]
       no_timer_given: [ "タイマーリクエストが理解できませんでした。" ]
+      timer_status: [ "{} のタイマー: 残り時間: {} " ]
+      named_timer_status: [ "{} のタイマー {}: 残り時間: {} " ]
+      no_timer: [ "アクティブなタイマーが見つかりませんでした。" ]
 
       execute_timer: [ "タイマーが終了しました。" ]
       execute_named_timer: [ "{}のタイマーが終了しました。" ]
@@ -167,6 +186,49 @@ intent:
       named_timer_minute: [ "Я устанавливаю таймер {} на {} минут." ]
       named_timer_second: [ "Я устанавливаю таймер {} на {} секунд." ]
       no_timer_given: [ "Я не понял ваш запрос на таймер." ]
+      timer_status: [ "Таймер для {}: Оставшееся время: {} " ]
+      named_timer_status: [ "Таймер {} для {}: Оставшееся время: {} " ]
+      no_timer: [ "Активных таймеров не найдено." ]
 
       execute_timer: [ "Ваш таймер завершен." ]
       execute_named_timer: [ "Ваш таймер {} завершен." ]
+
+replacements:
+    de: {
+      "mein ": "dein ",
+      "meine ": "deine ",
+      "meinen ": "deinen ",
+      "meinem ": "deinem ",
+      "meiner ": "deiner ",
+      "meines ": "deines "
+    }
+    en: {
+      "my ": "your ",
+      "mine ": "yours "
+    }
+    fr: {
+      "mon ": "ton ",
+      "ma ": "ta ",
+      "mes ": "tes "
+    }
+    es: {
+      "mi ": "tu ",
+      "mis ": "tus "
+    }
+    it: {
+      "mio ": "tuo ",
+      "mia ": "tua ",
+      "miei ": "tuoi ",
+      "mie ": "tue "
+    }
+    ja: {
+      "私の": "あなたの",
+      "僕の": "君の",
+      "俺の": "お前の"
+    }
+    ru: {
+      "мой ": "твой ",
+      "моя ": "твоя ",
+      "мои ": "твои ",
+      "моё ": "твоё "
+    }

@@ -5,32 +5,10 @@ import random
 import os
 import yaml
 from fuzzywuzzy import fuzz
-from transformers import MarianMTModel, MarianTokenizer
-from typing import Sequence
 from words2num import w2n
 
-class Translator:
-    def __init__(self, source_lang: str, dest_lang: str, model_dir="./MarianMTModel") -> None:
-        if source_lang == dest_lang:
-            self.is_identity_translation = True
-            return
+from marianMTModels import Translator
 
-        self.is_identity_translation = False
-
-        self.model_name = f"opus-mt-{source_lang}-{dest_lang}"
-        self.model_path = os.path.join(model_dir, self.model_name)
-
-        # Lade das Modell und den Tokenizer aus dem lokalen Verzeichnis
-        self.model = MarianMTModel.from_pretrained(self.model_path, local_files_only=True)
-        self.tokenizer = MarianTokenizer.from_pretrained(self.model_path, local_files_only=True)
-
-    def translate(self, texts: Sequence[str]) -> Sequence[str]:
-        if self.is_identity_translation:
-            return texts
-
-        tokens = self.tokenizer(list(texts), return_tensors="pt", padding=True)
-        translate_tokens = self.model.generate(**tokens)
-        return [self.tokenizer.decode(t, skip_special_tokens=True) for t in translate_tokens]
 
 @register_call("musicstream")
 def musicstream(session_id="general", station=None):

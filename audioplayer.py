@@ -38,7 +38,7 @@ class AudioPlayer:
     def _play_file(self, file):
         sd.default.reset()
         data, fs = sf.read(file, dtype='float32')
-        sd.play(data * self._volume, fs, device=sd.default.device['output'])
+        sd.play(data * self._volume.value, fs, device=sd.default.device['output'])
         status = sd.wait()
         if status:
             logger.error("Fehler bei der Soundwiedergabe {}.", status)

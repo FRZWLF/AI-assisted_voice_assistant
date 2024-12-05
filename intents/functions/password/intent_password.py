@@ -79,13 +79,12 @@ def getPassword(session_id = "general", entry="none"):
         return UNKNOWN_ENTRY
     else:
         logger.error("Konnte Konfigurationsdatei für Intent 'password' nicht laden.")
-        return
+        return "FAILURE"
 
 
 @register_call("getUsername")
 def getUsername(session_id = "general", entry="none"):
     cfg = None
-
     # Laden der intent-eigenen Konfigurationsdatei
     config_path = os.path.join('intents','functions','password','config_password.yml')
     with open(config_path, "r", encoding='utf-8') as ymlfile:
@@ -106,8 +105,7 @@ def getUsername(session_id = "general", entry="none"):
     if not os.path.exists(key_file):
         return cfg['intent']['password'][LANGUAGE]['key_not_found']
 
-    UNKNOWN_ENTRY = random.choice(cfg['intent']['password'][LANGUAGE]['unknown_entry'])
-    UNKNOWN_ENTRY = UNKNOWN_ENTRY.format(entry)
+    UNKNOWN_ENTRY = random.choice(cfg['intent']['password'][LANGUAGE]['unknown_entry']).format(entry)
 
     NO_VOICE_MATCH = cfg['intent']['password'][LANGUAGE]['no_voice_match']
 
@@ -137,7 +135,7 @@ def getUsername(session_id = "general", entry="none"):
 
 
         entries = kp.entries
-
+        logger.debug(f"Verfügbare Titel in KeePass: {[entry.title for entry in entries]}")
         for title in entries:
             ratio = fuzz.ratio(title.title.lower(), entry.lower())
             logger.info("Übereinstimmung von {} und {} ist {}%", title.title, entry, ratio)
@@ -149,4 +147,4 @@ def getUsername(session_id = "general", entry="none"):
         return UNKNOWN_ENTRY
     else:
         logger.error("Konnte Konfigurationsdatei für Intent 'password' nicht laden.")
-        return ""
+        return "FAILURE"

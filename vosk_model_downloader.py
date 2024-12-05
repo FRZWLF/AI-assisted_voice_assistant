@@ -20,7 +20,6 @@ VOSK_MODELS = {
     "spk": "https://alphacephei.com/vosk/models/vosk-model-spk-0.4.zip"
 }
 
-
 def download_chunk(url, start, end, destination, index, progress_callback, cancel_flag):
     """
     Lädt einen bestimmten Bereich (Chunk) der Datei herunter und aktualisiert den Fortschritt.

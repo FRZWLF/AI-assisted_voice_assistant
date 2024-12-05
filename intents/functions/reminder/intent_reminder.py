@@ -1,4 +1,3 @@
-import json
 import re
 from datetime import datetime, timedelta
 from chatbot import register_call
@@ -9,38 +8,13 @@ import os
 import random
 import yaml
 from loguru import logger
-from transformers import MarianMTModel, MarianTokenizer
-from typing import Sequence
 from words2num import w2n
 
 from dateutil.parser import parse
 from num2words import num2words
 from tinydb import TinyDB, Query
 
-
-class Translator:
-    def __init__(self, source_lang: str, dest_lang: str, model_dir="./MarianMTModel") -> None:
-        if source_lang == dest_lang:
-            self.is_identity_translation = True
-            return
-
-        self.is_identity_translation = False
-
-        self.model_name = f"opus-mt-{source_lang}-{dest_lang}"
-        self.model_path = os.path.join(model_dir, self.model_name)
-
-        # Lade das Modell und den Tokenizer aus dem lokalen Verzeichnis
-        self.model = MarianMTModel.from_pretrained(self.model_path, local_files_only=True)
-        self.tokenizer = MarianTokenizer.from_pretrained(self.model_path, local_files_only=True)
-
-    def translate(self, texts: Sequence[str]) -> Sequence[str]:
-        if self.is_identity_translation:
-            return texts
-
-        tokens = self.tokenizer(list(texts), return_tensors="pt", padding=True)
-        translate_tokens = self.model.generate(**tokens)
-        return [self.tokenizer.decode(t, skip_special_tokens=True) for t in translate_tokens]
-
+from marianMTModels import Translator
 
 # Initialisiere Datenbankzugriff auf Modulebene
 reminder_db_path = os.path.join('intents','functions','reminder','reminder_timer_db.json')
@@ -135,16 +109,9 @@ def spoken_timer(datetime):
 
     return hours, minutes, seconds
 
-def convert_to_second_person(text):
+def convert_to_second_person(text, cfg, language):
     # Wörter für erste Person zu zweite Person konvertieren
-    replacements = {
-        "mein ": "dein ",
-        "meine ": "deine ",
-        "meinen ": "deinen ",
-        "meinem ": "deinem ",
-        "meiner ": "deiner ",
-        "meines ": "deines ",
-    }
+    replacements = cfg["replacements"][language]
     for key, value in replacements.items():
         text = re.sub(rf"\b{key}\b", value, text, flags=re.IGNORECASE)
     return text
@@ -173,21 +140,25 @@ def timer_list(session_id:"general", dummy=0):
 
         # Konvertiere verbleibende Zeit in einen lesbaren String
         if hours > 0:
-            time_string = f"{int(hours)} Stunden {int(minutes)} Minuten"
+            time_string = f"{int(hours)} hours {int(minutes)} minutes"
         elif minutes > 0:
-            time_string = f"{int(minutes)} Minuten {int(seconds)} Sekunden"
+            time_string = f"{int(minutes)} minutes {int(seconds)} seconds"
         else:
-            time_string = f"{int(seconds)} Sekunden"
+            time_string = f"{int(seconds)} seconds"
+
+        translator = Translator("en", language)
+        time_string = translator.translate(time_string)
+        t['duration'] = translator.translate(t['duration'])
 
         # Timer-Beschreibung erstellen
         if t['name'] is None:
-            timer_description = f"Timer für {t['duration']}: Verbleibende Zeit: {time_string} "
+            timer_description = random.choice(cfg['intent']['timer'][language]['timer_status']).format(t['duration'], time_string)
         else:
-            timer_description = f"Timer {t['name']} für {t['duration']}: Verbleibende Zeit: {time_string} "
+            timer_description = random.choice(cfg['intent']['timer'][language]['named_timer_status']).format(t['name'], t['duration'], time_string)
         timer_status_list.append(timer_description)
 
     # Kombiniere alle Timer-Beschreibungen in eine Nachricht
-    result = "\n".join(timer_status_list) if timer_status_list else "Keine aktiven Timer gefunden."
+    result = "\n".join(timer_status_list) if timer_status_list else random.choice(cfg['intent']['timer'][language]['no_timer'])
     return result
 
 
@@ -271,17 +242,17 @@ def timer(session_id:"general", timer_data=None):
             TIMER_HOURS = random.choice(cfg['intent']['timer'][language]['timer_hour'])
             TIMER_HOURS = TIMER_HOURS.format(hours)
             result = result + " " + TIMER_HOURS
-            reminder_table.insert({'time': final_time, 'kind': 'hour', 'duration': f"{hours} Stunden", 'name': name, 'speaker':speaker})
+            reminder_table.insert({'time': final_time, 'kind': 'hour', 'duration': f"{hours} hours", 'name': name, 'speaker':speaker})
         elif minutes > 0:
             TIMER_MINUTES = random.choice(cfg['intent']['timer'][language]['timer_minute'])
             TIMER_MINUTES = TIMER_MINUTES.format(minutes)
             result = result + " " + TIMER_MINUTES
-            reminder_table.insert({'time': final_time, 'kind': 'minute', 'duration': f"{minutes} Minuten", 'name': name, 'speaker':speaker})
+            reminder_table.insert({'time': final_time, 'kind': 'minute', 'duration': f"{minutes} minutes", 'name': name, 'speaker':speaker})
         elif seconds > 0:
             TIMER_SECONDS = random.choice(cfg['intent']['timer'][language]['timer_second'])
             TIMER_SECONDS = TIMER_SECONDS.format(seconds)
             result = result + " " + TIMER_SECONDS
-            reminder_table.insert({'time': final_time, 'kind': 'second', 'duration': f"{seconds} Sekunden", 'name': name, 'speaker':speaker})
+            reminder_table.insert({'time': final_time, 'kind': 'second', 'duration': f"{seconds} seconds", 'name': name, 'speaker':speaker})
 
         logger.info("Timer gesetzt auf: {}", result)
     else:
@@ -290,17 +261,17 @@ def timer(session_id:"general", timer_data=None):
             TIMER_HOURS = random.choice(cfg['intent']['timer'][language]['named_timer_hour'])
             TIMER_HOURS = TIMER_HOURS.format(name, hours)
             result = result + " " + TIMER_HOURS
-            reminder_table.insert({'time': final_time, 'kind': 'hour', 'duration': f"{hours} Stunden", 'name': name, 'speaker':speaker})
+            reminder_table.insert({'time': final_time, 'kind': 'hour', 'duration': f"{hours} hours", 'name': name, 'speaker':speaker})
         elif minutes > 0:
             TIMER_MINUTES = random.choice(cfg['intent']['timer'][language]['named_timer_minute'])
             TIMER_MINUTES = TIMER_MINUTES.format(name, minutes)
             result = result + " " + TIMER_MINUTES
-            reminder_table.insert({'time': final_time, 'kind': 'minute', 'duration': f"{minutes} Minuten", 'name': name, 'speaker':speaker})
+            reminder_table.insert({'time': final_time, 'kind': 'minute', 'duration': f"{minutes} minutes", 'name': name, 'speaker':speaker})
         elif seconds > 0:
             TIMER_SECONDS = random.choice(cfg['intent']['timer'][language]['named_timer_second'])
             TIMER_SECONDS = TIMER_SECONDS.format(name, seconds)
             result = result + " " + TIMER_SECONDS
-            reminder_table.insert({'time': final_time, 'kind': 'second', 'duration': f"{seconds} Sekunden", 'name': name, 'speaker':speaker})
+            reminder_table.insert({'time': final_time, 'kind': 'second', 'duration': f"{seconds} seconds", 'name': name, 'speaker':speaker})
 
         logger.info("Timer {} gesetzt auf: {}", name, result)
 
@@ -495,7 +466,7 @@ def reminder(session_id="general", reminder_data=None):
     logger.info('Hours: {} Minutes: {} Day: {} Month: {} Year: {}.', hours, minutes,day,month, year)
 
     if reminder_to is not None:
-        reminder_to = convert_to_second_person(reminder_to)
+        reminder_to = convert_to_second_person(reminder_to,cfg, language)
 
     # Am selben Tag wie heute?
     if datetime.now().date() == parsed_time.date():

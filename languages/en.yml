@@ -1,6 +1,7 @@
 intent:
   start:
     welcome: "Welcome! How can I assist you today?"
+    initial_user: "new user"
   animal:
     ask_animal: '(what does the) (?P<animal>.*)\s(sound like)'
   language:
@@ -11,14 +12,14 @@ intent:
   music:
     musicstream: "play the radio station|play radio"
   password:
-    password: "Password"
-    user: "User|Username"
+    password: "password"
+    user: "user name|username|user"
   questiongame:
     start: "(start question game)|(question game)"
   reminder:
     time_reminder_to: '(remind me|reminder) (?P<time>.*?)\s(?P<reminder_to>(of|my|mine)\s?.*)'
     reminder_to_time: '(remind me|reminder) (?P<reminder_to>.*?)\s(?P<time>(at|in)\s?.*)'
-    time_reminder_infinitive: '(remind me|reminder) (?P<time>.*?)\s(?P<reminder_infinitive>(to|the|a|an|one|from the|from|to the|in the|on the|for the)\s?.*)'
+    time_reminder_infinitive: '(remind me|reminder) (?P<time>.*?)\s(?P<reminder_infinitive>(to|the|from the|from|to the|in the|on the|for the)\s?.*)'
     time: '(remind me|reminder) (?P<time>.*)'
   timer:
     status: "timer status|timer update"

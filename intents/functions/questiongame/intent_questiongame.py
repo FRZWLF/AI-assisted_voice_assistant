@@ -1,17 +1,18 @@
 from loguru import logger
 from chatbot import register_call
-import random
-import sys
 import os
 import global_variables
 import yaml
 
-YES = ["JA", "J", "YES", "Y"]
-NO = ["NEIN", "N", "NO"]
-PROBABLY = ["VIELLEICHT", "PROBABLY"]
-PROBABLY_NOT = ["WAHRSCHEINLICH NICHT", "EHER NICHT", "PROBABLY NOT"]
+from marianMTModels import Translator
+
+YES = ["JA", "J", "YES", "Y", "OUI", "O", "SÍ", "SI", "S", "はい", "ええ", "ДА", "Д"]
+NO = ["NEIN", "N", "NO", "NON", "いいえ", "いや", "НЕТ", "Н"]
+PROBABLY = ["VIELLEICHT", "PROBABLY", "PEUT-ÊTRE", "POSSIBLE", "QUIZÁS", "TAL VEZ", "PROBABLEMENTE", "FORSE", "PROBABILMENTE", "多分", "恐らく", "ВОЗМОЖНО", "МОЖЕТ БЫТЬ"]
+PROBABLY_NOT = ["WAHRSCHEINLICH NICHT", "EHER NICHT", "PROBABLY NOT", "PROBABLEMENT PAS", "PEUT-ÊTRE PAS", "PROBABLEMENTE NO", "QUIZÁS NO", "TAL VEZ NO", "PROBABILMENTE NO", "FORSE NO", "多分違う", "恐らく違う", "СКОРЕЕ НЕТ", "МАЛОВЕРОЯТНО"]
 
 question_game_session = None
+
 
 @register_call("startQuestionGame")
 def startQuestionGame(session_id = "general", dummy=0):
@@ -60,12 +61,13 @@ class Q20Session():
 
         # Holen der Sprache aus der globalen Konfigurationsdatei
         LANGUAGE = global_variables.voice_assistant.cfg['assistant']['language']
+        self.translator = Translator(source_lang="en", dest_lang=LANGUAGE)
 
         self.PLEASE_START_NEW_GAME = cfg['intent']['questiongame'][LANGUAGE]['please_start_new_game']
         self.GUESS = cfg['intent']['questiongame'][LANGUAGE]['i_guess']
 
-        items_path = os.path.join('intents','functions','questiongame', 'items_' + LANGUAGE + '.txt')
-        questions_path = os.path.join('intents','functions','questiongame', 'questions_' + LANGUAGE + '.txt')
+        items_path = os.path.join('intents','functions','questiongame', 'items.txt')
+        questions_path = os.path.join('intents','functions','questiongame', 'questions.txt')
 
         itemData=open(items_path, encoding="utf-8")
         data=itemData.readlines()
@@ -84,14 +86,17 @@ class Q20Session():
     def askQuestion(self):
         if self.current_question < len(self.questions):
             question = self.questions[self.current_question].string
+            translated_question = self.translator.translate([question])[0]  # Übersetze die Frage
             self.current_question += 1
-            return question
+            return translated_question
         else:
             return None
 
     def getAnswer(self):
         selectedData = self.evaluateCertainties()
-        result = self.GUESS.format(str(round(100*selectedData[1],2)), self.items[selectedData[0]].name.capitalize())
+        item_name = self.items[selectedData[0]].name
+        translated_item = self.translator.translate([item_name])[0]  # Übersetze den Namen des Items
+        result = self.GUESS.format(str(round(100*selectedData[1],2)), translated_item.capitalize())
         return result
 
     def evaluateAnswer(self, answer):

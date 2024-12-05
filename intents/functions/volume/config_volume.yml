@@ -8,32 +8,32 @@ intent:
       set_volume: "Die Lautstärke wurde auf {} gesetzt."
     en:
       invalid_volume: ["Please set the volume between 0 and 10"]
-      volume_up: "volume up"
-      volume_down: "volume down"
+      volume_up: "louder"
+      volume_down: "quieter"
       volume_is: "Volume is {} out of ten."
       set_volume: "The volume has been set to {}."
     fr:
       invalid_volume: [ "Veuillez définir un volume entre 0 et 10." ]
-      volume_up: "augmenter le volume"
-      volume_down: "baisser le volume"
+      volume_up: "plus fort"
+      volume_down: "moins fort"
       volume_is: "Le volume est de {} sur dix."
       set_volume: "Le volume a été réglé à {}."
     es:
       invalid_volume: [ "Por favor, ajusta el volumen entre 0 y 10." ]
-      volume_up: "subir el volumen"
-      volume_down: "bajar el volumen"
+      volume_up: "más alto"
+      volume_down: "más bajo"
       volume_is: "El volumen es {} de diez."
       set_volume: "El volumen se ha ajustado a {}."
     it:
       invalid_volume: [ "Per favore, imposta un volume tra 0 e 10." ]
-      volume_up: "aumenta il volume"
-      volume_down: "abbassa il volume"
+      volume_up: "più alto"
+      volume_down: "più basso"
       volume_is: "Il volume è {} su dieci."
       set_volume: "Il volume è stato impostato a {}."
     ja:
       invalid_volume: [ "音量を0から10の間で設定してください。" ]
-      volume_up: "音量を上げる"
-      volume_down: "音量を下げる"
+      volume_up: "もっと大きく"
+      volume_down: "もっと小さく"
       volume_is: "音量は10のうち{}です。"
       set_volume: "音量が{}に設定されました。"
     ru:

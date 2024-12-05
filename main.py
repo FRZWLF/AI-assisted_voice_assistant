@@ -20,7 +20,7 @@ import json
 import numpy as np
 
 from download_app import DownloadApp
-from download_marianMTModels import download_translation_models
+from marianMTModels import download_translation_models
 from langmgmt import LanguageManager
 from usermgmt import UserMgmt
 from intentmgmt import IntentManagement
@@ -516,16 +516,6 @@ class VoiceAssistant():
                                 # Zurücksetzen der Lautstärke auf Normalniveau
                                 global_variables.voice_assistant.audio_player.set_volume(global_variables.voice_assistant.volume)
 
-    # def capture_user_input(self):
-    #     while True:
-    #         pcm = self.audio_stream.read(self.porcupine.frame_length)
-    #         if self.rec.AcceptWaveform(pcm):
-    #             recResult = json.loads(global_variables.voice_assistant.rec.Result())
-    #             logger.info("recResult {}", recResult)
-    #             sentence = recResult['text']
-    #             logger.info('Ich habe verstanden: "{}"', sentence)
-    #             return sentence
-
     def say_with_language(self,tts, lang_manager, key, **placeholders):
         """
         Dynamische TTS-Funktion, die eine übersetzte Nachricht spricht.
@@ -554,17 +544,27 @@ def check_user_initialization():
 
     return user_initialized
 
+def load_language_file(language):
+    language_file = os.path.join('languages', f'{language}.yml')
+    if not os.path.exists(language_file):
+        logger.warning(f"Sprachdatei {language_file} nicht gefunden. Fallback auf Englisch.")
+        language_file = os.path.join('languages', 'en.yml')
+
+    with open(language_file, 'r', encoding='utf-8') as ymlfile:
+        return yaml.safe_load(ymlfile)
 
 if __name__ == '__main__':
     multiprocessing.set_start_method('spawn')
     global_variables.voice_assistant = VoiceAssistant()
     logger.info("Anwendung wurde gestartet")
 
+    language_config = load_language_file(global_variables.voice_assistant.cfg['assistant']['language'])
+
     # Initialisierungsprüfung
     if not global_variables.voice_assistant.cfg['assistant']['user_initialized']:
         logger.info("Benutzer muss erstellt werden.")
         # Starte Benutzererstellung via process
-        response = global_variables.voice_assistant.intent_management.process("neuer nutzer", "sample_user")
+        response = global_variables.voice_assistant.intent_management.process(language_config['intent']['start']['initial_user'], "sample_user")
         global_variables.voice_assistant.tts.say(response)
         while global_variables.voice_assistant.tts.is_busy():
             time.sleep(0.1)  # Vermeidet zu häufige Abfragen
@@ -575,28 +575,5 @@ if __name__ == '__main__':
             time.sleep(0.1)  # Vermeidet zu häufige Abfragen
         logger.info("TTS abgeschlossen. Weiter.")
 
-    # # Benutzer erstellen, wenn notwendig
-    # if not global_variables.voice_assistant.cfg['assistant']['user_initialized']:
-    #     logger.info("Starte Benutzererstellung...")
-    #     global_variables.context = new_user  # Initialisiert die Benutzererstellung
-    #     response = global_variables.context()
-    #     global_variables.voice_assistant.tts.say(response)
-    #     while global_variables.voice_assistant.tts.is_busy():
-    #         time.sleep(0.1)  # Vermeidet zu häufige Abfragen
-    #     logger.info("TTS abgeschlossen. Weiter.")
-    #
-    # # Starte die MainLoop
-    # while True:
-    #     # Prüfe, ob ein Kontext aktiv ist
-    #     if global_variables.context:
-    #         user_input = global_variables.voice_assistant.capture_user_input()  # Ersetze dies durch echte Spracherkennung
-    #         response = global_variables.context(user_input.strip())
-    #         if response:
-    #             global_variables.voice_assistant.tts.say(response)
-    #             while global_variables.voice_assistant.tts.is_busy():
-    #                 time.sleep(0.1)  # Vermeidet zu häufige Abfragen
-    #             logger.info("TTS abgeschlossen. Weiter.")
-    #     else:
-    #         logger.info("Kontext ist abgeschlossen. Starte reguläre Verarbeitung.")
-    #         break
+
     global_variables.voice_assistant.app.MainLoop()

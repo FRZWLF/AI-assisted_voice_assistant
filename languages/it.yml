@@ -1,6 +1,7 @@
 intent:
   start:
     welcome: "Benvenuto! Come posso aiutarti oggi?"
+    initial_user: "nuovo utente"
   animal:
     ask_animal: "(come fa (il|la)) (?P<animal>.*)"
   language:
@@ -18,7 +19,7 @@ intent:
   reminder:
     time_reminder_to: '(ricordami|promemoria|ricordami di) (?P<time>.*?)\s(?P<reminder_to>(a|il mio|la mia|i miei|le mie)\s?.*)'
     reminder_to_time: '(ricordami|promemoria|ricordami di) (?P<reminder_to>.*?)\s(?P<time>(alle|tra|fra)\s?.*)'
-    time_reminder_infinitive: '(ricordami|promemoria|ricordami di) (?P<time>.*?)\s(?P<reminder_infinitive>(di|del|della|dei|degli|un|una|nell|al|sul)\s?.*)'
+    time_reminder_infinitive: '(ricordami|promemoria|ricordami di) (?P<time>.*?)\s(?P<reminder_infinitive>(di|del|della|dei|degli|nell|al|sul)\s?.*)'
     time: '(ricordami|promemoria|ricordami di) (?P<time>.*)'
   timer:
     status: "stato del timer|aggiornamento del timer"
