@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from chatbot import register_call
 from dateutil.relativedelta import relativedelta
 
+import constants
 import global_variables
 import os
 import random
@@ -17,12 +18,12 @@ from tinydb import TinyDB, Query
 from marianMTModels import Translator
 
 # Initialisiere Datenbankzugriff auf Modulebene
-reminder_db_path = os.path.join('intents','functions','reminder','reminder_timer_db.json')
+reminder_db_path = constants.find_data_file(os.path.join('intents','functions','reminder','reminder_timer_db.json'))
 reminder_db = TinyDB(reminder_db_path)
 reminder_table = reminder_db.table('reminder')
 
 # Lade die Config global
-CONFIG_PATH = os.path.join('intents','functions','reminder','config_reminder_timer.yml')
+CONFIG_PATH = constants.find_data_file(os.path.join('intents','functions','reminder','config_reminder_timer.yml'))
 
 def __read_config__():
     cfg = None

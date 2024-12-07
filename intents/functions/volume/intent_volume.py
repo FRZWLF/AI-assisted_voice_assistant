@@ -1,21 +1,21 @@
 from loguru import logger
 from chatbot import register_call
 from words2num import w2n
+import constants
 import global_variables
 import yaml
 import random
 import os
-import text2numde
 from marianMTModels import Translator
 
-MAIN_CONFIG_PATH = os.path.join('config.yml')
+MAIN_CONFIG_PATH = constants.find_data_file(os.path.join('config.yml'))
 
 def __read_config__():
     cfg = None
 
     LANGUAGE = global_variables.voice_assistant.cfg['assistant']['language']
 
-    config_path = os.path.join('intents','functions','volume','config_volume.yml')
+    config_path = constants.find_data_file(os.path.join('intents','functions','volume','config_volume.yml'))
     with open(config_path, "r", encoding='utf8') as ymlfile:
         cfg = yaml.load(ymlfile, Loader=yaml.FullLoader)
     return cfg, LANGUAGE

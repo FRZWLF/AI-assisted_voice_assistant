@@ -6,14 +6,15 @@ from chatbot import register_call
 from loguru import logger
 from tinydb import Query, TinyDB
 
+import constants
 import global_variables
 
 
 
 # Lade die Config global
-CONFIG_PATH = os.path.join('intents','functions','usermgmt','config_usermgmt.yml')
+CONFIG_PATH = constants.find_data_file(os.path.join('intents','functions','usermgmt','config_usermgmt.yml'))
 
-USER_JSON_PATH = os.path.join('users.json')
+USER_JSON_PATH = constants.find_data_file(os.path.join('users.json'))
 db = TinyDB(USER_JSON_PATH)
 speaker_table = db.table('speakers')
 

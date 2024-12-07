@@ -7,6 +7,8 @@ from multiprocessing.pool import ThreadPool
 from loguru import logger
 from chatbot import register_call
 from tinydb import TinyDB, Query
+
+import constants
 import global_variables
 import os
 import yaml
@@ -16,8 +18,8 @@ from words2num import w2n
 from marianMTModels import Translator
 
 # Lade die Config global
-CONFIG_PATH = os.path.join('intents','functions','smarthome','config_smarthome.yml')
-DEVICES_DB_PATH = os.path.join('intents','functions','smarthome','smartdevices_db.json')
+CONFIG_PATH = constants.find_data_file(os.path.join('intents','functions','smarthome','config_smarthome.yml'))
+DEVICES_DB_PATH = constants.find_data_file(os.path.join('intents','functions','smarthome','smartdevices_db.json'))
 db = TinyDB(DEVICES_DB_PATH)
 devices_table = db.table('devices')
 

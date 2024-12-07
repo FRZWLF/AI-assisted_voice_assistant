@@ -8,6 +8,8 @@ from pathlib import Path
 from loguru import logger
 import pip
 from chatbot import Chat, mapper
+
+import constants
 import global_variables
 
 class Chat(Chat):
@@ -63,7 +65,7 @@ class IntentManagement:
     def __init__(self, language_manager):
         self.language_manager = language_manager
         self.language_data = self.language_manager.translations
-        self.functions_folders = [os.path.abspath(name) for name in glob.glob("./intents/functions/*/")]
+        self.functions_folders = [os.path.abspath(name) for name in glob.glob(constants.find_data_file("intents/functions") + "/*/")]
         self.dynamic_intents = []
 
         # Templates initial verarbeiten
@@ -98,8 +100,8 @@ class IntentManagement:
         Lädt und verarbeitet die Templates basierend auf der aktuellen Sprache.
         """
         logger.info("Initialisiere ChatbotAI...")
-        chatbotai_files = glob.glob(os.path.join("./intents/chatbotai", "*.template"))
-        MERGED_FILE = "./intents/chatbotai/_merger.template"
+        chatbotai_files = glob.glob(os.path.join(constants.find_data_file("intents/chatbotai"), '*.template'))
+        MERGED_FILE = constants.find_data_file('intents/chatbotai/_merger.template')
 
         with open(MERGED_FILE, 'w', encoding='utf-8') as outfile:
             for caf in chatbotai_files:

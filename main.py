@@ -37,7 +37,7 @@ from vosk_model_downloader import download_vosk_model, download_all_vosk_models,
 
 #GUI-Anwendung mit pythonw main.py starten
 
-CONFIG_FILE = "config.yml"
+CONFIG_FILE = constants.find_data_file("config.yml")
 
 
 class TaskBarIcon(wx.adv.TaskBarIcon):
@@ -377,7 +377,7 @@ class VoiceAssistant():
 
     def load_available_languages(self):
         """Lädt die verfügbaren Sprachen und Stimmen aus einer YAML-Datei und aktualisiert diese, falls neue Sprachen hinzugefügt werden."""
-        languages_file = 'languages.yml'
+        languages_file = constants.find_data_file('languages.yml')
 
         # Standardmäßig unterstützte Sprachen
         supported_languages = ['de', 'en', 'fr', 'es', 'it', 'ja', 'ru']
@@ -530,7 +530,7 @@ class VoiceAssistant():
 
 
 def check_user_initialization():
-    users_file_path = os.path.join('users.json')
+    users_file_path = constants.find_data_file(os.path.join('users.json'))
     user_initialized = False
 
     if os.path.exists(users_file_path):
@@ -545,16 +545,22 @@ def check_user_initialization():
     return user_initialized
 
 def load_language_file(language):
-    language_file = os.path.join('languages', f'{language}.yml')
+    language_file = constants.find_data_file(os.path.join('languages', f'{language}.yml'))
     if not os.path.exists(language_file):
         logger.warning(f"Sprachdatei {language_file} nicht gefunden. Fallback auf Englisch.")
-        language_file = os.path.join('languages', 'en.yml')
+        language_file = constants.find_data_file(os.path.join('languages', 'en.yml'))
 
     with open(language_file, 'r', encoding='utf-8') as ymlfile:
         return yaml.safe_load(ymlfile)
 
 if __name__ == '__main__':
+    multiprocessing.freeze_support()
+    sys.stdout = open('x.out', 'a')
+    sys.stderr = open('x.err', 'a')
     multiprocessing.set_start_method('spawn')
+
+    wx.Log.SetLogLevel(wx.LOG_Trace)
+
     global_variables.voice_assistant = VoiceAssistant()
     logger.info("Anwendung wurde gestartet")
 

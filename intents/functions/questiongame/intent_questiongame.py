@@ -1,6 +1,8 @@
 from loguru import logger
 from chatbot import register_call
 import os
+
+import constants
 import global_variables
 import yaml
 
@@ -54,7 +56,7 @@ class Q20Session():
         self.current_question = 0
 
         # Lese die Konfiguration
-        config_path = os.path.join('intents','functions','questiongame','config_questiongame.yml')
+        config_path = constants.find_data_file(os.path.join('intents','functions','questiongame','config_questiongame.yml'))
         cfg = None
         with open(config_path, "r", encoding='utf8') as ymlfile:
             cfg = yaml.load(ymlfile, Loader=yaml.FullLoader)
@@ -66,8 +68,8 @@ class Q20Session():
         self.PLEASE_START_NEW_GAME = cfg['intent']['questiongame'][LANGUAGE]['please_start_new_game']
         self.GUESS = cfg['intent']['questiongame'][LANGUAGE]['i_guess']
 
-        items_path = os.path.join('intents','functions','questiongame', 'items.txt')
-        questions_path = os.path.join('intents','functions','questiongame', 'questions.txt')
+        items_path = constants.find_data_file(os.path.join('intents','functions','questiongame', 'items.txt'))
+        questions_path = constants.find_data_file(os.path.join('intents','functions','questiongame', 'questions.txt'))
 
         itemData=open(items_path, encoding="utf-8")
         data=itemData.readlines()

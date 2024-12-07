@@ -2,14 +2,16 @@ import os
 import random
 import yaml
 from chatbot import register_call
+
+import constants
 import global_variables
 from loguru import logger
 
 
 @register_call("animalSound")
 def animalSound(session_id="general", animal="none"):
-    config_path = os.path.join('intents','functions','animalsounds','config_animalsounds.yml')
-    ogg_path = os.path.join('intents','functions','animalsounds','animals')
+    config_path = constants.find_data_file(os.path.join('intents','functions','animalsounds','config_animalsounds.yml'))
+    ogg_path = constants.find_data_file(os.path.join('intents','functions','animalsounds','animals'))
 
     cfg = None
     with open(config_path, 'r', encoding="utf-8") as ymlfile:

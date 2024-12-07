@@ -4,6 +4,9 @@ from loguru import logger
 import os
 from typing import Sequence
 
+import constants
+
+
 def download_translation_models(model_dir="./MarianMTModel"):
     """
     Lädt MarianMT-Modelle für die Übersetzungen herunter, falls sie nicht vorhanden sind.
@@ -68,7 +71,7 @@ class Translator:
             dest_lang = "jap"
 
         self.model_name = f"opus-mt-{source_lang}-{dest_lang}"
-        self.model_path = os.path.join(model_dir, self.model_name)
+        self.model_path = constants.find_data_file(os.path.join(model_dir, self.model_name))
 
         # Lade das Modell und den Tokenizer aus dem lokalen Verzeichnis
         self.model = MarianMTModel.from_pretrained(self.model_path, local_files_only=True)

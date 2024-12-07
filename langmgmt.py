@@ -3,6 +3,7 @@ import os
 
 from loguru import logger
 
+import constants
 import global_variables
 
 
@@ -13,7 +14,7 @@ class LanguageManager:
         self.load_language_file()
 
     def load_language_file(self):
-        file_path = os.path.join("languages", f"{self.language}.yml")
+        file_path = constants.find_data_file(os.path.join("languages", f"{self.language}.yml"))
         if os.path.exists(file_path):
             with open(file_path, "r", encoding="utf-8") as file:
                 self.translations = yaml.safe_load(file)

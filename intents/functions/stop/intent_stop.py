@@ -1,5 +1,7 @@
 from loguru import logger
 from chatbot import register_call
+
+import constants
 import global_variables
 import yaml
 import random
@@ -12,7 +14,7 @@ def stop(session_id = "general", dummy=0):
     cfg = None
 
     # Laden der intent-eigenen Konfigurationsdatei
-    config_path = os.path.join('intents','functions','stop','config_stop.yml')
+    config_path = constants.find_data_file(os.path.join('intents','functions','stop','config_stop.yml'))
     with open(config_path, "r", encoding='utf8') as ymlfile:
         cfg = yaml.load(ymlfile, Loader=yaml.FullLoader)
 

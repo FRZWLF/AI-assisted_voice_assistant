@@ -1,12 +1,12 @@
 assistant:
-  language: en
+  language: de
   wakewords:
   - bumblebee
   - americano
   allow_only_known_speakers: true
   user_initialized: true
   volume: 0.8
-  silenced_volume: 0.1
+  silenced_volume: 0.2
   show_balloon: true
 defaults:
   de:

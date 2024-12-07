@@ -1,5 +1,7 @@
 from loguru import logger
 from chatbot import register_call
+
+import constants
 import global_variables
 import random
 import os
@@ -12,7 +14,7 @@ from marianMTModels import Translator
 
 @register_call("musicstream")
 def musicstream(session_id="general", station=None):
-    config_path = os.path.join('intents','functions','musicstream','config_musicstream.yml')
+    config_path = constants.find_data_file(os.path.join('intents','functions','musicstream','config_musicstream.yml'))
     cfg = None
 
     with open(config_path, "r", encoding='utf8') as ymlfile:

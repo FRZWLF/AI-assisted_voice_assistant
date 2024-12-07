@@ -4,19 +4,19 @@ import yaml
 from chatbot import register_call
 from loguru import logger
 from vosk import Model, SpkModel, KaldiRecognizer
-
+import constants
 import global_variables
 from global_variables import voice_assistant
 from vosk_model_downloader import download_vosk_model
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR = constants.find_data_file(os.path.dirname(os.path.abspath(__file__)))
 
 # Lade die Config global
-CONFIG_PATH = os.path.join('intents','functions','language','config_language.yml')
+CONFIG_PATH = constants.find_data_file(os.path.join('intents','functions','language','config_language.yml'))
 # Pfad zur Sprachdatei
-LANGUAGES_PATH = os.path.join('languages.yml')
+LANGUAGES_PATH = constants.find_data_file(os.path.join('languages.yml'))
 # Pfad zur Main-Konfigurationsdatei
-MAIN_CONFIG_PATH = os.path.join('config.yml')
+MAIN_CONFIG_PATH = constants.find_data_file(os.path.join('config.yml'))
 
 
 def __read_config__():

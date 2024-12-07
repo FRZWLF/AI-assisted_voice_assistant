@@ -2,11 +2,17 @@ import os
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
+from glob import glob
 from pathlib import Path
 import requests
 from zipfile import ZipFile
 from loguru import logger
+
+from constants import find_data_file
 from download_app import DownloadApp
+
+# Basisverzeichnis für Vosk-Modelle
+BASE_MODEL_DIR = find_data_file("vosk_models")
 
 # Verfügbare Vosk-Modelle und URLs
 VOSK_MODELS = {
@@ -136,12 +142,12 @@ def download_vosk_model(language: str, app: DownloadApp):
         raise ValueError(f"No model available for language: {language}")
 
     url = VOSK_MODELS[language]
-    model_dir = f"./vosk-model-{language}*"
-    zip_file = Path(f"./vosk-model-{language}.zip")
+    zip_file = Path(BASE_MODEL_DIR) / f"vosk-model-{language}.zip"
+    model_dir_pattern = Path(BASE_MODEL_DIR) / f"vosk-model-{language}*"
 
     # Verzeichnisprüfung
-    potential_dirs = list(Path("./").glob(model_dir))
-    if potential_dirs and any(potential_dirs[0].iterdir()):
+    potential_dirs = list(model_dir_pattern.parent.glob(model_dir_pattern.name))
+    if potential_dirs and any(Path(potential_dirs[0]).iterdir()):
         logger.info(f"Model for {language} already exists at {potential_dirs[0]}. Skipping download and extraction.")
         app.update_progress(language, 100)
         return str(potential_dirs[0])
@@ -149,7 +155,7 @@ def download_vosk_model(language: str, app: DownloadApp):
     # ZIP-Prüfung
     if zip_file.exists():
         logger.info(f"ZIP file for {language} already exists at {zip_file}. Extracting...")
-        if extract_zip_file(zip_file, "./"):
+        if extract_zip_file(zip_file, BASE_MODEL_DIR):
             try:
                 zip_file.unlink()  # Entferne ZIP nach erfolgreicher Extraktion
                 logger.info(f"{zip_file} wurde erfolgreich gelöscht.")
@@ -158,7 +164,7 @@ def download_vosk_model(language: str, app: DownloadApp):
         else:
             logger.error(f"Extraktion von {zip_file} für {language} fehlgeschlagen.")
         app.update_progress(language, 100)
-        logger.info(f"Model for {language} ready at {model_dir}.")
+        logger.info(f"Model for {language} ready at {potential_dirs[0]}.")
         return
 
     # Download, wenn weder Verzeichnis noch ZIP-Datei vorhanden sind
@@ -180,19 +186,19 @@ def download_vosk_model(language: str, app: DownloadApp):
             return
 
         logger.info(f"Extracting {zip_file}...")
-        try:
-            with ZipFile(zip_file, "r") as zip_ref:
-                zip_ref.extractall("./")
-            zip_file.unlink()  # Entferne ZIP nach dem Entpacken
-        except FileNotFoundError as e:
-            logger.error(f"Fehler beim Zugriff auf {zip_file}: {e}")
-        logger.info(f"Model for {language} ready at {model_dir}.")
+        if extract_zip_file(zip_file, BASE_MODEL_DIR):
+            try:
+                zip_file.unlink()  # Entferne ZIP nach erfolgreicher Extraktion
+            except FileNotFoundError as e:
+                logger.error(f"Fehler beim Löschen von {zip_file}: {e}")
+        else:
+            logger.error(f"Extraktion von {zip_file} für {language} fehlgeschlagen.")
 
-    potential_dirs = list(Path("./").glob(model_dir))
+    potential_dirs = list(model_dir_pattern.parent.glob(model_dir_pattern.name))
     if potential_dirs:
         return str(potential_dirs[0])
 
-    return str(model_dir)
+    return str(potential_dirs[0])
 
 
 def extract_zip_file(zip_file, destination):
