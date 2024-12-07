@@ -65,7 +65,18 @@ class IntentManagement:
     def __init__(self, language_manager):
         self.language_manager = language_manager
         self.language_data = self.language_manager.translations
-        self.functions_folders = [os.path.abspath(name) for name in glob.glob(constants.find_data_file("intents/functions") + "/*/")]
+        functions_path = constants.find_data_file("intents/functions")
+        if not os.path.exists(functions_path):
+            raise FileNotFoundError(f"Pfad nicht gefunden: {functions_path}")
+        base_path = os.path.abspath(constants.find_data_file("intents"))
+        if base_path not in sys.path:
+            sys.path.insert(0, base_path)
+            logger.debug("Basis-Pfad hinzugefügt: {}", base_path)
+
+        self.functions_folders = [os.path.join(functions_path, name)
+                                  for name in os.listdir(functions_path)
+                                  if os.path.isdir(os.path.join(functions_path, name))]
+        logger.debug("Gefundene Ordner: {}", self.functions_folders)
         self.dynamic_intents = []
 
         # Templates initial verarbeiten
@@ -84,15 +95,21 @@ class IntentManagement:
             for infi in intent_files:
                 logger.debug("Lade Intent-Datei {}...", infi)
 
-                name = infi.strip('.py')
-                name = "intents.functions." + Path(ff).name + ".intent_" + Path(ff).name
-                name = name.replace(os.path.sep, ".")
+                folder_name = Path(ff).stem
+                intent_name = Path(infi).stem
+                module_name = f"intents.functions.{folder_name}.{intent_name}"
+                module_path = os.path.join(ff, f"{intent_name}.py")
 
-                logger.debug("Importiere modul {}...", name)
-                globals()[Path(ff).name] = importlib.import_module(name)
-                logger.debug("Modul {} geladen.", str(Path(ff).name))
-                self.dynamic_intents.append(str(Path(ff).name))
-                self.intent_count += 1
+                try:
+                    spec = importlib.util.spec_from_file_location(module_name, module_path)
+                    module = importlib.util.module_from_spec(spec)
+                    sys.modules[module_name] = module  # Modul manuell in sys.modules registrieren
+                    spec.loader.exec_module(module)
+                    logger.debug("Modul erfolgreich importiert: {}", module_name)
+                    self.dynamic_intents.append(folder_name)
+                    self.intent_count += 1
+                except Exception as e:
+                    logger.error("Fehler beim Import von {}: {}", module_name, e)
 
 
     def process_templates(self):
