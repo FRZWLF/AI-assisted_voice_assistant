@@ -14,6 +14,7 @@ intent:
   password:
     password: "passwort"
     user: "benutzer|benutzername"
+    new_entity: "neuer eintrag"
   questiongame:
     start: "(fragespiel)|(starte fragespiel)|(frage spiel)|(starte frage spiel)"
   reminder:
@@ -21,10 +22,13 @@ intent:
     reminder_to_time: '(erinnere mich|erinnerung|erinner mich) (?P<reminder_to>.*?)\s(?P<time>(um|in)\s?.*)'
     time_reminder_infinitive: '(erinnere mich|erinnerung|erinner mich) (?P<time>.*?)\s(?P<reminder_infinitive>(zu|den|die|das|der|aus dem|vom|ins|im|an das|auf das|für das)\s?.*)'
     time: '(erinnere mich|erinnerung|erinner mich) (?P<time>.*)'
+    delete_all_reminder: '(entferne|lösche) alle Erinnerungen'
   timer:
     status: "timer status|timer update"
     named_timer: '(timer|stelle den timer|stelle timer) (?P<name>.*?)\s(?P<timer>(auf)\s?.*)'
     unnamed_timer: '(timer|stelle einen timer auf|stelle timer auf)(?!.*\b(update|status)\b) (?P<timer>.*)'
+    delete_all_timer: '(entferne|lösche) alle timer'
+    delete_named_timer: '((entferne|lösche) timer)\s(?P<name>.*)'
   smarthome:
     add_device: "neues gerät|neues gerät hinzufügen"
     control_device: '(Schalte|Mache)(\s*)(?P<switch>.*?)(\s*)(?P<state>(an|ein|aus))'

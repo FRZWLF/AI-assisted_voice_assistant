@@ -1,0 +1,94 @@
+passwordAnimalsound:
+------------
+(wie macht (der|die|das)) (Katze,Huhn,Hahn,Kuh,Esel,Ente,Ziege,Gans,Pferd,Ochse,Schwein,Schaf,Truthahn)
+
+
+Sprache ändern:
+---------------
+(welche sprachen sind verfügbar|sprachen|sprachmöglichkeiten|sprach möglichkeiten)
+(wähle sprache|nutze sprache|sprache) (Deutsch, Englisch, Französisch, Spanisch, Italienisch, Japanisch, Russisch)
+
+
+Location:
+---------
+(wo bin ich|wo befinde ich mich|wo sind wir hier|wo befinden wir uns)
+
+
+Radio Stream:
+-------------
+(spiele den radiosender|spiele radio) (Deutschlandfunk, Energy, mdr jump, sunshine live, top 40, absolut relax)
+
+
+Passwort DB:
+------------
+(passwort) (DB-Name)
+(benutzer|benutzername) (DB-Name)
+(neuer eintrag)
+
+
+Fragespiel:
+-----------
+((fragespiel)|(starte fragespiel)|(frage spiel)|(starte frage spiel))
+
+
+Reminder:
+---------
+((erinnere mich|erinnerung|erinner mich) (in … Minuten, Stunden, Tage, Wochen, Monaten, Jahre, um … Uhr, am (Tag)-sten (Monat))\s((an|meinen|meine|mein) (Event)))
+((erinnere mich|erinnerung|erinner mich) ((Event))\s((um|in) ... Uhr, Minuten, Stunden, Tage, Wochen, Monaten, Jahren))
+((erinnere mich|erinnerung|erinner mich) (in … Minuten, Stunden, Tage, Wochen, Monaten, Jahre, um … Uhr, am (Tag)-sten (Monat))\s((zu|den|die|das|der|aus dem|vom|ins|im|an das|auf das|für das) (Event))
+((erinnere mich|erinnerung|erinner mich) (in … Minuten, Stunden, Tage, Wochen, Monaten, Jahre, um … Uhr, am (Tag)-sten (Monat))
+((entferne|lösche) alle reminder)
+
+
+Timer:
+------
+(timer status|timer update)
+((timer|stelle den timer|stelle timer) ((Timer-Name)\s((auf) ... Sekunden, Minuten, Stunden))
+((timer|stelle einen timer auf|stelle timer auf)(?!.*\b(update|status)\b) (... Sekunden, Minuten, Stunden))
+((entferne|lösche) alle timer)
+(((entferne|lösche) timer)\s(?P<name>.*))
+
+
+Shelly-Smart-Device:
+--------------------
+(neues gerät|neues gerät hinzufügen)
+((Schalte|Mache)(\s*)(Geräte-Name)(\s*)(an|ein|aus))
+
+
+Stop:
+-----
+(stop|halt|stopp|schweige fuchs)
+
+
+Uhrzeit:
+--------
+(wie spät ist es in|uhrzeit in|wie viel uhr ist es in) (Deutschland, England, China, Großbritannien, Frankreich, Amerika)
+(wie spät ist es|wie viel uhr ist es|wieviel uhr ist es|uhrzeit)
+
+
+Benutzerverwaltung:
+-------------------
+(alle nutzer|nutzerliste|nutzer liste|benutzer|benutzerliste)
+(neuer benutzer|neuer nutzer)
+(berechtigungen bearbeiten für|berechtigungen aktualisieren für) (Username)
+(lösche benutzer|lösche nutzer|entferne benutzer|entferne nutzer) (Username)
+(sprachprofil aktualisieren für|sprachprofil bearbeiten für|sprach profil aktualisieren für|sprach profil bearbeiten für) (Username)
+
+
+Lautstärke:
+-----------
+(wie ist die lautstärke|wie laut ist es)
+(volle lautstärke|maximale lautstärke)
+(lautstärke|setze lautstärke auf|setze lautstärke)(\s*)(Zahl zwischen 1-10)?
+lauter.*
+leiser.*
+
+
+Wetter:
+-------
+(wie ist das wetter in|wie ist das wetter|wetter in|wetter)((\s*)(Standort))?
+
+
+Wikipedia:
+----------
+(weißt du was über|weißt du etwas über|wer ist|was ist|erzähle mir was über|kennst du) (Suchanfrage)

@@ -7,7 +7,7 @@ from multiprocessing.pool import ThreadPool
 from loguru import logger
 from chatbot import register_call
 from tinydb import TinyDB, Query
-
+import winwifi
 import constants
 import global_variables
 import os
@@ -51,6 +51,7 @@ def discover_lan_devices():
                     ["ping", "-n", "1", "-w", "1000", ip],
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
+                    creationflags=subprocess.CREATE_NO_WINDOW
                 )
                 res = result.stdout.decode("utf-8", errors="ignore")
                 #logger.debug(f"Pinge IP {ip}: {'Erreichbar' if res == 0 else 'Nicht erreichbar'}")
@@ -79,11 +80,22 @@ def discover_shelly_via_wlan():
     Sucht nach Shelly-Geräten in der WLAN-Netzwerkliste.
     """
     try:
+        logger.info("Starte WLAN-Scan mit WinWiFi...")
+        # Führt einen WLAN-Scan aus
+        winwifi.WinWiFi.scan()
+        time.sleep(10)
+        logger.info("WLAN-Refresh mit WinWiFi erfolgreich.")
+        return True
+    except Exception as winwifi_error:
+        logger.warning(f"WinWiFi-Scan fehlgeschlagen: {winwifi_error}")
+
+    try:
         print("Starte WLAN-Scan...")
         result = subprocess.run(
             ["netsh", "wlan", "show", "network"],
             stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
+            stderr=subprocess.PIPE,
+            creationflags=subprocess.CREATE_NO_WINDOW
         )
 
         # Dekodiere mit explizitem Fehler-Handling
@@ -149,6 +161,7 @@ def get_current_ssid():
             ["netsh", "wlan", "show", "interfaces"],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
+            creationflags=subprocess.CREATE_NO_WINDOW
         )
         output = str(result.stdout.decode("utf-8", errors="ignore"))
         logger.info(f"Netsh-Output:\n{output}")
@@ -169,6 +182,7 @@ def get_wifi_password(ssid):
             ["netsh", "wlan", "show", "profile", ssid, "key=clear"],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
+            creationflags=subprocess.CREATE_NO_WINDOW
         )
         output = str(result.stdout.decode("utf-8", errors="ignore"))
         logger.info(f"Netsh-Output:\n{output}")
@@ -319,7 +333,8 @@ def create_wifi_profile(ssid):
             ["netsh", "wlan", "add", "profile", f"filename={profile_path}"],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            text=True
+            text=True,
+            creationflags=subprocess.CREATE_NO_WINDOW
         )
         if result.returncode == 0:
             logger.info(f"WLAN-Profil für '{ssid}' erfolgreich erstellt.")
@@ -339,7 +354,7 @@ def connect_to_shelly_ap(ssid):
     """
     try:
         logger.info(f"Versuche Verbindung zu '{ssid}'...")
-        subprocess.run(["netsh", "wlan", "connect", f"name={ssid}"], check=True)
+        subprocess.run(["netsh", "wlan", "connect", f"name={ssid}"], check=True,creationflags=subprocess.CREATE_NO_WINDOW)
         logger.info(f"Mit dem Shelly-Access-Point '{ssid}' verbunden.")
         return True
     except subprocess.CalledProcessError as e:
@@ -352,7 +367,7 @@ def reconnect_to_home_wifi(ssid):
     Verbindet den PC zurück mit dem Heim-WLAN.
     """
     try:
-        subprocess.run(["netsh", "wlan", "connect", "name=" + ssid], check=True)
+        subprocess.run(["netsh", "wlan", "connect", "name=" + ssid], check=True,creationflags=subprocess.CREATE_NO_WINDOW)
         logger.info(f"Zurück mit Heim-WLAN '{ssid}' verbunden.")
         return True
     except subprocess.CalledProcessError as e:

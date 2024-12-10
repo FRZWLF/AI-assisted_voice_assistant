@@ -17,6 +17,7 @@ intent:
       new_user_intent: "Welche Berechtigungen soll der Benutzer haben? Bitte sagen Sie die gewünschten Berechtigungen oder 'alle' für uneingeschränkten Zugriff."
       new_user_voice: "Zum Schluss nehme ich noch einen Sprachfingerabdruck auf . Bitte warten Sie, während ich alles vorbereite."
       no_session: "Die Sitzung existiert nicht . Bitte starten Sie den Vorgang erneut ."
+      db_create_error: ["Fehler beim Erstellen der Datenbank für Benutzer {}."]
 
     en:
       add_success: [ "New user {} successfully added." ]
@@ -35,6 +36,8 @@ intent:
       new_user_intent: "What permissions should the user have? Please specify the desired permissions or 'all' for full access."
       new_user_voice: "Finally, I will record a voice fingerprint. Please wait while I prepare everything."
       no_session: "The session does not exist. Please restart the process."
+      db_create_error: ["Error while creating the database for user {}."]
+
     fr:
       add_success: [ "Nouvel utilisateur {} ajouté avec succès." ]
       add_error: [ "Impossible d'ajouter l'utilisateur {}. L'enregistrement vocal n'a pas été réussi. Veuillez réessayer." ]
@@ -52,6 +55,8 @@ intent:
       new_user_intent: "Quels permissions devrait avoir l'utilisateur ? Séparez par des virgules ou dites 'tous'."
       new_user_voice: "Enfin, j'enregistrerai une empreinte vocale. Veuillez patienter pendant que je prépare tout."
       no_session: "La session n'existe pas. Veuillez redémarrer le processus."
+      db_create_error: ["Erreur lors de la création de la base de données pour l'utilisateur {}."]
+
     es:
       add_success: [ "Nuevo usuario {} agregado con éxito." ]
       add_error: [ "No se pudo agregar el usuario {}. La grabación de voz no fue exitosa. Por favor, inténtelo de nuevo." ]
@@ -69,6 +74,8 @@ intent:
       new_user_intent: "¿Qué permisos debería tener el usuario? Separe con comas o diga 'todos'."
       new_user_voice: "Por último, grabaré una huella de voz. Por favor, espere mientras preparo todo."
       no_session: "La sesión no existe. Por favor, reinicie el proceso."
+      db_create_error: ["Error al crear la base de datos para el usuario {}."]
+
     it:
       add_success: [ "Nuovo utente {} aggiunto con successo." ]
       add_error: [ "Impossibile aggiungere l'utente {}. La registrazione vocale non è riuscita. Per favore riprova." ]
@@ -86,6 +93,8 @@ intent:
       new_user_intent: "Quali permessi dovrebbe avere l'utente? Separare con virgole o dire 'tutti'."
       new_user_voice: "Infine, registrerò un'impronta vocale. Per favore, aspetta mentre preparo tutto."
       no_session: "La sessione non esiste. Si prega di riavviare il processo."
+      db_create_error: ["Errore durante la creazione del database per l'utente {}."]
+
     ja:
       add_success: [ "新しいユーザー {} が正常に追加されました。" ]
       add_error: [ "ユーザー {} を追加できませんでした。音声録音が成功しませんでした。もう一度お試しください。" ]
@@ -103,6 +112,8 @@ intent:
       new_user_intent: "ユーザーにどの権限を持たせますか？カンマで区切るか「すべて」と言ってください。"
       new_user_voice: "最後に音声指紋を記録します。 すべてを準備する間、お待ちください。"
       no_session: "セッションが存在しません。もう一度やり直してください。"
+      db_create_error: ["ユーザー {} のデータベース作成中にエラーが発生しました。"]
+
     ru:
       add_success: [ "Новый пользователь {} успешно добавлен." ]
       add_error: [ "Не удалось добавить пользователя {}. Запись голоса не удалась. Пожалуйста, попробуйте еще раз." ]
@@ -120,3 +131,4 @@ intent:
       new_user_intent: "Какие разрешения должен иметь пользователь? Разделите запятыми или скажите 'все'."
       new_user_voice: "Наконец, я запишу голосовой отпечаток. Пожалуйста, подождите, пока я все подготовлю."
       no_session: "Сессия не существует. Пожалуйста, начните процесс заново."
+      db_create_error: ["Ошибка при создании базы данных для пользователя {}."]

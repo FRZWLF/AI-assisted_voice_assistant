@@ -3,13 +3,10 @@ import random
 import sys
 import threading
 import time
-
 import pvporcupine
 from loguru import logger
 import multiprocessing
-
 from scipy.io.wavfile import write
-
 from TTS import Voice
 import yaml
 import struct
@@ -283,6 +280,7 @@ class VoiceAssistant():
             processed_wav = preprocess_wav(input)
             input_embedding = encoder.embed_utterance(processed_wav)
             logger.debug(f"Input-Embedding: {input_embedding[:10]}...")
+            logger.info(input_embedding)
         except Exception as e:
             logger.error(f"Fehler beim Verarbeiten der Sprachaufnahme: {e}")
             return "Unbekannt"
@@ -301,6 +299,7 @@ class VoiceAssistant():
             if saved_embedding is None:
                 logger.debug(f"Überspringe '{speaker.get('name')}'.")
                 return speaker.get('name')
+
             saved_embedding = np.array(saved_embedding, dtype=np.float32)
             cosine_similarity = np.dot(input_embedding, saved_embedding) / (
                     np.linalg.norm(input_embedding) * np.linalg.norm(saved_embedding)
@@ -453,6 +452,7 @@ class VoiceAssistant():
 
                 if global_variables.voice_assistant.rec.AcceptWaveform(pcm):
                     recResult = json.loads(global_variables.voice_assistant.rec.Result())
+                    logger.info(f"Länge von recResult['spk']: {len(recResult['spk'])}")
                     logger.info("recResult {}", recResult)
                     speaker = global_variables.voice_assistant.__detectSpeaker__(recResult['spk'])
                     logger.info("Speaker: {}", speaker)

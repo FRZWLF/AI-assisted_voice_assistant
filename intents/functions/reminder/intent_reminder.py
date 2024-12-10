@@ -2,7 +2,6 @@ import re
 from datetime import datetime, timedelta
 from chatbot import register_call
 from dateutil.relativedelta import relativedelta
-
 import constants
 import global_variables
 import os
@@ -10,17 +9,20 @@ import random
 import yaml
 from loguru import logger
 from words2num import w2n
-
 from dateutil.parser import parse
 from num2words import num2words
 from tinydb import TinyDB, Query
-
 from marianMTModels import Translator
 
 # Initialisiere Datenbankzugriff auf Modulebene
-reminder_db_path = constants.find_data_file(os.path.join('intents','functions','reminder','reminder_timer_db.json'))
+reminder_db_path = constants.find_data_file(os.path.join('intents','functions','reminder','reminder_db.json'))
 reminder_db = TinyDB(reminder_db_path)
 reminder_table = reminder_db.table('reminder')
+
+# Initialisiere Datenbankzugriff auf Modulebene
+timer_db_path = constants.find_data_file(os.path.join('intents','functions','reminder','timer_db.json'))
+timer_db = TinyDB(timer_db_path)
+timer_table = timer_db.table('timer')
 
 # Lade die Config global
 CONFIG_PATH = constants.find_data_file(os.path.join('intents','functions','reminder','config_reminder_timer.yml'))
@@ -59,15 +61,6 @@ def callback(processed=False):
                 REMINDER_TEXT = random.choice(cfg['intent']['reminder'][language]['execute_reminder_to'])
                 REMINDER_TEXT = REMINDER_TEXT.format(r['msg'])
                 res += REMINDER_TEXT
-            elif r['kind'] in ['hour', 'minute', 'second']:
-                if r['name'] is None:
-                    TIMER_TEXT = random.choice(cfg['intent']['timer'][language]['execute_timer'])
-                    TIMER_TEXT = TIMER_TEXT
-                    res += TIMER_TEXT
-                else:
-                    TIMER_TEXT = random.choice(cfg['intent']['timer'][language]['execute_named_timer'])
-                    TIMER_TEXT = TIMER_TEXT.format(r['name'])
-                    res += TIMER_TEXT
             else:
                 REMINDER_TEXT = random.choice(cfg['intent']['reminder'][language]['execute_reminder'])
                 res += REMINDER_TEXT
@@ -75,15 +68,48 @@ def callback(processed=False):
             # Lösche den Eintrag falls die Erinnerung gesprochen werden konnte
             if processed:
                 Reminder_Query = Query()
-                # Überprüfen, ob es sich um einen Timer oder einen Reminder handelt
-                if r['kind'] in ['hour', 'minute', 'second']:
-                    logger.info('Der Timer für {} am {} mit mit einer Dauer von {} wird nun gelöscht.', r['speaker'], r['time'], r['duration'])
-                    reminder_table.remove(Reminder_Query.speaker == r['speaker'] and Reminder_Query.time == r['time'] and Reminder_Query.kind == r['kind'] and Reminder_Query.duration == r['duration'] and Reminder_Query.name == r['name'])
-                else:
-                    # Entfernen für Reminder-Einträge
-                    logger.info('Der Reminder für {} am {} mit Inhalt {} wird nun gelöscht.', r['speaker'], r['time'], r['msg'])
-                    reminder_table.remove(Reminder_Query.speaker == r['speaker'] and Reminder_Query.time == r['time'] and Reminder_Query.msg == r['msg'] and Reminder_Query.kind == r['kind'])
+                logger.info('Der Reminder für {} am {} mit Inhalt {} wird nun gelöscht.', r['speaker'], r['time'], r['msg'])
+                reminder_table.remove(Reminder_Query.speaker == r['speaker'] and Reminder_Query.time == r['time'] and Reminder_Query.msg == r['msg'] and Reminder_Query.kind == r['kind'])
                 return None
+            else:
+                return res
+
+    # Timer verarbeiten
+    all_timers = timer_table.all()
+    for t in all_timers:
+        parsed_time = parse(t['time'], fuzzy=True)
+        now = datetime.now(parsed_time.tzinfo)
+        # Ist der aktuelle Timer vor/gleich der jetzigen Zeit?
+        if parsed_time <= now:
+            res = ''
+
+            # Ist der Sprecher bei Eingabe des Timers bekannt gewesen?
+            if t['speaker']:
+                res += t['speaker'] + ' '
+
+            # Timer-Beschreibung erstellen
+            if t['name'] is None:
+                TIMER_TEXT = random.choice(cfg['intent']['timer'][language]['execute_timer'])
+                res += TIMER_TEXT
+            else:
+                TIMER_TEXT = random.choice(cfg['intent']['timer'][language]['execute_named_timer'])
+                res += TIMER_TEXT.format(t['name'])
+
+            # Lösche den Timer falls er ausgeführt wurde
+            if processed:
+                Timer_Query = Query()
+                logger.info(
+                    'Der Timer für {} am {} mit einer Dauer von {} wird nun gelöscht.'.format(
+                        t['speaker'], t['time'], t['duration']
+                    )
+                )
+                timer_table.remove(
+                    (Timer_Query.speaker == t['speaker']) &
+                    (Timer_Query.time == t['time']) &
+                    (Timer_Query.kind == t['kind']) &
+                    (Timer_Query.duration == t['duration']) &
+                    (Timer_Query.name == t['name'])
+                )
             else:
                 return res
 
@@ -125,8 +151,9 @@ def timer_list(session_id:"general", dummy=0):
     speaker = global_variables.voice_assistant.current_speaker
 
     # Hole alle Timer aus der Datenbank
-    all_timers = reminder_table.search(Query().kind.one_of(["hour", "minute", "second"]) & (Query().speaker == speaker))
+    all_timers = timer_table.search(Query().kind.one_of(["hour", "minute", "second"]) & (Query().speaker == speaker))
     now = datetime.now()
+    logger.info(all_timers)
 
     # Erstelle eine Liste, um den Status jedes Timers zu speichern
     timer_status_list = []
@@ -148,8 +175,8 @@ def timer_list(session_id:"general", dummy=0):
             time_string = f"{int(seconds)} seconds"
 
         translator = Translator("en", language)
-        time_string = translator.translate(time_string)
-        t['duration'] = translator.translate(t['duration'])
+        time_string = translator.translate(time_string)[0]
+        t['duration'] = translator.translate(t['duration'])[0]
 
         # Timer-Beschreibung erstellen
         if t['name'] is None:
@@ -161,6 +188,53 @@ def timer_list(session_id:"general", dummy=0):
     # Kombiniere alle Timer-Beschreibungen in eine Nachricht
     result = "\n".join(timer_status_list) if timer_status_list else random.choice(cfg['intent']['timer'][language]['no_timer'])
     return result
+
+@register_call("delete_named_timer")
+def delete_named_timer(session_id:"general", data=None):
+    """
+    Löscht einen Eintrag mit einem bestimmten Namen aus der übergebenen Tabelle.
+
+    :param name: Der Name des Eintrags, der gelöscht werden soll.
+    :param table: Die TinyDB-Tabelle.
+    """
+    cfg, language = __read_config__()
+    name = data.strip()
+    try:
+        entry_query = Query()
+        matching_entries = timer_table.search(entry_query.name == name)
+
+        if matching_entries:
+            for entry in matching_entries:
+                timer_table.remove(doc_ids=[entry.doc_id])  # Löscht Einträge anhand ihrer `doc_id`
+            logger.info(f"Timer  '{name}' wurde erfolgreich gelöscht.")
+            return random.choice(cfg['intent']['timer'][language]['delete_named_timer']).format(name)
+        else:
+            logger.info(f"Kein Timer mit dem Namen '{name}' gefunden.")
+            return random.choice(cfg['intent']['timer'][language]['no_named_timer']).format(name)
+    except Exception as e:
+        logger.info(f"Fehler beim Löschen von Timer '{name}': {e}")
+        return random.choice(cfg['intent']['timer'][language]['error_named_timer']).format(name)
+
+@register_call("delete_all_timer")
+def delete_all_timer(session_id:"general", dummy=0):
+    """
+    Löscht einen Eintrag mit einem bestimmten Namen aus der übergebenen Tabelle.
+
+    :param name: Der Name des Eintrags, der gelöscht werden soll.
+    :param table: Die TinyDB-Tabelle.
+    """
+    cfg, language = __read_config__()
+    try:
+        if timer_table:
+            timer_table.truncate()  # Löscht alle Einträge in der Timer-Tabelle
+            logger.info("Alle Timer wurden erfolgreich gelöscht.")
+            return random.choice(cfg['intent']['timer'][language]['delete_all_timer'])
+        else:
+            logger.info("Die Timer-Tabelle ist leer.")
+            return random.choice(cfg['intent']['timer'][language]['delete_no_timer'])
+    except Exception as e:
+        logger.info(f"Fehler beim Löschen der Timer: {e}")
+        return random.choice(cfg['intent']['timer'][language]['error_delete'])
 
 
 @register_call("timer")
@@ -243,17 +317,17 @@ def timer(session_id:"general", timer_data=None):
             TIMER_HOURS = random.choice(cfg['intent']['timer'][language]['timer_hour'])
             TIMER_HOURS = TIMER_HOURS.format(hours)
             result = result + " " + TIMER_HOURS
-            reminder_table.insert({'time': final_time, 'kind': 'hour', 'duration': f"{hours} hours", 'name': name, 'speaker':speaker})
+            timer_table.insert({'time': final_time, 'kind': 'hour', 'duration': f"{hours} hours", 'name': name, 'speaker':speaker})
         elif minutes > 0:
             TIMER_MINUTES = random.choice(cfg['intent']['timer'][language]['timer_minute'])
             TIMER_MINUTES = TIMER_MINUTES.format(minutes)
             result = result + " " + TIMER_MINUTES
-            reminder_table.insert({'time': final_time, 'kind': 'minute', 'duration': f"{minutes} minutes", 'name': name, 'speaker':speaker})
+            timer_table.insert({'time': final_time, 'kind': 'minute', 'duration': f"{minutes} minutes", 'name': name, 'speaker':speaker})
         elif seconds > 0:
             TIMER_SECONDS = random.choice(cfg['intent']['timer'][language]['timer_second'])
             TIMER_SECONDS = TIMER_SECONDS.format(seconds)
             result = result + " " + TIMER_SECONDS
-            reminder_table.insert({'time': final_time, 'kind': 'second', 'duration': f"{seconds} seconds", 'name': name, 'speaker':speaker})
+            timer_table.insert({'time': final_time, 'kind': 'second', 'duration': f"{seconds} seconds", 'name': name, 'speaker':speaker})
 
         logger.info("Timer gesetzt auf: {}", result)
     else:
@@ -262,17 +336,17 @@ def timer(session_id:"general", timer_data=None):
             TIMER_HOURS = random.choice(cfg['intent']['timer'][language]['named_timer_hour'])
             TIMER_HOURS = TIMER_HOURS.format(name, hours)
             result = result + " " + TIMER_HOURS
-            reminder_table.insert({'time': final_time, 'kind': 'hour', 'duration': f"{hours} hours", 'name': name, 'speaker':speaker})
+            timer_table.insert({'time': final_time, 'kind': 'hour', 'duration': f"{hours} hours", 'name': name, 'speaker':speaker})
         elif minutes > 0:
             TIMER_MINUTES = random.choice(cfg['intent']['timer'][language]['named_timer_minute'])
             TIMER_MINUTES = TIMER_MINUTES.format(name, minutes)
             result = result + " " + TIMER_MINUTES
-            reminder_table.insert({'time': final_time, 'kind': 'minute', 'duration': f"{minutes} minutes", 'name': name, 'speaker':speaker})
+            timer_table.insert({'time': final_time, 'kind': 'minute', 'duration': f"{minutes} minutes", 'name': name, 'speaker':speaker})
         elif seconds > 0:
             TIMER_SECONDS = random.choice(cfg['intent']['timer'][language]['named_timer_second'])
             TIMER_SECONDS = TIMER_SECONDS.format(name, seconds)
             result = result + " " + TIMER_SECONDS
-            reminder_table.insert({'time': final_time, 'kind': 'second', 'duration': f"{seconds} seconds", 'name': name, 'speaker':speaker})
+            timer_table.insert({'time': final_time, 'kind': 'second', 'duration': f"{seconds} seconds", 'name': name, 'speaker':speaker})
 
         logger.info("Timer {} gesetzt auf: {}", name, result)
 
@@ -510,3 +584,25 @@ def reminder(session_id="general", reminder_data=None):
     logger.info("Reminder mit Inhalt {} erkannt.", result)
 
     return result
+
+
+@register_call("delete_all_reminder")
+def delete_all_reminder(session_id:"general", dummy=0):
+    """
+    Löscht einen Eintrag mit einem bestimmten Namen aus der übergebenen Tabelle.
+
+    :param name: Der Name des Eintrags, der gelöscht werden soll.
+    :param table: Die TinyDB-Tabelle.
+    """
+    cfg, language = __read_config__()
+    try:
+        if reminder_table:
+            reminder_table.truncate()
+            logger.info("Alle Reminder wurden erfolgreich gelöscht.")
+            return random.choice(cfg['intent']['reminder'][language]['delete_all_reminder'])
+        else:
+            logger.info("Die Reminder-Tabelle ist leer.")
+            return random.choice(cfg['intent']['reminder'][language]['no_reminder'])
+    except Exception as e:
+        logger.info(f"Fehler beim Löschen der Reminder: {e}")
+        return random.choice(cfg['intent']['reminder'][language]['error_delete'])

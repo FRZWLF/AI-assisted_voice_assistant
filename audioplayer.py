@@ -1,3 +1,4 @@
+import subprocess
 import threading
 import time
 
@@ -105,7 +106,11 @@ class AudioPlayer:
 
         try:
             #USE for dynamic volume change rather than static by filtering
-            process = ffmpeg.input(source).output('pipe:', format='f32le', acodec='pcm_f32le', ac=channels, ar=samplerate, loglevel='quiet').run_async(pipe_stdout=True)
+            # Nutze subprocess.Popen, um creationflags zu unterstützen
+            ffmpeg_command = (ffmpeg.input(source).output('pipe:',format='f32le',acodec='pcm_f32le',ac=channels,ar=samplerate,loglevel='quiet',).compile())
+            process = subprocess.Popen(ffmpeg_command,stdout=subprocess.PIPE,stderr=subprocess.DEVNULL,creationflags=subprocess.CREATE_NO_WINDOW,)
+
+            #process = ffmpeg.input(source).output('pipe:', format='f32le', acodec='pcm_f32le', ac=channels, ar=samplerate, loglevel='quiet').run_async(pipe_stdout=True, creationflags=subprocess.CREATE_NO_WINDOW)
             #process = ffmpeg.input(source).filter('volume', self._volume).output('pipe:', format='f32le', acodec='pcm_f32le', ac=channels, ar=samplerate, loglevel='quiet').run_async(pipe_stdout=True)
 
             # Starte den Producer-Thread

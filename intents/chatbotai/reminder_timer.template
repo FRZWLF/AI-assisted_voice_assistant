@@ -19,6 +19,11 @@
 {% endblock %}
 
 {% block %}
+    {% client %}({{intent.reminder.delete_all_reminder}}){% endclient %}
+    {% response %}{% call delete_all_reminder: 0 %}{% endresponse %}
+{% endblock %}
+
+{% block %}
     {% client %}({{intent.timer.status}}){% endclient %}
     {% response %}{% call timer_list: 0 %}{% endresponse %}
 {% endblock %}
@@ -33,3 +38,12 @@
     {% response %}{% call timer: %name | %timer %}{% endresponse %}
 {% endblock %}
 
+{% block %}
+    {% client %}({{intent.timer.delete_named_timer}}){% endclient %}
+    {% response %}{% call delete_named_timer: %name %}{% endresponse %}
+{% endblock %}
+
+{% block %}
+    {% client %}({{intent.timer.delete_all_timer}}){% endclient %}
+    {% response %}{% call delete_all_timer: 0 %}{% endresponse %}
+{% endblock %}

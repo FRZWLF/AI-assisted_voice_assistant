@@ -103,7 +103,7 @@ class DownloadApp(wx.App):
             self.on_all_downloads_complete()
 
     def on_all_downloads_complete(self):
-        logger.info("Alle Downloads abgeschlossen. DownloadApp wird beendet.")
+        #logger.info("Alle Downloads abgeschlossen. DownloadApp wird beendet.")
         self.all_downloads_done = True
         self.icon.RemoveIcon()
         wx.CallAfter(self.ExitMainLoop)

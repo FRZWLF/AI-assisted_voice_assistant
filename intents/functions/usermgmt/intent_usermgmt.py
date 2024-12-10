@@ -8,8 +8,7 @@ from tinydb import Query, TinyDB
 
 import constants
 import global_variables
-
-
+from intents.functions.password.intent_password import create_user_db
 
 # Lade die Config global
 CONFIG_PATH = constants.find_data_file(os.path.join('intents','functions','usermgmt','config_usermgmt.yml'))
@@ -108,6 +107,17 @@ def handle_new_user_voice(user_input=""):
         if fingerprint is not None and len(fingerprint) > 0:
             session_state["voice_fingerprint"] = fingerprint
             logger.info("Sprachfingerabdruck gespeichert.")
+
+            # Datenbank und Schlüsseldatei erstellen
+            username = session_state["name"]
+            keyfile_path = f"user_databases/{username}/key.keyx"
+            try:
+                db_path = create_user_db(username, keyfile_path, fingerprint)
+                logger.info(f"Datenbank für {username} erfolgreich erstellt: {db_path}")
+            except Exception as e:
+                logger.error(f"Fehler beim Erstellen der Datenbank für {username}: {e}")
+                return random.choice(cfg['intent']['user'][language]['db_create_error']).format(username)
+
             # Benutzer in die Datenbank einfügen
             speaker_table = global_variables.voice_assistant.user_management.speaker_table
             speaker_table.insert({
@@ -116,6 +126,7 @@ def handle_new_user_voice(user_input=""):
                 "voice": np.array(session_state["voice_fingerprint"]).tolist(),
             })
             logger.info(f"Benutzer {session_state['name']} erfolgreich erstellt.")
+
             # Sample-User entfernen
             sample_user = speaker_table.get(Query().name == "sample_user")
             if sample_user:
