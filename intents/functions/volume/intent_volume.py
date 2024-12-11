@@ -44,14 +44,14 @@ def setVolume(session_id = "general", volume=None):
         return getVolume(session_id, 0)
     volume = "neun" if volume == "neuen" else "acht" if volume == "achten" else volume
     translator = Translator(language, "en")
-    volume = translator.translate(volume)
+    volume = translator.translate(volume)[0].lower()
     # konvertiere das Zahlenwort in einen geladenanzzahligen Wert
     if isinstance(volume, str):
         try:
-            volume = w2n(volume)
+            volume = str(w2n(volume))
         except:
             return random.choice(cfg['intent']['volume'][language]['invalid_volume'])
-    num_vol = volume
+    num_vol = int(volume)
 
     # Konnte die Konfigurationsdatei des Intents geladen werden?
     if cfg:

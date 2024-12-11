@@ -25,7 +25,7 @@ setup(  name = "Sprachassistent",
                 "build_exe": build_exe_options,
                 "bdist_msi": bdist_msi_options
         },
-        executables = [Executable("main.py", base=None,icon="va.ico", shortcut_name="Sprachassistent",  shortcut_dir="DesktopFolder", uac_admin=True,)])
+        executables = [Executable("main.py", base=base,icon="va.ico", shortcut_name="Sprachassistent",  shortcut_dir="DesktopFolder", uac_admin=True,)])
 
 
 # Nachträgliches Bearbeiten der MSI-Datei

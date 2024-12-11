@@ -279,8 +279,7 @@ class VoiceAssistant():
 
             processed_wav = preprocess_wav(input)
             input_embedding = encoder.embed_utterance(processed_wav)
-            logger.debug(f"Input-Embedding: {input_embedding[:10]}...")
-            logger.info(input_embedding)
+            #logger.debug(f"Input-Embedding: {input_embedding[:10]}...")
         except Exception as e:
             logger.error(f"Fehler beim Verarbeiten der Sprachaufnahme: {e}")
             return "Unbekannt"
@@ -291,7 +290,7 @@ class VoiceAssistant():
         # Wähle den Threshold basierend auf der Länge des Samples
         sample_length = len(processed_wav) / 16000  # Länge in Sekunden
         threshold = short_sample_threshold if sample_length < 2 else long_sample_threshold
-        logger.info(f"Verwendeter Ähnlichkeitsschwellenwert: {threshold}")
+        #logger.info(f"Verwendeter Ähnlichkeitsschwellenwert: {threshold}")
 
         # Vergleiche die Embeddings mit gespeicherten Stimmen
         for speaker in self.user_management.speaker_table.all():
@@ -330,6 +329,7 @@ class VoiceAssistant():
             while self.tts.is_busy():
                 time.sleep(0.2)  # Vermeidet zu häufige Abfragen
             logger.info("TTS abgeschlossen. Starte Aufnahme.")
+
 
             # Aufnahmeparameter
             sample_rate = 16000

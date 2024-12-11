@@ -37,7 +37,7 @@ Reminder:
 ((erinnere mich|erinnerung|erinner mich) ((Event))\s((um|in) ... Uhr, Minuten, Stunden, Tage, Wochen, Monaten, Jahren))
 ((erinnere mich|erinnerung|erinner mich) (in … Minuten, Stunden, Tage, Wochen, Monaten, Jahre, um … Uhr, am (Tag)-sten (Monat))\s((zu|den|die|das|der|aus dem|vom|ins|im|an das|auf das|für das) (Event))
 ((erinnere mich|erinnerung|erinner mich) (in … Minuten, Stunden, Tage, Wochen, Monaten, Jahre, um … Uhr, am (Tag)-sten (Monat))
-((entferne|lösche) alle reminder)
+((entferne|lösche) alle erinnerungen)
 
 
 Timer:
@@ -47,7 +47,6 @@ Timer:
 ((timer|stelle einen timer auf|stelle timer auf)(?!.*\b(update|status)\b) (... Sekunden, Minuten, Stunden))
 ((entferne|lösche) alle timer)
 (((entferne|lösche) timer)\s(?P<name>.*))
-
 
 Shelly-Smart-Device:
 --------------------
