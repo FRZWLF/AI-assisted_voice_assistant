@@ -128,6 +128,7 @@ Für Entwickler, die das Projekt klonen und bearbeiten möchten:
 ---
 
 ## TO-DO
+- **Mikrofon**: Sicherstellen, das wake words und user inputs zuverlässig erkannt werden.
 - **Smarthome-Geräte**: Unterstützung für weitere Smarthome-Geräte neben Shelly.
 - **Downloader verbessern**: Fortschrittsanzeige für den Modell-Download integrieren.
 - **NLU-Integration**: NLU wieder hinzufügen und stabilisieren.
