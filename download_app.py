@@ -12,7 +12,7 @@ class DownloadTaskBarIcon(TaskBarIcon):
     """
     TaskBarIcon, das den Download-Status darstellt.
     """
-    def __init__(self,frame, downloads, temp_files, cancel_flag):
+    def __init__(self, frame, downloads, temp_files, cancel_flag):
         super().__init__()
         self.frame = frame
         self.downloads = downloads
@@ -26,7 +26,7 @@ class DownloadTaskBarIcon(TaskBarIcon):
         menu.Append(item)
         return item
 
-    def CreatePopupMenu(self):
+    def create_popup_menu(self):
         menu = wx.Menu()
         return menu
 
@@ -44,7 +44,7 @@ class DownloadTaskBarIcon(TaskBarIcon):
         self.set_icon(constants.TRAY_ICON_DOWNLOADING, tooltip)
 
     def on_exit(self, event):
-        #logger.info("Beenden wird ausgelöst...")
+        # logger.info("Beenden wird ausgelöst...")
         self.cancel_flag["cancel"] = True
         # Schließe alle Hintergrund-Threads
         active_threads = [t for t in threading.enumerate() if t.name.startswith("download")]
@@ -59,7 +59,7 @@ class DownloadTaskBarIcon(TaskBarIcon):
 
         # Überprüfe verbleibende Threads
         remaining_threads = threading.enumerate()
-        #logger.debug(f"Verbleibende Threads nach on_exit: {[t.name for t in remaining_threads]}")
+        # logger.debug(f"Verbleibende Threads nach on_exit: {[t.name for t in remaining_threads]}")
 
         self.cleanup_temp_files()
         logger.info("Downloads beendet. Entferne Icon und beende Anwendung.")
@@ -103,7 +103,7 @@ class DownloadApp(wx.App):
             self.on_all_downloads_complete()
 
     def on_all_downloads_complete(self):
-        #logger.info("Alle Downloads abgeschlossen. DownloadApp wird beendet.")
+        # logger.info("Alle Downloads abgeschlossen. DownloadApp wird beendet.")
         self.all_downloads_done = True
         self.icon.RemoveIcon()
         wx.CallAfter(self.ExitMainLoop)

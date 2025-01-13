@@ -10,6 +10,7 @@ from marianMTModels import Translator
 
 MAIN_CONFIG_PATH = constants.find_data_file(os.path.join('config.yml'))
 
+
 def __read_config__():
     cfg = None
 
@@ -20,11 +21,13 @@ def __read_config__():
         cfg = yaml.load(ymlfile, Loader=yaml.FullLoader)
     return cfg, LANGUAGE
 
+
 @register_call("getVolume")
 def getVolume(session_id = "general", dummy=0):
     cfg, language = __read_config__()
     logger.info("Lautstärke ist {} von zehn.", int(global_variables.voice_assistant.volume * 10))
     return cfg['intent']['volume'][language]['volume_is'].format(int(global_variables.voice_assistant.volume * 10))
+
 
 @register_call("maxVolume")
 def getVolume(session_id = "general", dummy=0):
@@ -35,6 +38,7 @@ def getVolume(session_id = "general", dummy=0):
     global_variables.voice_assistant.volume = max_volume
     logger.info("Lautstärke ist {} von zehn.", int(global_variables.voice_assistant.volume * 10))
     return cfg['intent']['volume'][language]['set_volume'].format(int(global_variables.voice_assistant.volume * 10))
+
 
 @register_call("setVolume")
 def setVolume(session_id = "general", volume=None):
@@ -71,6 +75,7 @@ def setVolume(session_id = "general", volume=None):
         logger.error("Konnte Konfigurationsdatei für Intent 'volume' nicht laden.")
         return ""
 
+
 @register_call("volumeUp")
 def volumeUp(session_id = "general", volume=None):
     cfg, language = __read_config__()
@@ -94,6 +99,7 @@ def volumeUp(session_id = "general", volume=None):
     else:
         logger.error("Konnte Konfigurationsdatei für Intent 'volume' nicht laden.")
         return ""
+
 
 @register_call("volumeDown")
 def volumeDown(session_id = "general", volume=None):

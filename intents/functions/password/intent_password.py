@@ -14,9 +14,8 @@ import numpy as np
 from resemblyzer import VoiceEncoder
 from resemblyzer.audio import preprocess_wav
 
-from marianMTModels import Translator
 
-CONFIG_PATH = constants.find_data_file(os.path.join('intents','functions','password','config_password.yml'))
+CONFIG_PATH = constants.find_data_file(os.path.join('intents', 'functions', 'password', 'config_password.yml'))
 
 def __read_config__():
     cfg = None
@@ -67,8 +66,8 @@ def verify_speaker(input_fingerprint, saved_fingerprint, threshold=0.2):
         return False
 
     # Fingerprints normalisieren
-    input_fingerprint_normalized = input_fingerprint / np.linalg.norm(input_fingerprint)
-    saved_fingerprint_normalized = saved_fingerprint / np.linalg.norm(saved_fingerprint)
+    input_fingerprint_normalized = input_fingerprint/np.linalg.norm(input_fingerprint)
+    saved_fingerprint_normalized = saved_fingerprint/np.linalg.norm(saved_fingerprint)
 
     # Cosinus-Ähnlichkeit berechnen
     try:
@@ -212,7 +211,7 @@ def create_user_db(username, keyfile_path, fingerprint):
 
     # Fingerprint überprüfen und nur normalisieren, wenn nötig
     if not np.isclose(np.linalg.norm(fingerprint), 1.0, atol=1e-6):
-        fingerprint = fingerprint / np.linalg.norm(fingerprint)
+        fingerprint = fingerprint/np.linalg.norm(fingerprint)
 
     fingerprint_list = fingerprint.tolist()
 
@@ -293,6 +292,7 @@ def handle_new_entity_title(user_input=""):
         global_variables.context = check_up
         return cfg['intent']['password'][language]['check_up_title'].format(session_state['title'])
 
+
 def handle_new_entity_username(user_input=""):
     cfg, language = __read_config__()
     session_state = getattr(global_variables, "new_db_entity_state", None)
@@ -316,6 +316,7 @@ def handle_new_entity_username(user_input=""):
         session_state["checkup_step"] = "username_check"
         global_variables.context = check_up
         return cfg['intent']['password'][language]['check_up_username'].format(session_state['username'])
+
 
 def handle_new_entity_pw(user_input=""):
     cfg, language = __read_config__()

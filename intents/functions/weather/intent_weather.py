@@ -9,10 +9,11 @@ import pyowm
 from pyowm.utils.config import get_default_config
 import geocoder
 
+
 @register_call("weather")
 def weather(session_id = "general", location=""):
 
-    config_path = constants.find_data_file(os.path.join('intents','functions','weather','config_weather.yml'))
+    config_path = constants.find_data_file(os.path.join('intents', 'functions', 'weather', 'config_weather.yml'))
     cfg = None
 
     with open(config_path, "r", encoding='utf8') as ymlfile:

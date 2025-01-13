@@ -14,12 +14,12 @@ import os
 import yaml
 import requests
 from words2num import w2n
-
 from marianMTModels import Translator
 
+
 # Lade die Config global
-CONFIG_PATH = constants.find_data_file(os.path.join('intents','functions','smarthome','config_smarthome.yml'))
-DEVICES_DB_PATH = constants.find_data_file(os.path.join('intents','functions','smarthome','smartdevices_db.json'))
+CONFIG_PATH = constants.find_data_file(os.path.join('intents', 'functions', 'smarthome', 'config_smarthome.yml'))
+DEVICES_DB_PATH = constants.find_data_file(os.path.join('intents', 'functions', 'smarthome', 'smartdevices_db.json'))
 db = TinyDB(DEVICES_DB_PATH)
 devices_table = db.table('devices')
 
@@ -54,7 +54,7 @@ def discover_lan_devices():
                     creationflags=subprocess.CREATE_NO_WINDOW
                 )
                 res = result.stdout.decode("utf-8", errors="ignore")
-                #logger.debug(f"Pinge IP {ip}: {'Erreichbar' if res == 0 else 'Nicht erreichbar'}")
+                # logger.debug(f"Pinge IP {ip}: {'Erreichbar' if res == 0 else 'Nicht erreichbar'}")
                 return ip if "Antwort von" in str(res) else None
             except Exception:
                 return None
@@ -202,9 +202,7 @@ def get_wifi_password(ssid):
         return None
 
 
-
-
-def configure_shelly_network(shelly_ip,ssid,password):
+def configure_shelly_network(shelly_ip, ssid, password):
     try:
         response = requests.get(f"http://{shelly_ip}/rpc/Shelly.GetDeviceInfo", timeout=15)
         return response.status_code == 200
@@ -354,7 +352,7 @@ def connect_to_shelly_ap(ssid):
     """
     try:
         logger.info(f"Versuche Verbindung zu '{ssid}'...")
-        subprocess.run(["netsh", "wlan", "connect", f"name={ssid}"], check=True,creationflags=subprocess.CREATE_NO_WINDOW)
+        subprocess.run(["netsh", "wlan", "connect", f"name={ssid}"], check=True, creationflags=subprocess.CREATE_NO_WINDOW)
         logger.info(f"Mit dem Shelly-Access-Point '{ssid}' verbunden.")
         return True
     except subprocess.CalledProcessError as e:
@@ -367,13 +365,12 @@ def reconnect_to_home_wifi(ssid):
     Verbindet den PC zurück mit dem Heim-WLAN.
     """
     try:
-        subprocess.run(["netsh", "wlan", "connect", "name=" + ssid], check=True,creationflags=subprocess.CREATE_NO_WINDOW)
+        subprocess.run(["netsh", "wlan", "connect", "name=" + ssid], check=True, creationflags=subprocess.CREATE_NO_WINDOW)
         logger.info(f"Zurück mit Heim-WLAN '{ssid}' verbunden.")
         return True
     except subprocess.CalledProcessError as e:
         logger.error(f"Fehler beim Zurückverbinden mit '{ssid}': {e}")
         return False
-
 
 
 @register_call("add_smart_device")
@@ -510,6 +507,7 @@ def select_smart_device(selection=None):
         global_variables.context = new_device_name
         return cfg['intent']['smarthome'][language]['ask_device_name']
 
+
 def new_device_name(user_input=''):
     if not global_variables.voice_assistant.is_listening:
         global_variables.voice_assistant.is_listening = True
@@ -530,7 +528,6 @@ def new_device_name(user_input=''):
         session_state["step"] += 1
         global_variables.context = save_new_device
         return cfg['intent']['smarthome'][language]['ask_save_new_device']
-
 
 
 def save_new_device(user_input=''):

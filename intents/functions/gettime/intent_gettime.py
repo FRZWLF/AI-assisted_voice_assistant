@@ -1,7 +1,6 @@
 from datetime import datetime
 import pytz
 from chatbot import register_call
-
 import constants
 import global_variables
 import os
@@ -15,7 +14,7 @@ def __read_config__():
 
     LANGUAGE = global_variables.voice_assistant.cfg['assistant']['language']
 
-    config_path = constants.find_data_file(os.path.join('intents','functions','gettime','config_gettime.yml'))
+    config_path = constants.find_data_file(os.path.join('intents', 'functions', 'gettime', 'config_gettime.yml'))
     with open(config_path, "r", encoding='utf8') as ymlfile:
         cfg = yaml.load(ymlfile, Loader=yaml.FullLoader)
     return cfg, LANGUAGE

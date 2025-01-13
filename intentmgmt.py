@@ -8,14 +8,14 @@ from pathlib import Path
 from loguru import logger
 import pip
 from chatbot import Chat, mapper
-
 import constants
 import global_variables
 
+
 class Chat(Chat):
 
-    def get_intent_name(self,text,session_id="general"):
-        session = mapper.Session(self,session_id)
+    def get_intent_name(self, text, session_id="general"):
+        session = mapper.Session(self, session_id)
         text = self.__normalize(text)
 
         try:
@@ -25,15 +25,15 @@ class Chat(Chat):
 
         text_correction = self.spell_checker.correction(text)
         current_topic = session.topic
-        match = self.__intend_selection(text, previous_text,current_topic) or self.__intend_selection(text_correction,previous_text,current_topic)
+        match = self.__intend_selection(text, previous_text, current_topic) or self.__intend_selection(text_correction, previous_text, current_topic)
 
         if match:
-            match,parent_match,response,learn = match
+            match, parent_match, response, learn = match
             resp = random.choice(response)
-            response,condition = resp
+            response, condition = resp
             action_start = response.find("{% call ")
             action_end = response.find("%}")
-            if action_start >=0 and action_end >=0:
+            if action_start >= 0 and action_end >= 0:
                 action_corpus = response[action_start + len("{% call "):action_end - 1]
                 if action_corpus.find(":") > 0:
                     action_name = action_corpus.split(':')[0]
@@ -111,7 +111,6 @@ class IntentManagement:
                 except Exception as e:
                     logger.error("Fehler beim Import von {}: {}", module_name, e)
 
-
     def process_templates(self):
         """
         Lädt und verarbeitet die Templates basierend auf der aktuellen Sprache.
@@ -168,7 +167,6 @@ class IntentManagement:
                     logger.warning(f"Platzhalter {placeholder} nicht im Template gefunden.")
         return template_content
 
-
     def register_callbacks(self):
         # Registriere alle Callback Funktionen
         logger.info("Registriere Callbacks...")
@@ -185,8 +183,7 @@ class IntentManagement:
                 logger.debug("{} hat kein Callback.", module_name)
         return callbacks
 
-
-    def process(self,text,speaker):
+    def process(self, text, speaker):
         text = correct_recognition(text)
         intent_name = self.chat.get_intent_name(text)
 
@@ -203,6 +200,7 @@ class IntentManagement:
             response = speaker + " darf den Befehl " + intent_name + " nicht ausführen."
 
         return response
+
 
 def correct_recognition(text):
     """

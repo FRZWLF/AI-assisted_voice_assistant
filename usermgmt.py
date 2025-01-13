@@ -1,6 +1,7 @@
 from loguru import logger
 from tinydb import TinyDB, Query
 
+
 # Voice-Fingerabdruck muss unbedingt gefixt werden in zukünftigen Projekten
 class UserMgmt:
 
@@ -9,7 +10,7 @@ class UserMgmt:
             self.speaker_table.insert({'name': 'sample_user', 'intents': ['*'], 'voice': None})
             logger.info("Sample-User erstellt.")
 
-    def authenticate_intent(self,speaker,intent):
+    def authenticate_intent(self, speaker, intent):
         Speaker = Query()
 
         result = self.speaker_table.get(Speaker.name == speaker)
@@ -20,7 +21,6 @@ class UserMgmt:
                 return ((len(intents) == 1) and (intents[0] == '*')) or (intent in intents)
 
         return False
-
 
     def __init__(self, init_dummies=False):
         self.db = TinyDB('./users.json')

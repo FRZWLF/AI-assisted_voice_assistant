@@ -1,6 +1,5 @@
 from loguru import logger
 from chatbot import register_call
-
 import constants
 import global_variables
 import yaml
@@ -9,7 +8,7 @@ import os
 import wikipedia
 
 
-CONFIG_PATH = constants.find_data_file(os.path.join('intents','functions','wiki','config_wiki.yml'))
+CONFIG_PATH = constants.find_data_file(os.path.join('intents', 'functions', 'wiki', 'config_wiki.yml'))
 def __read_config__():
     cfg = None
 

@@ -1,7 +1,6 @@
 import subprocess
 import threading
 import time
-
 from loguru import logger
 import ffmpeg
 import sounddevice as sd
@@ -9,7 +8,6 @@ import soundfile as sf
 import multiprocessing
 import queue
 import numpy as np
-
 import global_variables
 
 
@@ -17,7 +15,7 @@ class AudioPlayer:
 
     def __init__(self):
         self._process = None
-        self._volume = multiprocessing.Value('d', 0.5)  #Value als gemeinsamer Speicher für Prozesse, um Lautstärke eines laufenden Streams ändern zu können
+        self._volume = multiprocessing.Value('d', 0.5)  # Value als gemeinsamer Speicher für Prozesse, um Lautstärke eines laufenden Streams ändern zu können
         self._q = None
         self._producer_running = False
 
@@ -29,7 +27,7 @@ class AudioPlayer:
 
     def play_stream(self, source):
         # Setze Lautstärke vor dem Starten des Streams auf die Standardlautstärke
-        #logger.debug("Setze Lautstärke vor Streamstart auf: {}", global_variables.voice_assistant.volume)
+        # logger.debug("Setze Lautstärke vor Streamstart auf: {}", global_variables.voice_assistant.volume)
         self.set_volume(global_variables.voice_assistant.volume)
         if self._process:
             self.stop()
@@ -76,11 +74,11 @@ class AudioPlayer:
                 data = data * adjusted_volume
                 assert len(data) == len(outdata)
                 outdata[:] = data
-                #logger.debug("Angewendete Lautstärke im Callback: {}", adjusted_volume)
+                # logger.debug("Angewendete Lautstärke im Callback: {}", adjusted_volume)
             except queue.Empty as e:
-                #logger.warning("Queue ist leer, sende Stille.")
+                # logger.warning("Queue ist leer, sende Stille.")
                 outdata.fill(0)
-                #raise sd.CallbackAbort from e
+                # raise sd.CallbackAbort from e
 
         try:
             info = ffmpeg.probe(source)
@@ -105,13 +103,13 @@ class AudioPlayer:
         print(samplerate)
 
         try:
-            #USE for dynamic volume change rather than static by filtering
+            # USE for dynamic volume change rather than static by filtering
             # Nutze subprocess.Popen, um creationflags zu unterstützen
-            ffmpeg_command = (ffmpeg.input(source).output('pipe:',format='f32le',acodec='pcm_f32le',ac=channels,ar=samplerate,loglevel='quiet',).compile())
-            process = subprocess.Popen(ffmpeg_command,stdout=subprocess.PIPE,stderr=subprocess.DEVNULL,creationflags=subprocess.CREATE_NO_WINDOW,)
+            ffmpeg_command = (ffmpeg.input(source).output('pipe:', format='f32le', acodec='pcm_f32le', ac=channels, ar=samplerate, loglevel='quiet',).compile())
+            process = subprocess.Popen(ffmpeg_command, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, creationflags=subprocess.CREATE_NO_WINDOW,)
 
-            #process = ffmpeg.input(source).output('pipe:', format='f32le', acodec='pcm_f32le', ac=channels, ar=samplerate, loglevel='quiet').run_async(pipe_stdout=True, creationflags=subprocess.CREATE_NO_WINDOW)
-            #process = ffmpeg.input(source).filter('volume', self._volume).output('pipe:', format='f32le', acodec='pcm_f32le', ac=channels, ar=samplerate, loglevel='quiet').run_async(pipe_stdout=True)
+            # process = ffmpeg.input(source).output('pipe:', format='f32le', acodec='pcm_f32le', ac=channels, ar=samplerate, loglevel='quiet').run_async(pipe_stdout=True, creationflags=subprocess.CREATE_NO_WINDOW)
+            # process = ffmpeg.input(source).filter('volume', self._volume).output('pipe:', format='f32le', acodec='pcm_f32le', ac=channels, ar=samplerate, loglevel='quiet').run_async(pipe_stdout=True)
 
             # Starte den Producer-Thread
             self._producer_running = True
@@ -119,7 +117,7 @@ class AudioPlayer:
             producer.daemon = True
             producer.start()
 
-            #stream = sd.RawOutputStream(samplerate=samplerate, blocksize=1024, device=sd.default.device['output'], channels=channels, dtype='float32', callback=_callback_stream)
+            # stream = sd.RawOutputStream(samplerate=samplerate, blocksize=1024, device=sd.default.device['output'], channels=channels, dtype='float32', callback=_callback_stream)
             stream = sd.OutputStream(samplerate=samplerate, blocksize=1024, device=sd.default.device['output'], channels=channels, dtype='float32', callback=_callback_stream)
 
             with stream:
@@ -144,9 +142,8 @@ class AudioPlayer:
     def set_volume(self, volume):
         with self._volume.get_lock():  # Sperrt den Zugriff für andere Prozesse
             self._volume.value = max(0.0, min(volume, 1.0))
-        #logger.debug("Lautstärke wurde geändert auf: {}", self._volume.value)
+        # logger.debug("Lautstärke wurde geändert auf: {}", self._volume.value)
 
     def get_volume(self):
         with self._volume.get_lock():
             return self._volume.value
-

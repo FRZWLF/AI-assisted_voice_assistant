@@ -1,11 +1,9 @@
 from loguru import logger
 from chatbot import register_call
 import os
-
 import constants
 import global_variables
 import yaml
-
 from marianMTModels import Translator
 
 YES = ["JA", "J", "YES", "Y", "OUI", "O", "SÍ", "SI", "S", "はい", "ええ", "ДА", "Д"]

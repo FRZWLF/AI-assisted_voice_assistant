@@ -88,4 +88,3 @@ class Translator:
         tokens = self.tokenizer(list(texts), return_tensors="pt", padding=True)
         translate_tokens = self.model.generate(**tokens)
         return [self.tokenizer.decode(t, skip_special_tokens=True) for t in translate_tokens]
-

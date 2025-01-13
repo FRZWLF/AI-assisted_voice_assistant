@@ -32,14 +32,14 @@ from resemblyzer.audio import preprocess_wav
 
 from vosk_model_downloader import download_vosk_model, download_all_vosk_models, VOSK_MODELS
 
-#GUI-Anwendung mit pythonw main.py starten
+# GUI-Anwendung mit pythonw main.py starten
 
 CONFIG_FILE = constants.find_data_file("config.yml")
 
 
 class TaskBarIcon(wx.adv.TaskBarIcon):
 
-    def __init__(self,frame, download_manager=None):
+    def __init__(self, frame, download_manager=None):
         self.frame = frame
         self.download_manager = download_manager
         super(TaskBarIcon, self).__init__()
@@ -51,9 +51,9 @@ class TaskBarIcon(wx.adv.TaskBarIcon):
         menu.Append(item)
         return item
 
-    def CreatePopupMenu(self):
+    def create_popup_menu(self):
         menu = wx.Menu()
-        self.create_menu_item(menu,'Beenden', self.on_exit)
+        self.create_menu_item(menu, 'Beenden', self.on_exit)
         return menu
 
     def set_icon(self, path, tooltip=constants.TRAY_TOOLTIP):
@@ -61,16 +61,16 @@ class TaskBarIcon(wx.adv.TaskBarIcon):
         self.SetIcon(icon, tooltip)
 
     def on_exit(self, event):
-        #logger.info("on_exit wurde aufgerufen.")
+        # logger.info("on_exit wurde aufgerufen.")
 
         if global_variables.voice_assistant:
             global_variables.voice_assistant.terminate()
 
         # Debugging für Download Manager
-        #if hasattr(self.frame, "download_manager"):
-            #logger.info(f"Frame hat download_manager: {self.frame.download_manager}")
-        #else:
-            #logger.warning("Frame hat kein download_manager Attribut!")
+        # if hasattr(self.frame, "download_manager"):
+            # logger.info(f"Frame hat download_manager: {self.frame.download_manager}")
+        # else:
+            # logger.warning("Frame hat kein download_manager Attribut!")
 
         # Beende den Download Manager
         if hasattr(self.frame, "download_manager") and self.frame.download_manager:
@@ -130,8 +130,8 @@ class VoiceAssistant():
         logger.debug("Lese Konfiguration...")
 
         global CONFIG_FILE
-        with open(CONFIG_FILE,'r',encoding="utf-8") as ymlfile:
-            self.cfg = yaml.load(ymlfile,Loader=yaml.FullLoader)
+        with open(CONFIG_FILE, 'r', encoding="utf-8") as ymlfile:
+            self.cfg = yaml.load(ymlfile, Loader=yaml.FullLoader)
 
         if self.cfg:
             logger.debug("Konfiguration erfolgreich gelesen.")
@@ -158,10 +158,10 @@ class VoiceAssistant():
         if not self.wake_words:
             self.wake_words = ['americano']
         logger.debug("Wake Words sind {}" ','.join(self.wake_words))
-        self.porcupine = pvporcupine.create(keywords=self.wake_words, sensitivities=[0.6,0.6])
+        self.porcupine = pvporcupine.create(keywords=self.wake_words, sensitivities=[0.6, 0.6])
         logger.info("Wake Words Erkennung wurde initialisiert.")
 
-        #Audio-Stream needed
+        # Audio-Stream needed
         logger.info("Initialisiere Audioeingabe...")
         self.pa = pyaudio.PyAudio()
 
@@ -206,7 +206,7 @@ class VoiceAssistant():
         else:
             logger.warning("Standardstimme wird verwendet.")
         self.tts.set_volume(self.volume)
-        self.say_with_language(self.tts,self.lang_manager,"intent.tts.initial")
+        self.say_with_language(self.tts, self.lang_manager, "intent.tts.initial")
 
         # Benachrichtigung anzeigen
         if self.show_balloon:
@@ -214,7 +214,7 @@ class VoiceAssistant():
         logger.debug("Voice Assistant initialisiert")
 
         logger.info("Initialisiere Spracherkennung...")
-        self.say_with_language(self.tts,self.lang_manager,"intent.tts.initial_voice_recognition_start")
+        self.say_with_language(self.tts, self.lang_manager, "intent.tts.initial_voice_recognition_start")
         # Lade das Speaker-Modell (benötigt für alle Sprachen)
         speaker_model_path = download_vosk_model("spk", self.download)
         s2t_model_path = download_vosk_model(language, self.download)
@@ -228,9 +228,8 @@ class VoiceAssistant():
         background_thread = threading.Thread(target=download_all_vosk_models, args=(language, self.download), daemon=True)
         background_thread.start()
 
-        self.say_with_language(self.tts,self.lang_manager,"intent.tts.initial_voice_recognition_end")
+        self.say_with_language(self.tts, self.lang_manager, "intent.tts.initial_voice_recognition_end")
         logger.info("Spracherkennung initialisiert.")
-
 
         logger.info("Initialisiere Benutzerverwaltung...")
         self.cfg['assistant']['user_initialized'] = check_user_initialization()
@@ -258,12 +257,11 @@ class VoiceAssistant():
         if self.show_balloon:
             Notification.show('Initialisierung', 'Abgeschlossen', ttl=4000)
 
-
         self.app.icon.set_icon(constants.TRAY_ICON_IDLE, constants.TRAY_TOOLTIP + ": Bereit")
         timer_start_res = self.app.timer.Start(milliseconds=1, oneShot=wx.TIMER_CONTINUOUS)
         logger.debug("Timer gestartet? {}", timer_start_res)
 
-        self.say_with_language(self.tts,self.lang_manager,"intent.tts.initial_setup_end")
+        self.say_with_language(self.tts, self.lang_manager, "intent.tts.initial_setup_end")
 
 
     def __detectSpeaker__(self, input, short_sample_threshold=0.3, long_sample_threshold=0.5):
@@ -279,7 +277,7 @@ class VoiceAssistant():
 
             processed_wav = preprocess_wav(input)
             input_embedding = encoder.embed_utterance(processed_wav)
-            #logger.debug(f"Input-Embedding: {input_embedding[:10]}...")
+            # logger.debug(f"Input-Embedding: {input_embedding[:10]}...")
         except Exception as e:
             logger.error(f"Fehler beim Verarbeiten der Sprachaufnahme: {e}")
             return "Unbekannt"
@@ -290,7 +288,7 @@ class VoiceAssistant():
         # Wähle den Threshold basierend auf der Länge des Samples
         sample_length = len(processed_wav) / 16000  # Länge in Sekunden
         threshold = short_sample_threshold if sample_length < 2 else long_sample_threshold
-        #logger.info(f"Verwendeter Ähnlichkeitsschwellenwert: {threshold}")
+        # logger.info(f"Verwendeter Ähnlichkeitsschwellenwert: {threshold}")
 
         # Vergleiche die Embeddings mit gespeicherten Stimmen
         for speaker in self.user_management.speaker_table.all():
@@ -324,7 +322,7 @@ class VoiceAssistant():
 
         try:
             # Sprachaufforderung ausgeben
-            self.say_with_language(self.tts,self.lang_manager,"intent.tts.prompt_sentence")
+            self.say_with_language(self.tts, self.lang_manager, "intent.tts.prompt_sentence")
             # Warten, bis TTS abgeschlossen ist
             while self.tts.is_busy():
                 time.sleep(0.2)  # Vermeidet zu häufige Abfragen
@@ -388,7 +386,6 @@ class VoiceAssistant():
         else:
             language_data = {'languages': {}}
 
-
         # Aktualisiere für jede unterstützte Sprache die verfügbaren Stimmen
         updated = False
         for lang in supported_languages:
@@ -435,7 +432,7 @@ class VoiceAssistant():
 
     def loop(self):
             pcm = global_variables.voice_assistant.audio_stream.read(global_variables.voice_assistant.porcupine.frame_length)
-            pcm_unpacked = struct.unpack_from("h" * global_variables.voice_assistant.porcupine.frame_length,pcm)
+            pcm_unpacked = struct.unpack_from("h" * global_variables.voice_assistant.porcupine.frame_length, pcm)
             keyword_index = global_variables.voice_assistant.porcupine.process(pcm_unpacked)
 
             if keyword_index >= 0:
@@ -457,7 +454,7 @@ class VoiceAssistant():
                     speaker = global_variables.voice_assistant.__detectSpeaker__(recResult['spk'])
                     logger.info("Speaker: {}", speaker)
 
-                    if (speaker is None) and (global_variables.voice_assistant.allow_only_known_speakers == True):
+                    if (speaker is None) and (global_variables.voice_assistant.allow_only_known_speakers is True):
                         logger.info("Ich kenne deine Stimme nicht und darf damit keine Befehle von dir entgegen nehmen.")
                         global_variables.voice_assistant.current_speaker = None
                     else:
@@ -516,7 +513,7 @@ class VoiceAssistant():
                                 # Zurücksetzen der Lautstärke auf Normalniveau
                                 global_variables.voice_assistant.audio_player.set_volume(global_variables.voice_assistant.volume)
 
-    def say_with_language(self,tts, lang_manager, key, **placeholders):
+    def say_with_language(self, tts, lang_manager, key, **placeholders):
         """
         Dynamische TTS-Funktion, die eine übersetzte Nachricht spricht.
 
@@ -553,6 +550,7 @@ def load_language_file(language):
     with open(language_file, 'r', encoding='utf-8') as ymlfile:
         return yaml.safe_load(ymlfile)
 
+
 if __name__ == '__main__':
     multiprocessing.freeze_support()
     sys.stdout = open('x.out', 'a')
@@ -576,10 +574,9 @@ if __name__ == '__main__':
             time.sleep(0.1)  # Vermeidet zu häufige Abfragen
         logger.info("TTS abgeschlossen. Weiter.")
     else:
-        global_variables.voice_assistant.say_with_language(global_variables.voice_assistant.tts,global_variables.voice_assistant.lang_manager,"intent.start.welcome")
+        global_variables.voice_assistant.say_with_language(global_variables.voice_assistant.tts, global_variables.voice_assistant.lang_manager, "intent.start.welcome")
         while global_variables.voice_assistant.tts.is_busy():
             time.sleep(0.1)  # Vermeidet zu häufige Abfragen
         logger.info("TTS abgeschlossen. Weiter.")
-
 
     global_variables.voice_assistant.app.MainLoop()

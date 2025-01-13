@@ -2,7 +2,6 @@ import os
 import random
 import yaml
 from chatbot import register_call
-
 import constants
 import global_variables
 from loguru import logger
@@ -10,8 +9,8 @@ from loguru import logger
 
 @register_call("animalSound")
 def animalSound(session_id="general", animal="none"):
-    config_path = constants.find_data_file(os.path.join('intents','functions','animalsounds','config_animalsounds.yml'))
-    ogg_path = constants.find_data_file(os.path.join('intents','functions','animalsounds','animals'))
+    config_path = constants.find_data_file(os.path.join('intents', 'functions', 'animalsounds', 'config_animalsounds.yml'))
+    ogg_path = constants.find_data_file(os.path.join('intents', 'functions', 'animalsounds', 'animals'))
 
     cfg = None
     with open(config_path, 'r', encoding="utf-8") as ymlfile:
@@ -26,7 +25,7 @@ def animalSound(session_id="general", animal="none"):
     ANIMAL_UNKOWN = random.choice(cfg['intent']['animalsounds'][LANGUAGE]['animal_not_found'])
 
     animals = {}
-    for key,value in cfg['intent']['animalsounds']['animals'].items():
+    for key, value in cfg['intent']['animalsounds']['animals'].items():
         animals[key] = value
 
     for a in animals:

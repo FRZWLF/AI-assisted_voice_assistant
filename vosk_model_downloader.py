@@ -10,6 +10,7 @@ from loguru import logger
 from constants import find_data_file
 from download_app import DownloadApp
 
+
 class ProgressTracker:
     def __init__(self, total_size):
         self.total_size = total_size
@@ -23,7 +24,7 @@ class ProgressTracker:
 
     def _validate_progress(self):
         if self.downloaded > self.total_size:
-            #logger.warning("Fortschritt hat die Gesamtgröße überschritten. Begrenze auf 100%.")
+            # logger.warning("Fortschritt hat die Gesamtgröße überschritten. Begrenze auf 100%.")
             self.downloaded = self.total_size
 
     def get_percentage(self):
@@ -116,6 +117,7 @@ def download_chunk(url, start, end, destination, index, progress_tracker, progre
             logger.warning(f"Chunk {index} wurde nicht vollständig heruntergeladen.")
     else:
         raise ValueError(f"Failed to download chunk {index}: {response.status_code}")
+
 
 def merge_chunks(destination, num_chunks):
     """
@@ -216,7 +218,7 @@ def download_file_with_progress(url, destination, language, progress_tracker, pr
         # Überwache laufende Threads
         for thread in threads:
             while not thread.done():
-                #logger.info(f"Warte auf Thread {thread}...")
+                # logger.info(f"Warte auf Thread {thread}...")
                 time.sleep(1)  # Verhindert Busy-Waiting
                 if cancel_flag["cancel"]:
                     logger.warning(f"Thread {thread} wurde abgebrochen.")
@@ -245,7 +247,7 @@ def _validate_and_finalize_progress(progress_tracker, destination, total_size, n
     with progress_tracker.lock:
         progress_tracker.downloaded = downloaded_size
         if progress_tracker.downloaded < total_size:
-            #logger.info(f"Fehlender Fortschritt wird korrigiert: {total_size - progress_tracker.downloaded} Bytes.")
+            # logger.info(f"Fehlender Fortschritt wird korrigiert: {total_size - progress_tracker.downloaded} Bytes.")
             progress_tracker.downloaded = total_size
         progress_callback(progress_tracker.get_percentage())
 

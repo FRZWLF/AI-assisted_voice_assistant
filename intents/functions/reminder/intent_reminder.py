@@ -14,18 +14,19 @@ from num2words import num2words
 from tinydb import TinyDB, Query
 from marianMTModels import Translator
 
+
 # Initialisiere Datenbankzugriff auf Modulebene
-reminder_db_path = constants.find_data_file(os.path.join('intents','functions','reminder','reminder_db.json'))
+reminder_db_path = constants.find_data_file(os.path.join('intents', 'functions', 'reminder', 'reminder_db.json'))
 reminder_db = TinyDB(reminder_db_path)
 reminder_table = reminder_db.table('reminder')
 
 # Initialisiere Datenbankzugriff auf Modulebene
-timer_db_path = constants.find_data_file(os.path.join('intents','functions','reminder','timer_db.json'))
+timer_db_path = constants.find_data_file(os.path.join('intents', 'functions', 'reminder', 'timer_db.json'))
 timer_db = TinyDB(timer_db_path)
 timer_table = timer_db.table('timer')
 
 # Lade die Config global
-CONFIG_PATH = constants.find_data_file(os.path.join('intents','functions','reminder','config_reminder_timer.yml'))
+CONFIG_PATH = constants.find_data_file(os.path.join('intents', 'functions', 'reminder', 'config_reminder_timer.yml'))
 
 def __read_config__():
     cfg = None
@@ -115,6 +116,7 @@ def callback(processed=False):
 
     return None
 
+
 def spoken_date(datetime, lang):
     hours = str(datetime.hour)
     minutes = "" if datetime.minute == 0 else str(datetime.minute)
@@ -129,6 +131,7 @@ def spoken_date(datetime, lang):
 
     return hours, minutes, day, month, year
 
+
 def spoken_timer(datetime):
     hours = int(datetime.hour)
     minutes = 0 if datetime.minute == 0 else int(datetime.minute)
@@ -136,12 +139,14 @@ def spoken_timer(datetime):
 
     return hours, minutes, seconds
 
+
 def convert_to_second_person(text, cfg, language):
     # Wörter für erste Person zu zweite Person konvertieren
     replacements = cfg["replacements"][language]
     for key, value in replacements.items():
         text = re.sub(rf"\b{key}\b", value, text, flags=re.IGNORECASE)
     return text
+
 
 @register_call("timer_list")
 def timer_list(session_id:"general", dummy=0):
@@ -189,6 +194,7 @@ def timer_list(session_id:"general", dummy=0):
     result = "\n".join(timer_status_list) if timer_status_list else random.choice(cfg['intent']['timer'][language]['no_timer'])
     return result
 
+
 @register_call("delete_named_timer")
 def delete_named_timer(session_id:"general", data=None):
     """
@@ -206,7 +212,7 @@ def delete_named_timer(session_id:"general", data=None):
         if matching_entries:
             for entry in matching_entries:
                 timer_table.remove(doc_ids=[entry.doc_id])  # Löscht Einträge anhand ihrer `doc_id`
-            logger.info(f"Timer  '{name}' wurde erfolgreich gelöscht.")
+            logger.info(f"Timer '{name}' wurde erfolgreich gelöscht.")
             return random.choice(cfg['intent']['timer'][language]['delete_named_timer']).format(name)
         else:
             logger.info(f"Kein Timer mit dem Namen '{name}' gefunden.")
@@ -214,6 +220,7 @@ def delete_named_timer(session_id:"general", data=None):
     except Exception as e:
         logger.info(f"Fehler beim Löschen von Timer '{name}': {e}")
         return random.choice(cfg['intent']['timer'][language]['error_named_timer']).format(name)
+
 
 @register_call("delete_all_timer")
 def delete_all_timer(session_id:"general", dummy=0):
@@ -271,7 +278,6 @@ def timer(session_id:"general", timer_data=None):
     timer = marian.translate([timer])[0].lower()
     logger.info('Timer in en said: {}.', timer)
 
-
     word_str = timer.split(" ")
     words2num_res = ""
     for i in word_str:
@@ -304,11 +310,9 @@ def timer(session_id:"general", timer_data=None):
     parsed_timer = parse(timer, fuzzy=True)
     logger.info('Parsed Timer: {}.', parsed_timer)
 
-
     # Zielzeit berechnen
     final_time = parsed_timer.strftime('%Y-%m-%d %H:%M:%S')
     logger.info("Final reminder datetime: {}", parsed_timer)
-
 
     result = ""
     if name is None:
@@ -353,8 +357,8 @@ def timer(session_id:"general", timer_data=None):
     return result
 
 
-#multiple parameters don't work: time,reminder_to, reminder_infinitive
-#workaround by splitting
+# multiple parameters don't work: time,reminder_to, reminder_infinitive
+# workaround by splitting
 @register_call("reminder")
 def reminder(session_id="general", reminder_data=None):
     cfg, language = __read_config__()
@@ -368,7 +372,6 @@ def reminder(session_id="general", reminder_data=None):
     time = args[0].strip() if len(args) > 0 and args[0].strip() else None
     reminder_to = args[1].strip() if len(args) > 1 and args[1].strip() else None
     reminder_infinitive = args[2].strip() if len(args) > 2 and args[2].strip() else None
-
 
     #Wörterbuch
     months = {
@@ -410,7 +413,6 @@ def reminder(session_id="general", reminder_data=None):
     for day_name, day_num in ordinal_days.items():
         time = re.sub(r"\b" + day_name + r"\b", day_num, time, flags=re.IGNORECASE)
 
-
     date_match = re.search(r"\b(\d{1,2})\s+(\d{1,2})\b", time)
     if date_match:
         day = date_match.group(1).zfill(2)
@@ -419,7 +421,6 @@ def reminder(session_id="general", reminder_data=None):
         formatted_date = f"{current_year}-{month}-{day}"
         time = re.sub(r"\b(\d{1,2})\s+(\d{1,2})\b", formatted_date, time, count=1)
     logger.info("Time: {}", time)
-
 
     time = re.sub(r"\bein Uhr\b", "1 Uhr", time)
     time = re.sub(r"\bzwei Uhr\b", "2 Uhr", time)
@@ -431,12 +432,11 @@ def reminder(session_id="general", reminder_data=None):
     logger.info('Time in en said: {}.', time)
     time = re.sub(r",", "", time)
 
-    #BUG-FIX: 8 o'clock 8 | 18 o'clock 18 cus of some issues with en-translation
+    # BUG-FIX: 8 o'clock 8 | 18 o'clock 18 cus of some issues with en-translation
     # Suche nach dem zweiten Auftreten von „o'clock“ und schneide den String dort ab
     occurrences = [m.start() for m in re.finditer(r"o'clock", time)]
     if len(occurrences) > 1:
         time = time[:occurrences[1]]  # String bis zum zweiten "o'clock" kürzen
-
 
     word_str = time.split(" ")
     words2num_res = ""
@@ -450,7 +450,7 @@ def reminder(session_id="general", reminder_data=None):
     time = re.sub(r"(\d{1,2} o'clock), (\d+)", r"\1 \2", time)
     logger.info('Time in en said (formatted): {}.', time)
 
-    #Change german terms "übermorgen" und "morgen" to exact dates so that parse() can handle those
+    # Change german terms "übermorgen" und "morgen" to exact dates so that parse() can handle those
     if "the day after tomorrow" in time:
         time = re.sub("the day after tomorrow", (datetime.now() + timedelta(days=2)).strftime('%Y-%m-%d'), time)
     if "tomorrow" in time:
@@ -458,7 +458,7 @@ def reminder(session_id="general", reminder_data=None):
     if "today" in time:
         time = re.sub("today", datetime.now().strftime('%Y-%m-%d'), time)
 
-    #Change expression "in ... Tagen" to exact dates so that parse() can handle those
+    # Change expression "in ... Tagen" to exact dates so that parse() can handle those
     hastarget = False
     match = re.search(r"(\d+)\s*(years|year|months|month|weeks|week|days|day|hours|hour|minutes|minute)", time)
     if match:
@@ -481,7 +481,7 @@ def reminder(session_id="general", reminder_data=None):
         time = re.sub(r"(\d+)\s*(years|year|months|month|weeks|week|days|day|hours|hour|minutes|minute)", target_date, time, count=1)
 
 
-    #Extract the date and remove it temporarily to avoid confusion during time matching
+    # Extract the date and remove it temporarily to avoid confusion during time matching
     date_match = re.search(r"\b\d{4}-\d{2}-\d{2}\b", time)
     date_part = date_match.group(0) if date_match else ""
     time = re.sub(r"\b\d{4}-\d{2}-\d{2}\b", "", time).strip()
@@ -511,10 +511,8 @@ def reminder(session_id="general", reminder_data=None):
             current_time = datetime.now().strftime('%H:%M')
             time += f" {current_time}"
 
-
-    #Add the date and time together
+    # Add the date and time together
     time = f"{date_part} {time}".strip()
-
 
     logger.info('Time said: {}.', time)
     logger.info('Reminder to said: {}.', reminder_to)

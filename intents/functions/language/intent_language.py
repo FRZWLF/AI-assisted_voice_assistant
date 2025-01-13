@@ -9,10 +9,10 @@ import global_variables
 from global_variables import voice_assistant
 from vosk_model_downloader import download_vosk_model
 
-BASE_DIR = constants.find_data_file(os.path.dirname(os.path.abspath(__file__)))
 
+BASE_DIR = constants.find_data_file(os.path.dirname(os.path.abspath(__file__)))
 # Lade die Config global
-CONFIG_PATH = constants.find_data_file(os.path.join('intents','functions','language','config_language.yml'))
+CONFIG_PATH = constants.find_data_file(os.path.join('intents', 'functions', 'language', 'config_language.yml'))
 # Pfad zur Sprachdatei
 LANGUAGES_PATH = constants.find_data_file(os.path.join('languages.yml'))
 # Pfad zur Main-Konfigurationsdatei
@@ -95,7 +95,7 @@ def switch_language(session_id="general", language=None):
         return ERROR_LANGUAGE
 
     logger.info(f"Switch language: {global_variables.voice_assistant.available_voices}")
-    global_variables.voice_assistant.say_with_language(global_variables.voice_assistant.tts,global_variables.voice_assistant.lang_manager,"intent.tts.lang_switch_start")
+    global_variables.voice_assistant.say_with_language(global_variables.voice_assistant.tts, global_variables.voice_assistant.lang_manager, "intent.tts.lang_switch_start")
     if language_code in global_variables.voice_assistant.available_voices:
 
         # Sprachmodell neu laden
@@ -117,7 +117,7 @@ def switch_language(session_id="general", language=None):
 
             # TTS: Neue Sprache initialisiert
             logger.info(f"Sprache gewechselt zu {language_code} mit Stimme {chosen_voice}")
-            global_variables.voice_assistant.say_with_language(global_variables.voice_assistant.tts,global_variables.voice_assistant.lang_manager,"intent.tts.lang_switch_end")
+            global_variables.voice_assistant.say_with_language(global_variables.voice_assistant.tts, global_variables.voice_assistant.lang_manager, "intent.tts.lang_switch_end")
 
             # Antwort an den Benutzer
             CHANGE_SUCCESS = random.choice(cfg['intent']['language'][language_code]['change_success'])

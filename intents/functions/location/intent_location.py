@@ -1,6 +1,5 @@
 from loguru import logger
 from chatbot import register_call
-
 import constants
 import global_variables
 import random
@@ -8,10 +7,11 @@ import os
 import yaml
 import geocoder
 
+
 @register_call("location")
 def location(session_id = "general", dummy=0):
 
-    config_path = constants.find_data_file(os.path.join('intents','functions','location','config_location.yml'))
+    config_path = constants.find_data_file(os.path.join('intents', 'functions', 'location', 'config_location.yml'))
     cfg = None
 
     with open(config_path, "r", encoding='utf8') as ymlfile:

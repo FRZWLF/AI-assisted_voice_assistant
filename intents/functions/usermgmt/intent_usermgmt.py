@@ -5,17 +5,18 @@ import yaml
 from chatbot import register_call
 from loguru import logger
 from tinydb import Query, TinyDB
-
 import constants
 import global_variables
 from intents.functions.password.intent_password import create_user_db
 
+
 # Lade die Config global
-CONFIG_PATH = constants.find_data_file(os.path.join('intents','functions','usermgmt','config_usermgmt.yml'))
+CONFIG_PATH = constants.find_data_file(os.path.join('intents', 'functions', 'usermgmt', 'config_usermgmt.yml'))
 
 USER_JSON_PATH = constants.find_data_file(os.path.join('users.json'))
 db = TinyDB(USER_JSON_PATH)
 speaker_table = db.table('speakers')
+
 
 def __read_config__():
     cfg = None
@@ -57,6 +58,7 @@ def new_user(session_id="general", dummy=0):
         global_variables.context = handle_new_user_name
         return cfg['intent']['user'][language]['new_user_name']
 
+
 def handle_new_user_name(user_input=""):
     cfg, language = __read_config__()
     session_state = getattr(global_variables, "new_user_state", None)
@@ -77,6 +79,7 @@ def handle_new_user_name(user_input=""):
         global_variables.context = handle_new_user_intents
         return cfg['intent']['user'][language]['new_user_intent']
 
+
 def handle_new_user_intents(user_input=""):
     cfg, language = __read_config__()
     session_state = getattr(global_variables, "new_user_state", None)
@@ -93,6 +96,7 @@ def handle_new_user_intents(user_input=""):
         session_state["step"] += 1
         global_variables.context = handle_new_user_voice
         return cfg['intent']['user'][language]['new_user_voice']
+
 
 def handle_new_user_voice(user_input=""):
     cfg, language = __read_config__()
@@ -146,7 +150,7 @@ def handle_new_user_voice(user_input=""):
     return None
 
 
-#request change intent
+# request change intent
 @register_call("change_intent_user")
 def change_intent_user(session_id="general", user=None):
     cfg, language = __read_config__()
@@ -172,6 +176,7 @@ def change_intent_user(session_id="general", user=None):
         session_state["step"] += 1
         global_variables.context = handle_change_intents
         return random.choice(cfg['intent']['user'][language]['change_intent']).format(user)
+
 
 def handle_change_intents(user_input=""):
     """
